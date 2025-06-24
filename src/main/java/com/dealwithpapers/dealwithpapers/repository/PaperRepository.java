@@ -11,9 +11,6 @@ import java.util.List;
 @Repository
 public interface PaperRepository extends JpaRepository<Paper, String> {
     
-    // 通过ID查找论文（精确匹配）
-    Paper findById(String id);
-    
     // 通过标题查找论文（模糊匹配）
     List<Paper> findByTitleContainingIgnoreCase(String title);
     

@@ -1,5 +1,8 @@
--- 创建数据库（如果不存在）
-CREATE DATABASE IF NOT EXISTS dwp;
+-- 删除数据库（如果存在）
+DROP DATABASE IF EXISTS dwp;
+
+-- 创建数据库
+CREATE DATABASE dwp;
 
 -- 使用数据库
 USE dwp;

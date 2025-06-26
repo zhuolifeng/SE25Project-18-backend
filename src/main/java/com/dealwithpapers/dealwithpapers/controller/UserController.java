@@ -3,6 +3,8 @@ package com.dealwithpapers.dealwithpapers.controller;
 import com.dealwithpapers.dealwithpapers.dto.UserLoginDTO;
 import com.dealwithpapers.dealwithpapers.dto.UserRegisterDTO;
 import com.dealwithpapers.dealwithpapers.dto.UserResponseDTO;
+import com.dealwithpapers.dealwithpapers.dto.UserUpdateDTO;
+import com.dealwithpapers.dealwithpapers.dto.PasswordUpdateDTO;
 import com.dealwithpapers.dealwithpapers.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -66,6 +68,32 @@ public class UserController {
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<?> updateUserInfo(@RequestBody UserUpdateDTO updateDTO) {
+        try {
+            UserResponseDTO userResponseDTO = userService.updateUserInfo(updateDTO);
+            return ResponseEntity.ok(userResponseDTO);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+    @PutMapping("/password")
+    public ResponseEntity<?> updatePassword(@RequestBody PasswordUpdateDTO passwordUpdateDTO) {
+        try {
+            userService.updatePassword(passwordUpdateDTO);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "密码修改成功");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
     }
 } 

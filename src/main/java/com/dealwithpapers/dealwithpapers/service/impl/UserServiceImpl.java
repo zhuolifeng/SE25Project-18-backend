@@ -3,6 +3,8 @@ package com.dealwithpapers.dealwithpapers.service.impl;
 import com.dealwithpapers.dealwithpapers.dto.UserLoginDTO;
 import com.dealwithpapers.dealwithpapers.dto.UserRegisterDTO;
 import com.dealwithpapers.dealwithpapers.dto.UserResponseDTO;
+import com.dealwithpapers.dealwithpapers.dto.UserUpdateDTO;
+import com.dealwithpapers.dealwithpapers.dto.PasswordUpdateDTO;
 import com.dealwithpapers.dealwithpapers.entity.User;
 import com.dealwithpapers.dealwithpapers.entity.UserPassword;
 import com.dealwithpapers.dealwithpapers.repository.UserPasswordRepository;
@@ -37,13 +39,18 @@ public class UserServiceImpl implements UserService {
         }
         
         // 验证邮箱是否已存在
-        if (registerDTO.getEmail() != null && userRepository.existsByEmail(registerDTO.getEmail())) {
+        if (registerDTO.getEmail() != null && !registerDTO.getEmail().isEmpty() && userRepository.existsByEmail(registerDTO.getEmail())) {
             throw new RuntimeException("邮箱已被注册");
         }
         
         // 验证两次密码是否一致
         if (!registerDTO.getPassword().equals(registerDTO.getConfirmPassword())) {
             throw new RuntimeException("两次密码不一致");
+        }
+        
+        // 验证密码长度
+        if (registerDTO.getPassword().length() < 6) {
+            throw new RuntimeException("密码长度至少为6位");
         }
         
         // 创建用户
@@ -117,6 +124,74 @@ public class UserServiceImpl implements UserService {
         // 清除session
         httpSession.removeAttribute(USER_SESSION_KEY);
         httpSession.invalidate();
+    }
+    
+    @Override
+    @Transactional
+    public UserResponseDTO updateUserInfo(UserUpdateDTO updateDTO) {
+        // 获取当前用户
+        User user = getCurrentUserEntity();
+        
+        // 如果要更新邮箱，检查邮箱是否已被其他用户使用
+        if (updateDTO.getEmail() != null && !updateDTO.getEmail().equals(user.getEmail())) {
+            if (userRepository.existsByEmailAndIdNot(updateDTO.getEmail(), user.getId())) {
+                throw new RuntimeException("该邮箱已被其他用户注册");
+            }
+            user.setEmail(updateDTO.getEmail());
+        }
+        
+        // 更新手机号
+        if (updateDTO.getPhone() != null) {
+            user.setPhone(updateDTO.getPhone());
+        }
+        
+        // 保存更新后的用户信息
+        User updatedUser = userRepository.save(user);
+        
+        return convertToResponseDTO(updatedUser);
+    }
+    
+    @Override
+    @Transactional
+    public void updatePassword(PasswordUpdateDTO passwordUpdateDTO) {
+        // 获取当前用户
+        User user = getCurrentUserEntity();
+        
+        // 获取用户密码
+        UserPassword userPassword = userPasswordRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("用户密码信息不存在"));
+        
+        // 验证当前密码
+        if (!passwordEncoder.matches(passwordUpdateDTO.getCurrentPassword(), userPassword.getPassword())) {
+            throw new RuntimeException("当前密码错误");
+        }
+        
+        // 验证两次新密码是否一致
+        if (!passwordUpdateDTO.getNewPassword().equals(passwordUpdateDTO.getConfirmPassword())) {
+            throw new RuntimeException("两次新密码输入不一致");
+        }
+        
+        // 验证密码长度
+        if (passwordUpdateDTO.getNewPassword().length() < 6) {
+            throw new RuntimeException("密码长度至少为6位");
+        }
+        
+        // 更新密码
+        userPassword.setPassword(passwordEncoder.encode(passwordUpdateDTO.getNewPassword()));
+        userPasswordRepository.save(userPassword);
+    }
+    
+    // 获取当前登录用户实体
+    private User getCurrentUserEntity() {
+        // 从session获取当前用户ID
+        Long userId = (Long) httpSession.getAttribute(USER_SESSION_KEY);
+        if (userId == null) {
+            throw new RuntimeException("用户未登录");
+        }
+        
+        // 查找用户
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
     }
     
     // 将User实体转换为UserResponseDTO

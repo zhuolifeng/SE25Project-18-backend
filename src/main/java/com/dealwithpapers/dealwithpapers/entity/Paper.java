@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,10 +29,9 @@ public class Paper {
     @Column(columnDefinition = "TEXT")
     private String abstractText; // 论文摘要
     
-    @Column(name = "publish_date")
-    private LocalDate publishDate; // 发布时间
+    private Integer year; // 发布年份
     
-    private String conference; // 会议名称
+    private String journal; // 期刊名称
     
     private String category; // 论文类别
     

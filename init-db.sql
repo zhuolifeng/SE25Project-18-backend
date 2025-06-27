@@ -92,4 +92,25 @@ CREATE TABLE IF NOT EXISTS post_likes (
     UNIQUE KEY unique_user_post (user_id, post_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
-); 
+);
+
+-- 创建用户搜索历史表
+CREATE TABLE IF NOT EXISTS user_search_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    search_text TEXT NOT NULL,  -- 使用TEXT类型存储搜索文本，支持中英文和数字
+    search_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_search (user_id, search_time DESC)
+);
+
+-- 创建用户浏览记录表
+CREATE TABLE IF NOT EXISTS user_view_history (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    paper_id VARCHAR(100) NOT NULL,
+    view_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
+    INDEX idx_user_views (user_id, view_time DESC)
+);

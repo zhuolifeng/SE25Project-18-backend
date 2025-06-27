@@ -77,7 +77,7 @@ public class PaperServiceImpl implements PaperService {
         
         // 如果只有年份筛选
         if ((searchTerm == null || searchTerm.trim().isEmpty()) && year != null) {
-            return paperRepository.findByYear(year).stream()
+            return paperRepository.findByPublishYear(year).stream()
                     .map(this::convertToDTO)
                     .collect(Collectors.toList());
         }
@@ -92,8 +92,8 @@ public class PaperServiceImpl implements PaperService {
         
         // 对结果进行年份筛选
         return results.stream()
-                .filter(paper -> paper.getYear() != null && 
-                        paper.getYear().equals(year))
+                .filter(paper -> paper.getPublishDate() != null && 
+                        paper.getPublishDate().getYear() == year)
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -113,7 +113,7 @@ public class PaperServiceImpl implements PaperService {
         // 尝试解析年份
         try {
             int year = Integer.parseInt(searchTerm);
-            results.addAll(paperRepository.findByYear(year));
+            results.addAll(paperRepository.findByPublishYear(year));
         } catch (NumberFormatException e) {
             // 不是有效的年份，忽略
         }
@@ -130,8 +130,8 @@ public class PaperServiceImpl implements PaperService {
         paper.setTitle(dto.getTitle());
         paper.setAuthors(dto.getAuthors());
         paper.setAbstractText(dto.getAbstractText());
-        paper.setYear(dto.getYear());
-        paper.setJournal(dto.getJournal());
+        paper.setPublishDate(dto.getPublishDate());
+        paper.setConference(dto.getConference());
         paper.setCategory(dto.getCategory());
         paper.setUrl(dto.getUrl());
         return paper;
@@ -144,8 +144,8 @@ public class PaperServiceImpl implements PaperService {
                 paper.getTitle(),
                 paper.getAuthors(),
                 paper.getAbstractText(),
-                paper.getYear(),
-                paper.getJournal(),
+                paper.getPublishDate(),
+                paper.getConference(),
                 paper.getCategory(),
                 paper.getUrl()
         );

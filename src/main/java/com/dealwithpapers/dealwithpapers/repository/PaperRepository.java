@@ -21,23 +21,23 @@ public interface PaperRepository extends JpaRepository<Paper, String> {
     // 通过摘要搜索
     List<Paper> findByAbstractTextContainingIgnoreCase(String abstractText);
     
-    // 通过期刊名称搜索
-    List<Paper> findByJournalContainingIgnoreCase(String journal);
+    // 通过会议名称搜索
+    List<Paper> findByConferenceContainingIgnoreCase(String conference);
     
     // 通过类别搜索
     List<Paper> findByCategoryContainingIgnoreCase(String category);
     
-    // 综合搜索（ID、标题、作者、摘要、期刊、类别）
+    // 综合搜索（ID、标题、作者、摘要、会议、类别）
     @Query("SELECT DISTINCT p FROM Paper p LEFT JOIN p.authors a WHERE " +
            "p.id = :searchTerm OR " +
            "LOWER(p.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(a) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(p.abstractText) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
-           "LOWER(p.journal) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(p.conference) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(p.category) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Paper> searchByTerm(@Param("searchTerm") String searchTerm);
     
     // 通过年份搜索（单独方法）
-    @Query("SELECT p FROM Paper p WHERE p.year = :year")
-    List<Paper> findByYear(@Param("year") Integer year);
+    @Query("SELECT p FROM Paper p WHERE FUNCTION('YEAR', p.publishDate) = :year")
+    List<Paper> findByPublishYear(@Param("year") Integer year);
 } 

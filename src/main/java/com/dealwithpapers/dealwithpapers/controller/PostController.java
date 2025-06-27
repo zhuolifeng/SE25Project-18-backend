@@ -42,4 +42,9 @@ public class PostController {
     public PostDTO getPostById(@PathVariable Long id) {
         return postService.getPostById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+    }
 } 

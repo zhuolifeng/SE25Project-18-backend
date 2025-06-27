@@ -34,6 +34,7 @@ public class PostServiceImpl implements PostService {
         post.setCategory(postDTO.getCategory());
         post.setCreateTime(LocalDateTime.now());
         post.setUpdateTime(LocalDateTime.now());
+        post.setStatus(1);
         // 关联作者
         Optional<User> userOpt = userRepository.findById(postDTO.getAuthorId());
         userOpt.ifPresent(post::setAuthor);
@@ -59,21 +60,29 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDTO> searchByTerm(String searchTerm) {
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
-            return postRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+            return postRepository.findAll().stream()
+                .filter(post -> post.getStatus() == 1)
+                .map(this::toDTO).collect(Collectors.toList());
         }
-        // 用Set去重，防止JPQL join导致的重复
         return new java.util.ArrayList<>(new java.util.HashSet<>(postRepository.searchByTerm(searchTerm.trim())))
-            .stream().map(this::toDTO).collect(Collectors.toList());
+            .stream().filter(post -> post.getStatus() == 1)
+            .map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
     public List<PostDTO> searchPosts(String keyword, String author, String type, String category, Integer page, Integer size) {
-        // 简单实现：只用综合搜索，后续可扩展分页和多条件
         String searchTerm = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() :
                             (author != null && !author.trim().isEmpty()) ? author.trim() :
                             (type != null && !type.trim().isEmpty()) ? type.trim() :
                             (category != null && !category.trim().isEmpty()) ? category.trim() : "";
         return searchByTerm(searchTerm);
+    }
+
+    @Override
+    public void deletePost(Long id) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("帖子不存在"));
+        post.setStatus(0);
+        postRepository.save(post);
     }
 
     private PostDTO toDTO(Post post) {
@@ -83,6 +92,7 @@ public class PostServiceImpl implements PostService {
         dto.setContent(post.getContent());
         dto.setType(post.getType());
         dto.setCategory(post.getCategory());
+        dto.setStatus(post.getStatus());
         if (post.getAuthor() != null) {
             dto.setAuthorId(post.getAuthor().getId());
             dto.setAuthorName(post.getAuthor().getUsername());

@@ -42,4 +42,7 @@ public class Post {
 
     @Column(length = 50)
     private String category;
+
+    @Column(name = "status", nullable = false)
+    private int status = 1;
 } 

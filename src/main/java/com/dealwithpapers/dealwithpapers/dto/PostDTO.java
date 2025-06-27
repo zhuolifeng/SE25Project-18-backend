@@ -16,4 +16,5 @@ public class PostDTO {
     private LocalDateTime updateTime;
     private String type;
     private String category;
+    private int status;
 } 

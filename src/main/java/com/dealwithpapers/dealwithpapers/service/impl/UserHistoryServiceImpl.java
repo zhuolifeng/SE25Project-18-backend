@@ -244,8 +244,8 @@ public class UserHistoryServiceImpl implements UserHistoryService {
                 paper.getTitle(),
                 paper.getAuthors(),
                 paper.getAbstractText(),
-                paper.getPublishDate(),
-                paper.getConference(),
+                paper.getYear(),
+                paper.getJournal(),
                 paper.getCategory(),
                 paper.getUrl()
         );

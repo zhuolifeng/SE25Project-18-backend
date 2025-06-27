@@ -18,13 +18,33 @@ public class PostController {
         return postService.createPost(postDTO);
     }
 
+    @PostMapping("/search")
+    public List<PostDTO> searchPosts(@RequestBody(required = false) PostDTO postDTO) {
+        String keyword = postDTO != null ? postDTO.getTitle() : null;
+        String author = postDTO != null ? postDTO.getAuthorName() : null;
+        String type = postDTO != null ? postDTO.getType() : null;
+        String category = postDTO != null ? postDTO.getCategory() : null;
+        // 暂不处理分页
+        return postService.searchPosts(keyword, author, type, category, null, null);
+    }
+
     @GetMapping("/search")
-    public List<PostDTO> searchPostsByTitle(@RequestParam String title) {
-        return postService.searchPostsByTitle(title);
+    public List<PostDTO> searchPostsByGet(
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String author,
+        @RequestParam(required = false) String type,
+        @RequestParam(required = false) String category
+    ) {
+        return postService.searchPosts(keyword, author, type, category, null, null);
     }
 
     @GetMapping("/{id}")
     public PostDTO getPostById(@PathVariable Long id) {
         return postService.getPostById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
     }
 } 

@@ -36,4 +36,10 @@ public class Post {
 
     @Column(name = "update_time")
     private LocalDateTime updateTime;
+
+    @Column(length = 50)
+    private String type;
+
+    @Column(length = 50)
+    private String category;
 } 

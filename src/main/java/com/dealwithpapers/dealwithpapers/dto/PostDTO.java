@@ -14,4 +14,6 @@ public class PostDTO {
     private String paperTitle;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private String type;
+    private String category;
 } 

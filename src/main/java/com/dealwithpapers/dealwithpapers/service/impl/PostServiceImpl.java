@@ -30,6 +30,8 @@ public class PostServiceImpl implements PostService {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
         post.setContent(postDTO.getContent());
+        post.setType(postDTO.getType());
+        post.setCategory(postDTO.getCategory());
         post.setCreateTime(LocalDateTime.now());
         post.setUpdateTime(LocalDateTime.now());
         // 关联作者
@@ -54,11 +56,33 @@ public class PostServiceImpl implements PostService {
         return postRepository.findById(id).map(this::toDTO).orElse(null);
     }
 
+    @Override
+    public List<PostDTO> searchByTerm(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return postRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+        }
+        // 用Set去重，防止JPQL join导致的重复
+        return new java.util.ArrayList<>(new java.util.HashSet<>(postRepository.searchByTerm(searchTerm.trim())))
+            .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PostDTO> searchPosts(String keyword, String author, String type, String category, Integer page, Integer size) {
+        // 简单实现：只用综合搜索，后续可扩展分页和多条件
+        String searchTerm = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() :
+                            (author != null && !author.trim().isEmpty()) ? author.trim() :
+                            (type != null && !type.trim().isEmpty()) ? type.trim() :
+                            (category != null && !category.trim().isEmpty()) ? category.trim() : "";
+        return searchByTerm(searchTerm);
+    }
+
     private PostDTO toDTO(Post post) {
         PostDTO dto = new PostDTO();
         dto.setId(post.getId());
         dto.setTitle(post.getTitle());
         dto.setContent(post.getContent());
+        dto.setType(post.getType());
+        dto.setCategory(post.getCategory());
         if (post.getAuthor() != null) {
             dto.setAuthorId(post.getAuthor().getId());
             dto.setAuthorName(post.getAuthor().getUsername());

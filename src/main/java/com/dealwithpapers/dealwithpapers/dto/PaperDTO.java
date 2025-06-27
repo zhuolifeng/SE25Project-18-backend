@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,8 +15,8 @@ public class PaperDTO {
     private String title;
     private Set<String> authors = new HashSet<>();
     private String abstractText;
-    private LocalDate publishDate;
-    private String conference;
+    private Integer year;
+    private String journal;
     private String category;
     private String url;
 } 

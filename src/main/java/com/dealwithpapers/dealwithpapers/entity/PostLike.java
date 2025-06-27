@@ -25,7 +25,7 @@ public class PostLike {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TINYINT")
     private Integer type; // 1=赞，-1=踩
 
     @Column(name = "create_time")

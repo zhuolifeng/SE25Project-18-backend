@@ -77,6 +77,9 @@ CREATE TABLE IF NOT EXISTS posts (
     content TEXT,
     author_id BIGINT,
     paper_id BIGINT,
+    type VARCHAR(50), -- 新增：帖子类型
+    category VARCHAR(50), -- 新增：帖子分类
+    status INT NOT NULL DEFAULT 1, -- 新增：帖子状态，1正常0删除
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL,

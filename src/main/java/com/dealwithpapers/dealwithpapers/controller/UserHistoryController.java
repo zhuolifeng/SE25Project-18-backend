@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +35,13 @@ public class UserHistoryController {
     @PostMapping("/search")
     public ResponseEntity<?> saveSearchHistory(@RequestParam String searchText, HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户使用搜索功能，使用默认用户ID 1
             if (userId == null) {
                 userId = 1L; // 使用默认用户ID
                 System.out.println("用户未登录，使用默认用户ID保存搜索历史: " + searchText);
+
             }
 
             UserSearchHistoryDTO savedHistory = userHistoryService.saveSearchHistory(userId, searchText);
@@ -65,11 +68,13 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int size,
             HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户查看搜索历史，使用默认用户ID
             if (userId == null) {
                 userId = 1L;
                 System.out.println("用户未登录，使用默认用户ID获取搜索历史");
+
             }
 
             // 限制每页大小最大为50
@@ -98,24 +103,31 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int limit,
             HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户获取最近搜索历史
             if (userId == null) {
                 userId = 1L;
                 System.out.println("用户未登录，使用默认用户ID获取最近搜索历史");
+
             }
 
             // 限制最大返回记录数为50
             limit = Math.min(limit, 50);
             
             List<UserSearchHistoryDTO> recentHistory = userHistoryService.getRecentSearchHistory(userId, limit);
-            return ResponseEntity.ok(recentHistory);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", recentHistory);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
+
             System.out.println("获取最近搜索历史失败: " + e.getMessage());
             e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+
         }
     }
 
@@ -130,11 +142,13 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int limit,
             HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户获取不重复搜索词
             if (userId == null) {
                 userId = 1L;
                 System.out.println("用户未登录，使用默认用户ID获取不重复搜索词");
+
             }
 
             // 限制最大返回记录数为50
@@ -159,11 +173,13 @@ public class UserHistoryController {
     @DeleteMapping("/search/clear")
     public ResponseEntity<?> clearUserSearchHistory(HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户清空搜索历史（清空默认用户的历史）
             if (userId == null) {
                 userId = 1L;
                 System.out.println("用户未登录，清空默认用户ID的搜索历史");
+
             }
 
             userHistoryService.clearUserSearchHistory(userId);
@@ -188,7 +204,9 @@ public class UserHistoryController {
     @DeleteMapping("/search/{id}")
     public ResponseEntity<?> deleteSearchHistory(@PathVariable Long id, HttpSession session) {
         try {
+
             // 无需检查用户登录状态，只要ID存在就删除
+
             userHistoryService.deleteSearchHistory(id);
             Map<String, String> response = new HashMap<>();
             response.put("message", "搜索记录删除成功");
@@ -213,11 +231,13 @@ public class UserHistoryController {
     @PostMapping("/view")
     public ResponseEntity<?> saveViewHistory(@RequestParam Long paperId, HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户记录浏览历史
             if (userId == null) {
                 userId = 1L;
                 System.out.println("用户未登录，使用默认用户ID保存浏览历史: " + paperId);
+
             }
 
             UserViewHistoryDTO savedHistory = userHistoryService.saveViewHistory(userId, paperId);
@@ -244,11 +264,13 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int size,
             HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户获取浏览历史
             if (userId == null) {
                 userId = 1L;
                 System.out.println("用户未登录，使用默认用户ID获取浏览历史");
+
             }
 
             // 限制每页大小最大为50
@@ -277,24 +299,31 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int limit,
             HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户获取最近浏览历史
             if (userId == null) {
                 userId = 1L;
                 System.out.println("用户未登录，使用默认用户ID获取最近浏览历史");
+
             }
 
             // 限制最大返回记录数为50
             limit = Math.min(limit, 50);
             
             List<UserViewHistoryDTO> recentHistory = userHistoryService.getRecentViewHistory(userId, limit);
-            return ResponseEntity.ok(recentHistory);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", recentHistory);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
+
             System.out.println("获取最近浏览历史失败: " + e.getMessage());
             e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+
         }
     }
 
@@ -327,11 +356,13 @@ public class UserHistoryController {
     @DeleteMapping("/view/clear")
     public ResponseEntity<?> clearUserViewHistory(HttpSession session) {
         try {
+
             Long userId = (Long) session.getAttribute("userId");
             // 允许未登录用户清空浏览历史（清空默认用户的历史）
             if (userId == null) {
                 userId = 1L;
                 System.out.println("用户未登录，清空默认用户ID的浏览历史");
+
             }
 
             userHistoryService.clearUserViewHistory(userId);
@@ -356,7 +387,9 @@ public class UserHistoryController {
     @DeleteMapping("/view/{id}")
     public ResponseEntity<?> deleteViewHistory(@PathVariable Long id, HttpSession session) {
         try {
+
             // 无需检查用户登录状态，只要ID存在就删除
+
             userHistoryService.deleteViewHistory(id);
             Map<String, String> response = new HashMap<>();
             response.put("message", "浏览记录删除成功");

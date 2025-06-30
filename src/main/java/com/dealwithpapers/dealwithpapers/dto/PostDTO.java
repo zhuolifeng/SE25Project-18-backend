@@ -10,7 +10,7 @@ public class PostDTO {
     private String content;
     private Long authorId;
     private String authorName;
-    private String paperId;
+    private Long paperId;
     private String paperTitle;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

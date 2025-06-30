@@ -35,7 +35,7 @@ public interface UserHistoryService {
     // ===== 浏览历史相关方法 =====
     
     // 保存用户浏览记录
-    UserViewHistoryDTO saveViewHistory(Long userId, String paperId);
+    UserViewHistoryDTO saveViewHistory(Long userId, Long paperId);
     
     // 获取用户的浏览历史（分页）
     Page<UserViewHistoryDTO> getUserViewHistory(Long userId, Pageable pageable);
@@ -44,7 +44,7 @@ public interface UserHistoryService {
     List<UserViewHistoryDTO> getRecentViewHistory(Long userId, int limit);
     
     // 获取论文的浏览次数
-    long getPaperViewCount(String paperId);
+    long getPaperViewCount(Long paperId);
     
     // 删除指定的浏览记录
     void deleteViewHistory(Long id);

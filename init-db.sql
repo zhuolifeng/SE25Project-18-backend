@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS user_passwords (
 
 -- 创建论文表
 CREATE TABLE IF NOT EXISTS papers (
-    id VARCHAR(100) PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    doi VARCHAR(100) UNIQUE,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
     year INT,
@@ -36,7 +37,7 @@ CREATE TABLE IF NOT EXISTS papers (
 
 -- 创建论文作者关联表
 CREATE TABLE IF NOT EXISTS paper_authors (
-    paper_id VARCHAR(100),
+    paper_id BIGINT,
     author VARCHAR(255),
     PRIMARY KEY (paper_id, author),
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
@@ -75,7 +76,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(255) NOT NULL,
     content TEXT,
     author_id BIGINT,
-    paper_id VARCHAR(100),
+    paper_id BIGINT,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL,
@@ -108,9 +109,11 @@ CREATE TABLE IF NOT EXISTS user_search_history (
 CREATE TABLE IF NOT EXISTS user_view_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    paper_id VARCHAR(100) NOT NULL,
+    paper_id BIGINT NOT NULL,
     view_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
     INDEX idx_user_views (user_id, view_time DESC)
 );
+
+

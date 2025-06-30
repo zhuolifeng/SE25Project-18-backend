@@ -128,7 +128,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
 
     @Override
     @Transactional
-    public UserViewHistoryDTO saveViewHistory(Long userId, String paperId) {
+    public UserViewHistoryDTO saveViewHistory(Long userId, Long paperId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
 
@@ -180,7 +180,7 @@ public class UserHistoryServiceImpl implements UserHistoryService {
     }
 
     @Override
-    public long getPaperViewCount(String paperId) {
+    public long getPaperViewCount(Long paperId) {
         return viewHistoryRepository.countByPaperId(paperId);
     }
 
@@ -239,15 +239,16 @@ public class UserHistoryServiceImpl implements UserHistoryService {
     }
     
     private PaperDTO convertToPaperDTO(Paper paper) {
-        return new PaperDTO(
-                paper.getId(),
-                paper.getTitle(),
-                paper.getAuthors(),
-                paper.getAbstractText(),
-                paper.getYear(),
-                paper.getJournal(),
-                paper.getCategory(),
-                paper.getUrl()
-        );
+        PaperDTO dto = new PaperDTO();
+        dto.setId(paper.getId());
+        dto.setDoi(paper.getDoi());
+        dto.setTitle(paper.getTitle());
+        dto.setAuthors(paper.getAuthors());
+        dto.setAbstractText(paper.getAbstractText());
+        dto.setYear(paper.getYear());
+        dto.setJournal(paper.getJournal());
+        dto.setCategory(paper.getCategory());
+        dto.setUrl(paper.getUrl());
+        return dto;
     }
 } 

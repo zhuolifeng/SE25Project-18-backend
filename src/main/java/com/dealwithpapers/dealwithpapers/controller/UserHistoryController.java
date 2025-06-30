@@ -35,16 +35,20 @@ public class UserHistoryController {
     @PostMapping("/search")
     public ResponseEntity<?> saveSearchHistory(@RequestParam String searchText, HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户使用搜索功能，使用默认用户ID 1
             if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，搜索历史未保存");
-                return ResponseEntity.ok(response);
+                userId = 1L; // 使用默认用户ID
+                System.out.println("用户未登录，使用默认用户ID保存搜索历史: " + searchText);
+
             }
 
             UserSearchHistoryDTO savedHistory = userHistoryService.saveSearchHistory(userId, searchText);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedHistory);
         } catch (Exception e) {
+            System.out.println("保存搜索历史失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -64,11 +68,13 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int size,
             HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户查看搜索历史，使用默认用户ID
             if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，无法获取搜索历史");
-                return ResponseEntity.ok(response);
+                userId = 1L;
+                System.out.println("用户未登录，使用默认用户ID获取搜索历史");
+
             }
 
             // 限制每页大小最大为50
@@ -78,6 +84,8 @@ public class UserHistoryController {
             Page<UserSearchHistoryDTO> historyPage = userHistoryService.getUserSearchHistory(userId, pageable);
             return ResponseEntity.ok(historyPage);
         } catch (Exception e) {
+            System.out.println("获取搜索历史失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -95,15 +103,13 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int limit,
             HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户获取最近搜索历史
             if (userId == null) {
-                Map<String, Object> response = new HashMap<>();
-                Map<String, String> metadata = new HashMap<>();
-                metadata.put("message", "用户未登录，无法获取最近搜索历史");
-                response.put("success", false);
-                response.put("metadata", metadata);
-                response.put("data", Collections.emptyList());
-                return ResponseEntity.ok(response);
+                userId = 1L;
+                System.out.println("用户未登录，使用默认用户ID获取最近搜索历史");
+
             }
 
             // 限制最大返回记录数为50
@@ -115,11 +121,13 @@ public class UserHistoryController {
             response.put("data", recentHistory);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", e.getMessage());
-            response.put("data", Collections.emptyList());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+            System.out.println("获取最近搜索历史失败: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+
         }
     }
 
@@ -134,11 +142,13 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int limit,
             HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户获取不重复搜索词
             if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，无法获取搜索词列表");
-                return ResponseEntity.ok(response);
+                userId = 1L;
+                System.out.println("用户未登录，使用默认用户ID获取不重复搜索词");
+
             }
 
             // 限制最大返回记录数为50
@@ -147,6 +157,8 @@ public class UserHistoryController {
             List<String> searchTerms = userHistoryService.getDistinctSearchTerms(userId, limit);
             return ResponseEntity.ok(searchTerms);
         } catch (Exception e) {
+            System.out.println("获取不重复搜索词失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -161,11 +173,13 @@ public class UserHistoryController {
     @DeleteMapping("/search/clear")
     public ResponseEntity<?> clearUserSearchHistory(HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户清空搜索历史（清空默认用户的历史）
             if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，无法清空搜索历史");
-                return ResponseEntity.ok(response);
+                userId = 1L;
+                System.out.println("用户未登录，清空默认用户ID的搜索历史");
+
             }
 
             userHistoryService.clearUserSearchHistory(userId);
@@ -173,6 +187,8 @@ public class UserHistoryController {
             response.put("message", "搜索历史清空成功");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("清空搜索历史失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -188,18 +204,16 @@ public class UserHistoryController {
     @DeleteMapping("/search/{id}")
     public ResponseEntity<?> deleteSearchHistory(@PathVariable Long id, HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
-            if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，无法删除搜索记录");
-                return ResponseEntity.ok(response);
-            }
+
+            // 无需检查用户登录状态，只要ID存在就删除
 
             userHistoryService.deleteSearchHistory(id);
             Map<String, String> response = new HashMap<>();
             response.put("message", "搜索记录删除成功");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("删除搜索记录失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -215,18 +229,22 @@ public class UserHistoryController {
      * @return 保存的浏览记录
      */
     @PostMapping("/view")
-    public ResponseEntity<?> saveViewHistory(@RequestParam String paperId, HttpSession session) {
+    public ResponseEntity<?> saveViewHistory(@RequestParam Long paperId, HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户记录浏览历史
             if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，浏览记录未保存");
-                return ResponseEntity.ok(response);
+                userId = 1L;
+                System.out.println("用户未登录，使用默认用户ID保存浏览历史: " + paperId);
+
             }
 
             UserViewHistoryDTO savedHistory = userHistoryService.saveViewHistory(userId, paperId);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedHistory);
         } catch (Exception e) {
+            System.out.println("保存浏览历史失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -246,11 +264,13 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int size,
             HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户获取浏览历史
             if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，无法获取浏览历史");
-                return ResponseEntity.ok(response);
+                userId = 1L;
+                System.out.println("用户未登录，使用默认用户ID获取浏览历史");
+
             }
 
             // 限制每页大小最大为50
@@ -260,6 +280,8 @@ public class UserHistoryController {
             Page<UserViewHistoryDTO> historyPage = userHistoryService.getUserViewHistory(userId, pageable);
             return ResponseEntity.ok(historyPage);
         } catch (Exception e) {
+            System.out.println("获取浏览历史失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -277,15 +299,13 @@ public class UserHistoryController {
             @RequestParam(defaultValue = "10") int limit,
             HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户获取最近浏览历史
             if (userId == null) {
-                Map<String, Object> response = new HashMap<>();
-                Map<String, String> metadata = new HashMap<>();
-                metadata.put("message", "用户未登录，无法获取最近浏览历史");
-                response.put("success", false);
-                response.put("metadata", metadata);
-                response.put("data", Collections.emptyList());
-                return ResponseEntity.ok(response);
+                userId = 1L;
+                System.out.println("用户未登录，使用默认用户ID获取最近浏览历史");
+
             }
 
             // 限制最大返回记录数为50
@@ -297,11 +317,13 @@ public class UserHistoryController {
             response.put("data", recentHistory);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", false);
-            response.put("error", e.getMessage());
-            response.put("data", Collections.emptyList());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+            System.out.println("获取最近浏览历史失败: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+
         }
     }
 
@@ -311,13 +333,15 @@ public class UserHistoryController {
      * @return 浏览次数
      */
     @GetMapping("/view/count/{paperId}")
-    public ResponseEntity<?> getPaperViewCount(@PathVariable String paperId) {
+    public ResponseEntity<?> getPaperViewCount(@PathVariable Long paperId) {
         try {
             long viewCount = userHistoryService.getPaperViewCount(paperId);
             Map<String, Long> response = new HashMap<>();
             response.put("viewCount", viewCount);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("获取论文浏览次数失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -332,11 +356,13 @@ public class UserHistoryController {
     @DeleteMapping("/view/clear")
     public ResponseEntity<?> clearUserViewHistory(HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
+
+            Long userId = (Long) session.getAttribute("userId");
+            // 允许未登录用户清空浏览历史（清空默认用户的历史）
             if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，无法清空浏览历史");
-                return ResponseEntity.ok(response);
+                userId = 1L;
+                System.out.println("用户未登录，清空默认用户ID的浏览历史");
+
             }
 
             userHistoryService.clearUserViewHistory(userId);
@@ -344,6 +370,8 @@ public class UserHistoryController {
             response.put("message", "浏览历史清空成功");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("清空浏览历史失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -359,18 +387,16 @@ public class UserHistoryController {
     @DeleteMapping("/view/{id}")
     public ResponseEntity<?> deleteViewHistory(@PathVariable Long id, HttpSession session) {
         try {
-            Long userId = (Long) session.getAttribute("currentUser");
-            if (userId == null) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "用户未登录，无法删除浏览记录");
-                return ResponseEntity.ok(response);
-            }
+
+            // 无需检查用户登录状态，只要ID存在就删除
 
             userHistoryService.deleteViewHistory(id);
             Map<String, String> response = new HashMap<>();
             response.put("message", "浏览记录删除成功");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.out.println("删除浏览记录失败: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);

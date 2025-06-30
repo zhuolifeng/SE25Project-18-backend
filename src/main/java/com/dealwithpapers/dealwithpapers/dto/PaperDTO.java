@@ -11,7 +11,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaperDTO {
-    private String id;
+    private Long id;
+    private String doi;
     private String title;
     private Set<String> authors = new HashSet<>();
     private String abstractText;

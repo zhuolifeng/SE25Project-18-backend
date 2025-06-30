@@ -16,7 +16,11 @@ import java.util.Set;
 public class Paper {
     
     @Id
-    private String id; // 论文ID，由外部提供，不自增
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 论文自增ID，主键
+    
+    @Column(unique = true)
+    private String doi; // 论文的DOI，可以为null
     
     @Column(nullable = false)
     private String title; // 论文标题

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public class UserViewHistoryDTO {
     private Long id;
     private Long userId;
-    private String paperId;
+    private Long paperId;
     private String paperTitle; // 论文标题，方便前端显示
     private LocalDateTime viewTime;
 } 

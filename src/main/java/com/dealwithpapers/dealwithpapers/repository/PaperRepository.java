@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PaperRepository extends JpaRepository<Paper, String> {
+public interface PaperRepository extends JpaRepository<Paper, Long> {
     
     // 通过标题查找论文（模糊匹配）
     List<Paper> findByTitleContainingIgnoreCase(String title);
@@ -27,9 +27,13 @@ public interface PaperRepository extends JpaRepository<Paper, String> {
     // 通过类别搜索
     List<Paper> findByCategoryContainingIgnoreCase(String category);
     
-    // 综合搜索（ID、标题、作者、摘要、期刊、类别）
+    // 根据DOI查找论文
+    Paper findByDoi(String doi);
+    
+    // 综合搜索（ID、DOI、标题、作者、摘要、期刊、类别）
     @Query("SELECT DISTINCT p FROM Paper p LEFT JOIN p.authors a WHERE " +
-           "p.id = :searchTerm OR " +
+           "CAST(p.id AS string) = :searchTerm OR " +
+           "(p.doi IS NOT NULL AND (p.doi = :searchTerm OR LOWER(p.doi) LIKE LOWER(CONCAT('%', :searchTerm, '%')))) OR " +
            "LOWER(p.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(a) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(p.abstractText) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +

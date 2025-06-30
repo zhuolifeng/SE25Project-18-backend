@@ -32,9 +32,21 @@ public class PaperController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPaperById(@PathVariable String id) {
+    public ResponseEntity<?> getPaperById(@PathVariable Long id) {
         try {
             PaperDTO paper = paperService.getPaperById(id);
+            return ResponseEntity.ok(paper);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
+    }
+    
+    @GetMapping("/doi/{doi}")
+    public ResponseEntity<?> getPaperByDoi(@PathVariable String doi) {
+        try {
+            PaperDTO paper = paperService.getPaperByDoi(doi);
             return ResponseEntity.ok(paper);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -50,19 +62,19 @@ public class PaperController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePaper(@PathVariable String id, @RequestBody PaperDTO paperDTO) {
+    public ResponseEntity<?> updatePaper(@PathVariable Long id, @RequestBody PaperDTO paperDTO) {
         try {
             PaperDTO updatedPaper = paperService.updatePaper(id, paperDTO);
             return ResponseEntity.ok(updatedPaper);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePaper(@PathVariable String id) {
+    public ResponseEntity<?> deletePaper(@PathVariable Long id) {
         try {
             paperService.deletePaper(id);
             Map<String, String> response = new HashMap<>();
@@ -75,22 +87,30 @@ public class PaperController {
         }
     }
 
-    @PostMapping("/search")
-    public ResponseEntity<List<PaperDTO>> searchPapers(@RequestBody PaperSearchDTO searchDTO) {
-        List<PaperDTO> papers = paperService.searchPapers(searchDTO);
-        return ResponseEntity.ok(papers);
-    }
-
     @GetMapping("/search")
-    public ResponseEntity<List<PaperDTO>> searchByTerm(
-            @RequestParam(required = false) String term,
-            @RequestParam(required = false) Integer year) {
-        
+    public ResponseEntity<List<PaperDTO>> searchPapers(@RequestParam(required = false) String searchTerm, 
+                                                      @RequestParam(required = false) Integer year) {
         PaperSearchDTO searchDTO = new PaperSearchDTO();
-        searchDTO.setSearchTerm(term);
+        searchDTO.setSearchTerm(searchTerm);
         searchDTO.setYear(year);
         
-        List<PaperDTO> papers = paperService.searchPapers(searchDTO);
-        return ResponseEntity.ok(papers);
+        List<PaperDTO> results = paperService.searchPapers(searchDTO);
+        return ResponseEntity.ok(results);
+    }
+    
+    @PostMapping("/search")
+    public ResponseEntity<List<PaperDTO>> searchPapersPost(@RequestBody(required = false) PaperSearchDTO searchDTO) {
+        if (searchDTO == null) {
+            searchDTO = new PaperSearchDTO();
+        }
+        
+        List<PaperDTO> results = paperService.searchPapers(searchDTO);
+        return ResponseEntity.ok(results);
+    }
+    
+    @GetMapping("/search/{term}")
+    public ResponseEntity<List<PaperDTO>> searchByTerm(@PathVariable String term) {
+        List<PaperDTO> results = paperService.searchByTerm(term);
+        return ResponseEntity.ok(results);
     }
 } 

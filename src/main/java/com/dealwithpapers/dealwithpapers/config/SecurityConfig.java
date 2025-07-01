@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/papers/search", "/api/papers/search/**").permitAll()
                 .requestMatchers("/api/papers", "/api/papers/**").permitAll()
                 .requestMatchers("/api/favorites/**").permitAll()
+                .requestMatchers("/api/posts/search", "/api/posts/search/**").permitAll()
+                .requestMatchers("/api/posts/**").permitAll()
                 .requestMatchers("/api/history/**").permitAll()
                 .requestMatchers("/api/tags/**").permitAll()
                 .requestMatchers("/", "/error").permitAll()

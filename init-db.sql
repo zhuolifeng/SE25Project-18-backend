@@ -18,25 +18,26 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 创建用户密码表
 CREATE TABLE IF NOT EXISTS user_passwords (
-    user_id BIGINT PRIMARY KEY,
+     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 创建论文表
 CREATE TABLE IF NOT EXISTS papers (
-    id VARCHAR(100) PRIMARY KEY,
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
     year INT,
     journal VARCHAR(255),
     category VARCHAR(100),
-    url VARCHAR(255)
+    url VARCHAR(255),
+     doi VARCHAR(255) UNIQUE
 );
 
 -- 创建论文作者关联表
 CREATE TABLE IF NOT EXISTS paper_authors (
-    paper_id VARCHAR(100),
+    paper_id BIGINT,
     author VARCHAR(255),
     PRIMARY KEY (paper_id, author),
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
@@ -75,7 +76,7 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(255) NOT NULL,
     content TEXT,
     author_id BIGINT,
-    paper_id VARCHAR(100),
+    paper_id BIGINT,
     type VARCHAR(50), -- 新增：帖子类型
     category VARCHAR(50), -- 新增：帖子分类
     status INT NOT NULL DEFAULT 1, -- 新增：帖子状态，1正常0删除
@@ -111,9 +112,35 @@ CREATE TABLE IF NOT EXISTS user_search_history (
 CREATE TABLE IF NOT EXISTS user_view_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    paper_id VARCHAR(100) NOT NULL,
+    paper_id BIGINT NOT NULL,
     view_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
     INDEX idx_user_views (user_id, view_time DESC)
+);
+
+-- 创建用户收藏论文表
+CREATE TABLE IF NOT EXISTS user_favorites (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    paper_id BIGINT NOT NULL,
+    collect_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_paper (user_id, paper_id),
+    INDEX idx_user_favorites (user_id, collect_time DESC)
+); 
+CREATE TABLE IF NOT EXISTS user_paper_tags (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    paper_id BIGINT NOT NULL,
+    tag_name VARCHAR(50) NOT NULL,
+    tag_color VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES paper(id) ON DELETE CASCADE,
+
+    -- 确保每个用户对每篇论文的每个标签只能添加一次
+    UNIQUE KEY unique_user_paper_tag (user_id, paper_id, tag_name)
 );

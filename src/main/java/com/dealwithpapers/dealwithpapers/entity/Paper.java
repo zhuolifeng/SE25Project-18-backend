@@ -17,7 +17,7 @@ public class Paper {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // 论文自增ID，主键
+    private Long id; // 论文ID，主键，自增长
     
     @Column(unique = true)
     private String doi; // 论文的DOI，可以为null

@@ -2,6 +2,7 @@ package com.dealwithpapers.dealwithpapers.controller;
 
 import com.dealwithpapers.dealwithpapers.dto.PaperDTO;
 import com.dealwithpapers.dealwithpapers.dto.PaperSearchDTO;
+import com.dealwithpapers.dealwithpapers.entity.Paper;
 import com.dealwithpapers.dealwithpapers.service.PaperService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -112,5 +113,67 @@ public class PaperController {
     public ResponseEntity<List<PaperDTO>> searchByTerm(@PathVariable String term) {
         List<PaperDTO> results = paperService.searchByTerm(term);
         return ResponseEntity.ok(results);
+    }
+
+    /**
+     * 检查论文是否存在于数据库中
+     * @param id 论文ID或者其他标识符（如DOI）
+     * @return 论文存在性信息
+     */
+    @GetMapping("/check/{id}")
+    public ResponseEntity<Map<String, Object>> checkPaperExists(@PathVariable String id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        // 记录检查开始
+        System.out.println("检查论文是否存在: " + id);
+        
+        try {
+            // 尝试作为数字ID处理
+            Long numericId = null;
+            try {
+                numericId = Long.valueOf(id);
+                System.out.println("转换为数字ID: " + numericId);
+            } catch (NumberFormatException e) {
+                System.out.println("非数字ID，将尝试作为DOI处理");
+            }
+            
+            // 尝试通过数字ID查找
+            if (numericId != null) {
+                boolean exists = paperService.existsById(numericId);
+                System.out.println("通过数字ID查找结果: " + exists);
+                
+                response.put("exists", exists);
+                response.put("dbId", numericId);
+                
+                if (exists) {
+                    return ResponseEntity.ok(response);
+                }
+            }
+            
+            // 尝试通过DOI查找
+            Paper paper = paperService.findByDoi(id);
+            if (paper != null) {
+                System.out.println("通过DOI找到论文: " + paper.getId());
+                response.put("exists", true);
+                response.put("dbId", paper.getId());
+                return ResponseEntity.ok(response);
+            }
+            
+            // 如果都找不到，返回不存在
+            System.out.println("论文不存在: " + id);
+            response.put("exists", false);
+            response.put("message", "论文不存在");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("检查论文存在性时发生错误: " + e.getMessage());
+            e.printStackTrace();
+            
+            response.put("exists", false);
+            response.put("error", e.getMessage());
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 } 

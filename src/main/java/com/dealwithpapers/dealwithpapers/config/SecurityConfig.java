@@ -23,12 +23,14 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/users/register", "/api/users/login", "/api/users/current").permitAll()
+                .requestMatchers("/api/users/register", "/api/users/login", "/api/users/current", "/api/users/session-test").permitAll()
                 .requestMatchers("/api/papers/search", "/api/papers/search/**").permitAll()
-                .requestMatchers("/api/papers").permitAll()
+                .requestMatchers("/api/papers", "/api/papers/**").permitAll()
+                .requestMatchers("/api/favorites/**").permitAll()
                 .requestMatchers("/api/posts/search", "/api/posts/search/**").permitAll()
                 .requestMatchers("/api/posts/**").permitAll()
                 .requestMatchers("/api/history/**").permitAll()
+                .requestMatchers("/api/tags/**").permitAll()
                 .requestMatchers("/", "/error").permitAll()
                 .requestMatchers(request -> "OPTIONS".equals(request.getMethod())).permitAll()
                 .anyRequest().authenticated()
@@ -52,7 +54,7 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", 
                                                     "Accept", "Origin", "Access-Control-Request-Method",
                                                     "Access-Control-Request-Headers"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "Content-Length"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "Content-Length", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         

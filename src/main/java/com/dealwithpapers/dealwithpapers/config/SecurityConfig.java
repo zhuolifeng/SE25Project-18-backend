@@ -26,6 +26,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/register", "/api/users/login", "/api/users/current").permitAll()
                 .requestMatchers("/api/papers/search", "/api/papers/search/**").permitAll()
                 .requestMatchers("/api/papers").permitAll()
+                .requestMatchers("/api/posts/search", "/api/posts/search/**").permitAll()
+                .requestMatchers("/api/posts/**").permitAll()
                 .requestMatchers("/api/history/**").permitAll()
                 .requestMatchers("/", "/error").permitAll()
                 .requestMatchers(request -> "OPTIONS".equals(request.getMethod())).permitAll()

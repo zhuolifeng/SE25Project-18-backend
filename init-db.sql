@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS user_passwords (
 
 -- 创建论文表
 CREATE TABLE IF NOT EXISTS papers (
-    id VARCHAR(100) PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
     year INT,

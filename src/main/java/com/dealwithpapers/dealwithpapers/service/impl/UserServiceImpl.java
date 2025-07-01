@@ -84,33 +84,33 @@ public class UserServiceImpl implements UserService {
             System.out.println("登录前的会话信息:");
             printSessionAttributes();
             
-            // 查找用户
-            Optional<User> userOptional = userRepository.findByUsername(loginDTO.getUsername());
-            if (userOptional.isEmpty()) {
+        // 查找用户
+        Optional<User> userOptional = userRepository.findByUsername(loginDTO.getUsername());
+        if (userOptional.isEmpty()) {
                 System.out.println("用户名不存在: " + loginDTO.getUsername());
-                throw new RuntimeException("用户名或密码错误");
-            }
-            
-            User user = userOptional.get();
+            throw new RuntimeException("用户名或密码错误");
+        }
+        
+        User user = userOptional.get();
             System.out.println("找到用户: ID=" + user.getId() + ", 用户名=" + user.getUsername());
-            
-            // 获取用户密码
-            Optional<UserPassword> userPasswordOptional = userPasswordRepository.findById(user.getId());
-            if (userPasswordOptional.isEmpty()) {
+        
+        // 获取用户密码
+        Optional<UserPassword> userPasswordOptional = userPasswordRepository.findById(user.getId());
+        if (userPasswordOptional.isEmpty()) {
                 System.out.println("用户密码信息不存在，用户ID: " + user.getId());
-                throw new RuntimeException("用户密码信息不存在");
-            }
-            
-            // 验证密码
+            throw new RuntimeException("用户密码信息不存在");
+        }
+        
+        // 验证密码
             boolean passwordMatches = passwordEncoder.matches(loginDTO.getPassword(), userPasswordOptional.get().getPassword());
             System.out.println("密码验证结果: " + (passwordMatches ? "正确" : "错误"));
             
             if (!passwordMatches) {
-                throw new RuntimeException("用户名或密码错误");
-            }
-            
-            // 保存用户信息到session
-            httpSession.setAttribute(USER_SESSION_KEY, user.getId());
+            throw new RuntimeException("用户名或密码错误");
+        }
+        
+        // 保存用户信息到session
+        httpSession.setAttribute(USER_SESSION_KEY, user.getId());
             System.out.println("用户ID已保存到会话，键名: " + USER_SESSION_KEY + ", 值: " + user.getId());
             System.out.println("会话ID: " + httpSession.getId());
             
@@ -137,8 +137,8 @@ public class UserServiceImpl implements UserService {
             // 打印更新后的会话信息
             System.out.println("登录后的会话信息:");
             printSessionAttributes();
-            
-            // 返回用户信息
+        
+        // 返回用户信息
             UserResponseDTO responseDTO = convertToResponseDTO(user);
             System.out.println("登录成功，返回用户信息: " + responseDTO);
             return responseDTO;
@@ -159,26 +159,26 @@ public class UserServiceImpl implements UserService {
             System.out.println("当前会话信息:");
             printSessionAttributes();
             
-            // 从session获取当前用户ID
-            Long userId = (Long) httpSession.getAttribute(USER_SESSION_KEY);
+        // 从session获取当前用户ID
+        Long userId = (Long) httpSession.getAttribute(USER_SESSION_KEY);
             System.out.println("从会话获取的用户ID: " + userId);
             
-            if (userId == null) {
+        if (userId == null) {
                 System.out.println("用户未登录");
-                throw new RuntimeException("用户未登录");
-            }
-            
-            // 查找用户
-            Optional<User> userOptional = userRepository.findById(userId);
-            if (userOptional.isEmpty()) {
+            throw new RuntimeException("用户未登录");
+        }
+        
+        // 查找用户
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
                 System.out.println("用户不存在，ID: " + userId);
-                throw new RuntimeException("用户不存在");
-            }
+            throw new RuntimeException("用户不存在");
+        }
             
             User user = userOptional.get();
             System.out.println("找到用户: ID=" + user.getId() + ", 用户名=" + user.getUsername());
-            
-            // 返回用户信息
+        
+        // 返回用户信息
             return convertToResponseDTO(user);
         } catch (Exception e) {
             System.err.println("获取当前用户失败: " + e.getMessage());
@@ -197,12 +197,12 @@ public class UserServiceImpl implements UserService {
             System.out.println("登出前的会话信息:");
             printSessionAttributes();
             
-            // 清除session
+        // 清除session
             Long userId = (Long) httpSession.getAttribute(USER_SESSION_KEY);
             System.out.println("准备登出的用户ID: " + userId);
             
-            httpSession.removeAttribute(USER_SESSION_KEY);
-            httpSession.invalidate();
+        httpSession.removeAttribute(USER_SESSION_KEY);
+        httpSession.invalidate();
             System.out.println("已清除会话信息");
         } catch (Exception e) {
             System.err.println("登出失败: " + e.getMessage());
@@ -304,4 +304,4 @@ public class UserServiceImpl implements UserService {
                 user.getRegisterTime()
         );
     }
-}
+} 

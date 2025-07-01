@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/papers", "/api/papers/**").permitAll()
                 .requestMatchers("/api/favorites/**").permitAll()
                 .requestMatchers("/api/history/**").permitAll()
+                .requestMatchers("/api/tags/**").permitAll()
                 .requestMatchers("/", "/error").permitAll()
                 .requestMatchers(request -> "OPTIONS".equals(request.getMethod())).permitAll()
                 .anyRequest().authenticated()

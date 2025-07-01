@@ -130,3 +130,17 @@ CREATE TABLE IF NOT EXISTS user_favorites (
     UNIQUE KEY unique_user_paper (user_id, paper_id),
     INDEX idx_user_favorites (user_id, collect_time DESC)
 ); 
+CREATE TABLE IF NOT EXISTS user_paper_tags (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    paper_id BIGINT NOT NULL,
+    tag_name VARCHAR(50) NOT NULL,
+    tag_color VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES paper(id) ON DELETE CASCADE,
+    
+    -- 确保每个用户对每篇论文的每个标签只能添加一次
+    UNIQUE KEY unique_user_paper_tag (user_id, paper_id, tag_name)
+);

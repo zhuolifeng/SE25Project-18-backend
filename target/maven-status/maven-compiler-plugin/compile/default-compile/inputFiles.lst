@@ -6,12 +6,14 @@ D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\controller\UserController.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\controller\UserFavoriteController.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\controller\UserHistoryController.java
+D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\controller\UserPaperTagController.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\DealwithpapersApplication.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\PaperDTO.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\PaperSearchDTO.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\PasswordUpdateDTO.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\PostDTO.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\UserLoginDTO.java
+D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\UserPaperTagDTO.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\UserRegisterDTO.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\UserResponseDTO.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\dto\UserSearchHistoryDTO.java
@@ -22,6 +24,7 @@ D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\PostLike.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\User.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\UserFavorite.java
+D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\UserPaperTag.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\UserPassword.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\UserSearchHistory.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\UserViewHistory.java
@@ -29,6 +32,7 @@ D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\PostLikeRepository.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\PostRepository.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\UserFavoriteRepository.java
+D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\UserPaperTagRepository.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\UserPasswordRepository.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\UserRepository.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\UserSearchHistoryRepository.java
@@ -38,10 +42,12 @@ D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\impl\PostServiceImpl.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\impl\UserFavoriteServiceImpl.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\impl\UserHistoryServiceImpl.java
+D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\impl\UserPaperTagServiceImpl.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\impl\UserServiceImpl.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\PaperService.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\PostLikeService.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\PostService.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\UserFavoriteService.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\UserHistoryService.java
+D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\UserPaperTagService.java
 D:\dealwithpapersbackend\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\service\UserService.java

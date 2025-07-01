@@ -18,20 +18,21 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 创建用户密码表
 CREATE TABLE IF NOT EXISTS user_passwords (
-    user_id BIGINT PRIMARY KEY,
+     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 创建论文表
 CREATE TABLE IF NOT EXISTS papers (
-    id BIGINT PRIMARY KEY,
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
     year INT,
     journal VARCHAR(255),
     category VARCHAR(100),
-    url VARCHAR(255)
+    url VARCHAR(255),
+     doi VARCHAR(255) UNIQUE
 );
 
 -- 创建论文作者关联表
@@ -111,7 +112,7 @@ CREATE TABLE IF NOT EXISTS user_search_history (
 CREATE TABLE IF NOT EXISTS user_view_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    paper_id VARCHAR(100) NOT NULL,
+    paper_id BIGINT NOT NULL,
     view_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,

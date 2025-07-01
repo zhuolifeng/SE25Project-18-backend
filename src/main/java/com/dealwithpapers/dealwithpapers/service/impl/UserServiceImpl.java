@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Enumeration;
 
 @Service
 @RequiredArgsConstructor
@@ -75,55 +76,154 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO login(UserLoginDTO loginDTO) {
-        // 查找用户
-        Optional<User> userOptional = userRepository.findByUsername(loginDTO.getUsername());
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("用户名或密码错误");
+        System.out.println("=================== 用户登录开始 ===================");
+        System.out.println("登录用户名: " + loginDTO.getUsername());
+        
+        try {
+            // 打印当前会话信息
+            System.out.println("登录前的会话信息:");
+            printSessionAttributes();
+            
+            // 查找用户
+            Optional<User> userOptional = userRepository.findByUsername(loginDTO.getUsername());
+            if (userOptional.isEmpty()) {
+                System.out.println("用户名不存在: " + loginDTO.getUsername());
+                throw new RuntimeException("用户名或密码错误");
+            }
+            
+            User user = userOptional.get();
+            System.out.println("找到用户: ID=" + user.getId() + ", 用户名=" + user.getUsername());
+            
+            // 获取用户密码
+            Optional<UserPassword> userPasswordOptional = userPasswordRepository.findById(user.getId());
+            if (userPasswordOptional.isEmpty()) {
+                System.out.println("用户密码信息不存在，用户ID: " + user.getId());
+                throw new RuntimeException("用户密码信息不存在");
+            }
+            
+            // 验证密码
+            boolean passwordMatches = passwordEncoder.matches(loginDTO.getPassword(), userPasswordOptional.get().getPassword());
+            System.out.println("密码验证结果: " + (passwordMatches ? "正确" : "错误"));
+            
+            if (!passwordMatches) {
+                throw new RuntimeException("用户名或密码错误");
+            }
+            
+            // 保存用户信息到session
+            httpSession.setAttribute(USER_SESSION_KEY, user.getId());
+            System.out.println("用户ID已保存到会话，键名: " + USER_SESSION_KEY + ", 值: " + user.getId());
+            System.out.println("会话ID: " + httpSession.getId());
+            
+            try {
+                // 设置会话超时时间为1小时
+                httpSession.setMaxInactiveInterval(3600);
+                
+                // 检查会话是否有效
+                System.out.println("会话是否有效: " + !httpSession.isNew());
+                System.out.println("会话超时时间: " + httpSession.getMaxInactiveInterval() + "秒");
+                
+                // 尝试再次确认会话中的用户ID
+                Long confirmedUserId = (Long) httpSession.getAttribute(USER_SESSION_KEY);
+                System.out.println("确认会话中的用户ID: " + confirmedUserId);
+                
+                if (confirmedUserId == null || !confirmedUserId.equals(user.getId())) {
+                    System.err.println("警告：无法正确存储用户ID到会话中！");
+                }
+            } catch (Exception e) {
+                System.err.println("会话操作异常: " + e.getMessage());
+                e.printStackTrace();
+            }
+            
+            // 打印更新后的会话信息
+            System.out.println("登录后的会话信息:");
+            printSessionAttributes();
+            
+            // 返回用户信息
+            UserResponseDTO responseDTO = convertToResponseDTO(user);
+            System.out.println("登录成功，返回用户信息: " + responseDTO);
+            return responseDTO;
+        } catch (Exception e) {
+            System.err.println("登录失败: " + e.getMessage());
+            throw e;
+        } finally {
+            System.out.println("=================== 用户登录结束 ===================");
         }
-        
-        User user = userOptional.get();
-        
-        // 获取用户密码
-        Optional<UserPassword> userPasswordOptional = userPasswordRepository.findById(user.getId());
-        if (userPasswordOptional.isEmpty()) {
-            throw new RuntimeException("用户密码信息不存在");
-        }
-        
-        // 验证密码
-        if (!passwordEncoder.matches(loginDTO.getPassword(), userPasswordOptional.get().getPassword())) {
-            throw new RuntimeException("用户名或密码错误");
-        }
-        
-        // 保存用户信息到session
-        httpSession.setAttribute(USER_SESSION_KEY, user.getId());
-        
-        // 返回用户信息
-        return convertToResponseDTO(user);
     }
 
     @Override
     public UserResponseDTO getCurrentUser() {
-        // 从session获取当前用户ID
-        Long userId = (Long) httpSession.getAttribute(USER_SESSION_KEY);
-        if (userId == null) {
-            throw new RuntimeException("用户未登录");
-        }
+        System.out.println("=================== 获取当前用户开始 ===================");
         
-        // 查找用户
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            throw new RuntimeException("用户不存在");
+        try {
+            // 打印当前会话信息
+            System.out.println("当前会话信息:");
+            printSessionAttributes();
+            
+            // 从session获取当前用户ID
+            Long userId = (Long) httpSession.getAttribute(USER_SESSION_KEY);
+            System.out.println("从会话获取的用户ID: " + userId);
+            
+            if (userId == null) {
+                System.out.println("用户未登录");
+                throw new RuntimeException("用户未登录");
+            }
+            
+            // 查找用户
+            Optional<User> userOptional = userRepository.findById(userId);
+            if (userOptional.isEmpty()) {
+                System.out.println("用户不存在，ID: " + userId);
+                throw new RuntimeException("用户不存在");
+            }
+            
+            User user = userOptional.get();
+            System.out.println("找到用户: ID=" + user.getId() + ", 用户名=" + user.getUsername());
+            
+            // 返回用户信息
+            return convertToResponseDTO(user);
+        } catch (Exception e) {
+            System.err.println("获取当前用户失败: " + e.getMessage());
+            throw e;
+        } finally {
+            System.out.println("=================== 获取当前用户结束 ===================");
         }
-        
-        // 返回用户信息
-        return convertToResponseDTO(userOptional.get());
     }
 
     @Override
     public void logout() {
-        // 清除session
-        httpSession.removeAttribute(USER_SESSION_KEY);
-        httpSession.invalidate();
+        System.out.println("=================== 用户登出开始 ===================");
+        
+        try {
+            // 打印当前会话信息
+            System.out.println("登出前的会话信息:");
+            printSessionAttributes();
+            
+            // 清除session
+            Long userId = (Long) httpSession.getAttribute(USER_SESSION_KEY);
+            System.out.println("准备登出的用户ID: " + userId);
+            
+            httpSession.removeAttribute(USER_SESSION_KEY);
+            httpSession.invalidate();
+            System.out.println("已清除会话信息");
+        } catch (Exception e) {
+            System.err.println("登出失败: " + e.getMessage());
+            throw e;
+        } finally {
+            System.out.println("=================== 用户登出结束 ===================");
+        }
+    }
+    
+    // 打印会话所有属性的辅助方法
+    private void printSessionAttributes() {
+        System.out.println("会话ID: " + httpSession.getId());
+        System.out.println("会话属性列表:");
+        Enumeration<String> attributeNames = httpSession.getAttributeNames();
+        if (!attributeNames.hasMoreElements()) {
+            System.out.println("  (无属性)");
+        }
+        while (attributeNames.hasMoreElements()) {
+            String name = attributeNames.nextElement();
+            System.out.println("  " + name + ": " + httpSession.getAttribute(name));
+        }
     }
     
     @Override
@@ -204,4 +304,4 @@ public class UserServiceImpl implements UserService {
                 user.getRegisterTime()
         );
     }
-} 
+}

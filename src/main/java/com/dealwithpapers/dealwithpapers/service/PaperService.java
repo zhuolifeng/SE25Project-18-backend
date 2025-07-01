@@ -2,6 +2,7 @@ package com.dealwithpapers.dealwithpapers.service;
 
 import com.dealwithpapers.dealwithpapers.dto.PaperDTO;
 import com.dealwithpapers.dealwithpapers.dto.PaperSearchDTO;
+import com.dealwithpapers.dealwithpapers.entity.Paper;
 
 import java.util.List;
 
@@ -30,4 +31,10 @@ public interface PaperService {
     
     // 通过搜索词搜索论文（ID、标题或作者）
     List<PaperDTO> searchByTerm(String searchTerm);
+    
+    // 检查论文ID是否存在
+    boolean existsById(Long id);
+    
+    // 通过DOI查找论文实体
+    Paper findByDoi(String doi);
 } 

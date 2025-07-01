@@ -152,4 +152,43 @@ public class PaperServiceImpl implements PaperService {
         paper.setUrl(dto.getUrl());
         return paper;
     }
+    @Override
+    public boolean existsById(Long id) {
+        return paperRepository.existsById(id);
+    }
+    
+    @Override
+    public Paper findByDoi(String doi) {
+        if (doi == null || doi.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // 先尝试精确匹配
+            Paper paper = paperRepository.findByDoi(doi);
+            if (paper != null) {
+                return paper;
+            }
+            
+            // 如果精确匹配不到，尝试通过搜索找到匹配的DOI
+            String cleanedDoi = doi.trim().toLowerCase().replace("doi:", "");
+            List<Paper> papers = paperRepository.searchByTerm(cleanedDoi);
+            
+            // 查找完全匹配DOI的论文
+            for (Paper p : papers) {
+                if (p.getDoi() != null && 
+                    (p.getDoi().equalsIgnoreCase(cleanedDoi) || 
+                     p.getDoi().equalsIgnoreCase("doi:" + cleanedDoi))) {
+                    return p;
+                }
+            }
+            
+            return null;
+        } catch (Exception e) {
+            // 出现异常时记录并返回null
+            System.err.println("查找DOI发生异常: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
 } 

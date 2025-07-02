@@ -3,17 +3,21 @@ package com.dealwithpapers.dealwithpapers.service.impl;
 import com.dealwithpapers.dealwithpapers.dto.PostDTO;
 import com.dealwithpapers.dealwithpapers.entity.Paper;
 import com.dealwithpapers.dealwithpapers.entity.Post;
+import com.dealwithpapers.dealwithpapers.entity.Tag;
 import com.dealwithpapers.dealwithpapers.entity.User;
 import com.dealwithpapers.dealwithpapers.repository.PaperRepository;
 import com.dealwithpapers.dealwithpapers.repository.PostRepository;
+import com.dealwithpapers.dealwithpapers.repository.TagRepository;
 import com.dealwithpapers.dealwithpapers.repository.UserRepository;
 import com.dealwithpapers.dealwithpapers.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,14 +28,16 @@ public class PostServiceImpl implements PostService {
     private UserRepository userRepository;
     @Autowired
     private PaperRepository paperRepository;
+    @Autowired
+    private TagRepository tagRepository;
 
     @Override
     public PostDTO createPost(PostDTO postDTO) {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
         post.setContent(postDTO.getContent());
-        post.setType(postDTO.getType());
-        post.setCategory(postDTO.getCategory());
+        post.setType(postDTO.getType() != null ? postDTO.getType().trim() : null);
+        post.setCategory(postDTO.getCategory() != null ? postDTO.getCategory().trim() : null);
         post.setCreateTime(LocalDateTime.now());
         post.setUpdateTime(LocalDateTime.now());
         post.setStatus(1);
@@ -42,6 +48,19 @@ public class PostServiceImpl implements PostService {
         if (postDTO.getPaperId() != null) {
             Optional<Paper> paperOpt = paperRepository.findById(postDTO.getPaperId());
             paperOpt.ifPresent(post::setPaper);
+        }
+        // 处理标签
+        if (postDTO.getTags() != null) {
+            Set<Tag> tagSet = new HashSet<>();
+            for (String tagName : postDTO.getTags()) {
+                Tag tag = tagRepository.findByName(tagName).orElseGet(() -> {
+                    Tag newTag = new Tag();
+                    newTag.setName(tagName);
+                    return tagRepository.save(newTag);
+                });
+                tagSet.add(tag);
+            }
+            post.setTags(tagSet);
         }
         Post saved = postRepository.save(post);
         return toDTO(saved);
@@ -71,11 +90,19 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<PostDTO> searchPosts(String keyword, String author, String type, String category, Integer page, Integer size) {
-        String searchTerm = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() :
-                            (author != null && !author.trim().isEmpty()) ? author.trim() :
-                            (type != null && !type.trim().isEmpty()) ? type.trim() :
-                            (category != null && !category.trim().isEmpty()) ? category.trim() : "";
-        return searchByTerm(searchTerm);
+        if ((keyword != null && !keyword.trim().isEmpty()) || (author != null && !author.trim().isEmpty())) {
+            String searchTerm = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : author.trim();
+            return searchByTerm(searchTerm);
+        } else if ((type != null && !type.trim().isEmpty()) || (category != null && !category.trim().isEmpty())) {
+            return postRepository.findByTypeAndCategory(
+                (type != null && !type.trim().isEmpty()) ? type.trim() : null,
+                (category != null && !category.trim().isEmpty()) ? category.trim() : null
+            ).stream().map(this::toDTO).collect(Collectors.toList());
+        } else {
+            return postRepository.findAll().stream()
+                .filter(post -> post.getStatus() == 1)
+                .map(this::toDTO).collect(Collectors.toList());
+        }
     }
 
     @Override
@@ -83,6 +110,11 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("帖子不存在"));
         post.setStatus(0);
         postRepository.save(post);
+    }
+
+    @Override
+    public List<PostDTO> searchPostsByTag(String tagName) {
+        return postRepository.findByTagName(tagName).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     private PostDTO toDTO(Post post) {
@@ -103,6 +135,11 @@ public class PostServiceImpl implements PostService {
         }
         dto.setCreateTime(post.getCreateTime());
         dto.setUpdateTime(post.getUpdateTime());
+        // 设置标签
+        if (post.getTags() != null) {
+            Set<String> tagNames = post.getTags().stream().map(Tag::getName).collect(Collectors.toSet());
+            dto.setTags(tagNames);
+        }
         return dto;
     }
 } 

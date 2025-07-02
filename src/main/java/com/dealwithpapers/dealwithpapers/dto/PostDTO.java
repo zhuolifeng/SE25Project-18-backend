@@ -2,6 +2,7 @@ package com.dealwithpapers.dealwithpapers.dto;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 public class PostDTO {
@@ -17,4 +18,5 @@ public class PostDTO {
     private String type;
     private String category;
     private int status;
+    private Set<String> tags;
 } 

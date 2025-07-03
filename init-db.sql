@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 创建用户密码表
 CREATE TABLE IF NOT EXISTS user_passwords (
-     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+     user_id BIGINT NOT NULL,
     password VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
@@ -98,6 +98,7 @@ CREATE TABLE IF NOT EXISTS post_likes (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
 
+
 -- 创建用户搜索历史表
 CREATE TABLE IF NOT EXISTS user_search_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -130,6 +131,8 @@ CREATE TABLE IF NOT EXISTS user_favorites (
     UNIQUE KEY unique_user_paper (user_id, paper_id),
     INDEX idx_user_favorites (user_id, collect_time DESC)
 ); 
+
+-- 创建用户论文标签表
 CREATE TABLE IF NOT EXISTS user_paper_tags (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -138,8 +141,8 @@ CREATE TABLE IF NOT EXISTS user_paper_tags (
     tag_color VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-    FOREIGN KEY (paper_id) REFERENCES paper(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
 
     -- 确保每个用户对每篇论文的每个标签只能添加一次
     UNIQUE KEY unique_user_paper_tag (user_id, paper_id, tag_name)
@@ -171,4 +174,15 @@ CREATE TABLE IF NOT EXISTS comment (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE
+);
+-- 创建帖子收藏表（与论文收藏表user_favorites分开）
+CREATE TABLE IF NOT EXISTS post_favorites (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    post_id BIGINT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_post_fav (user_id, post_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    INDEX idx_user_post_favorites (user_id, create_time DESC)
 );

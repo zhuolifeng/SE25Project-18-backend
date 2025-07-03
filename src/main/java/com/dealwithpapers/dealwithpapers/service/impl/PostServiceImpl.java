@@ -5,13 +5,11 @@ import com.dealwithpapers.dealwithpapers.entity.Paper;
 import com.dealwithpapers.dealwithpapers.entity.Post;
 import com.dealwithpapers.dealwithpapers.entity.PostTag;
 import com.dealwithpapers.dealwithpapers.entity.User;
-import com.dealwithpapers.dealwithpapers.repository.PaperRepository;
-import com.dealwithpapers.dealwithpapers.repository.PostRepository;
-import com.dealwithpapers.dealwithpapers.repository.PostTagRepository;
-import com.dealwithpapers.dealwithpapers.repository.UserRepository;
+import com.dealwithpapers.dealwithpapers.repository.*;
 import com.dealwithpapers.dealwithpapers.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -30,6 +28,12 @@ public class PostServiceImpl implements PostService {
     private PaperRepository paperRepository;
     @Autowired
     private PostTagRepository postTagRepository;
+    @Autowired
+    private CommentRepository commentRepository;
+    @Autowired
+    private PostLikeRepository postLikeRepository;
+    @Autowired
+    private PostFavoriteRepository postFavoriteRepository;
 
     @Override
     public PostDTO createPost(PostDTO postDTO) {
@@ -106,10 +110,36 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void deletePost(Long id) {
+        // 先检查帖子是否存在
         Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("帖子不存在"));
-        post.setStatus(0);
-        postRepository.save(post);
+        
+        try {
+            // 1. 删除与帖子相关的评论
+            System.out.println("正在删除帖子 ID: " + id + " 的评论...");
+            int commentsDeleted = commentRepository.deleteByPostId(id);
+            System.out.println("已删除 " + commentsDeleted + " 条评论");
+            
+            // 2. 删除与帖子相关的点赞/点踩记录
+            System.out.println("正在删除帖子 ID: " + id + " 的点赞/点踩记录...");
+            int likesDeleted = postLikeRepository.deleteByPostId(id);
+            System.out.println("已删除 " + likesDeleted + " 条点赞/点踩记录");
+            
+            // 3. 删除与帖子相关的收藏记录
+            System.out.println("正在删除帖子 ID: " + id + " 的收藏记录...");
+            int favoritesDeleted = postFavoriteRepository.deleteByPostId(id);
+            System.out.println("已删除 " + favoritesDeleted + " 条收藏记录");
+            
+            // 4. 删除帖子本身
+            System.out.println("正在删除帖子 ID: " + id + "...");
+            postRepository.deleteById(id);
+            System.out.println("帖子删除成功");
+        } catch (Exception e) {
+            System.err.println("删除帖子过程中发生错误: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("删除帖子失败: " + e.getMessage(), e);
+        }
     }
 
     @Override

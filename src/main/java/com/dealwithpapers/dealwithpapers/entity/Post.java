@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.HashSet;
-import com.dealwithpapers.dealwithpapers.entity.Tag;
+import com.dealwithpapers.dealwithpapers.entity.PostTag;
 
 @Data
 @NoArgsConstructor
@@ -51,9 +51,9 @@ public class Post {
 
     @ManyToMany
     @JoinTable(
-        name = "post_tag",
+        name = "post_relation_tag",
         joinColumns = @JoinColumn(name = "post_id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<Tag> tags = new HashSet<>();
+    private Set<PostTag> tags = new HashSet<>();
 } 

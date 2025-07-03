@@ -18,5 +18,5 @@ public class PostDTO {
     private String type;
     private String category;
     private int status;
-    private Set<String> tags;
+    private Set<String> postTags;
 } 

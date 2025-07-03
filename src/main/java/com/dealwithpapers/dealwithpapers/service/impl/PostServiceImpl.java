@@ -3,11 +3,11 @@ package com.dealwithpapers.dealwithpapers.service.impl;
 import com.dealwithpapers.dealwithpapers.dto.PostDTO;
 import com.dealwithpapers.dealwithpapers.entity.Paper;
 import com.dealwithpapers.dealwithpapers.entity.Post;
-import com.dealwithpapers.dealwithpapers.entity.Tag;
+import com.dealwithpapers.dealwithpapers.entity.PostTag;
 import com.dealwithpapers.dealwithpapers.entity.User;
 import com.dealwithpapers.dealwithpapers.repository.PaperRepository;
 import com.dealwithpapers.dealwithpapers.repository.PostRepository;
-import com.dealwithpapers.dealwithpapers.repository.TagRepository;
+import com.dealwithpapers.dealwithpapers.repository.PostTagRepository;
 import com.dealwithpapers.dealwithpapers.repository.UserRepository;
 import com.dealwithpapers.dealwithpapers.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private PaperRepository paperRepository;
     @Autowired
-    private TagRepository tagRepository;
+    private PostTagRepository postTagRepository;
 
     @Override
     public PostDTO createPost(PostDTO postDTO) {
@@ -50,13 +50,13 @@ public class PostServiceImpl implements PostService {
             paperOpt.ifPresent(post::setPaper);
         }
         // 处理标签
-        if (postDTO.getTags() != null) {
-            Set<Tag> tagSet = new HashSet<>();
-            for (String tagName : postDTO.getTags()) {
-                Tag tag = tagRepository.findByName(tagName).orElseGet(() -> {
-                    Tag newTag = new Tag();
+        if (postDTO.getPostTags() != null) {
+            Set<PostTag> tagSet = new HashSet<>();
+            for (String tagName : postDTO.getPostTags()) {
+                PostTag tag = postTagRepository.findByName(tagName).orElseGet(() -> {
+                    PostTag newTag = new PostTag();
                     newTag.setName(tagName);
-                    return tagRepository.save(newTag);
+                    return postTagRepository.save(newTag);
                 });
                 tagSet.add(tag);
             }
@@ -137,8 +137,8 @@ public class PostServiceImpl implements PostService {
         dto.setUpdateTime(post.getUpdateTime());
         // 设置标签
         if (post.getTags() != null) {
-            Set<String> tagNames = post.getTags().stream().map(Tag::getName).collect(Collectors.toSet());
-            dto.setTags(tagNames);
+            Set<String> tagNames = post.getTags().stream().map(PostTag::getName).collect(Collectors.toSet());
+            dto.setPostTags(tagNames);
         }
         return dto;
     }

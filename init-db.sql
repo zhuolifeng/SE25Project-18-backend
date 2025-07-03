@@ -146,18 +146,18 @@ CREATE TABLE IF NOT EXISTS user_paper_tags (
 );
 
 -- 标签表
-CREATE TABLE IF NOT EXISTS tag (
+CREATE TABLE IF NOT EXISTS post_tag (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
 -- 帖子-标签多对多关系表
-CREATE TABLE IF NOT EXISTS post_tag (
+CREATE TABLE IF NOT EXISTS post_relation_tag (
     post_id BIGINT NOT NULL,
     tag_id BIGINT NOT NULL,
     PRIMARY KEY (post_id, tag_id),
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES tag(id) ON DELETE CASCADE
+    FOREIGN KEY (tag_id) REFERENCES post_tag(id) ON DELETE CASCADE
 );
 
 -- 评论表

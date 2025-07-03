@@ -25,7 +25,7 @@ D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\e
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\Paper.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\Post.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\PostLike.java
-D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\Tag.java
+D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\PostTag.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\User.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\UserFavorite.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\entity\UserPaperTag.java
@@ -36,7 +36,7 @@ D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\r
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\PaperRepository.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\PostLikeRepository.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\PostRepository.java
-D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\TagRepository.java
+D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\PostTagRepository.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\UserFavoriteRepository.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\UserPaperTagRepository.java
 D:\code\SE25Project-18-backend\src\main\java\com\dealwithpapers\dealwithpapers\repository\UserPasswordRepository.java

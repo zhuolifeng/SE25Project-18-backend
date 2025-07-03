@@ -46,7 +46,7 @@ public class PostController {
             result.put("likes", postLikeService.countLikes(post.getId()));
             result.put("dislikes", postLikeService.countDislikes(post.getId()));
             result.put("comments", 0); // 暂无评论统计
-            result.put("tags", post.getTags());
+            result.put("postTags", post.getPostTags());
             result.put("views", 0); // 暂无浏览量
             result.put("relatedPapers", new Object[]{}); // 暂无相关论文
             result.put("relatedPosts", new Object[]{}); // 暂无相关帖子
@@ -77,7 +77,7 @@ public class PostController {
             result.put("likes", postLikeService.countLikes(post.getId()));
             result.put("dislikes", postLikeService.countDislikes(post.getId()));
             result.put("comments", 0); // 暂无评论统计
-            result.put("tags", post.getTags());
+            result.put("postTags", post.getPostTags());
             result.put("views", 0); // 暂无浏览量
             result.put("relatedPapers", new Object[]{}); // 暂无相关论文
             result.put("relatedPosts", new Object[]{}); // 暂无相关帖子
@@ -103,7 +103,7 @@ public class PostController {
         result.put("likes", postLikeService.countLikes(id));
         result.put("dislikes", postLikeService.countDislikes(id));
         result.put("comments", 0); // 暂无评论统计
-        result.put("tags", post.getTags());
+        result.put("postTags", post.getPostTags());
         result.put("views", 0); // 暂无浏览量
         result.put("relatedPapers", new Object[]{}); // 暂无相关论文
         result.put("relatedPosts", new Object[]{}); // 暂无相关帖子
@@ -117,7 +117,7 @@ public class PostController {
     }
 
     @GetMapping("/byTag")
-    public List<PostDTO> getPostsByTag(@RequestParam String tag) {
-        return postService.searchPostsByTag(tag);
+    public List<PostDTO> getPostsByPostTag(@RequestParam String postTag) {
+        return postService.searchPostsByTag(postTag);
     }
 } 

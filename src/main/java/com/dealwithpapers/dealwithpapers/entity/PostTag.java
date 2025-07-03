@@ -10,8 +10,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tag")
-public class Tag {
+@Table(name = "post_tag")
+public class PostTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

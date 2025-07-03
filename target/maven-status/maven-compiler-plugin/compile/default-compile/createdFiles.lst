@@ -15,7 +15,6 @@ com\dealwithpapers\dealwithpapers\entity\UserFavorite.class
 com\dealwithpapers\dealwithpapers\entity\UserSearchHistory.class
 com\dealwithpapers\dealwithpapers\service\impl\PostServiceImpl.class
 com\dealwithpapers\dealwithpapers\repository\UserSearchHistoryRepository.class
-com\dealwithpapers\dealwithpapers\repository\TagRepository.class
 com\dealwithpapers\dealwithpapers\service\impl\UserPaperTagServiceImpl.class
 com\dealwithpapers\dealwithpapers\dto\UserLoginDTO.class
 com\dealwithpapers\dealwithpapers\controller\UserController.class
@@ -29,11 +28,13 @@ com\dealwithpapers\dealwithpapers\repository\UserRepository.class
 com\dealwithpapers\dealwithpapers\repository\UserFavoriteRepository.class
 com\dealwithpapers\dealwithpapers\entity\PostLike.class
 com\dealwithpapers\dealwithpapers\service\UserFavoriteService.class
+com\dealwithpapers\dealwithpapers\repository\PostTagRepository.class
 com\dealwithpapers\dealwithpapers\entity\Comment.class
 com\dealwithpapers\dealwithpapers\dto\UserUpdateDTO.class
 com\dealwithpapers\dealwithpapers\service\impl\CommentServiceImpl.class
 com\dealwithpapers\dealwithpapers\service\UserService.class
 com\dealwithpapers\dealwithpapers\config\SecurityConfig.class
+com\dealwithpapers\dealwithpapers\entity\PostTag.class
 com\dealwithpapers\dealwithpapers\entity\UserPaperTag.class
 com\dealwithpapers\dealwithpapers\entity\UserViewHistory.class
 com\dealwithpapers\dealwithpapers\repository\PostLikeRepository.class
@@ -45,7 +46,6 @@ com\dealwithpapers\dealwithpapers\repository\PaperRepository.class
 com\dealwithpapers\dealwithpapers\repository\PostRepository.class
 com\dealwithpapers\dealwithpapers\service\UserPaperTagService.class
 com\dealwithpapers\dealwithpapers\dto\UserRegisterDTO.class
-com\dealwithpapers\dealwithpapers\entity\Tag.class
 com\dealwithpapers\dealwithpapers\repository\UserPaperTagRepository.class
 com\dealwithpapers\dealwithpapers\controller\UserHistoryController.class
 com\dealwithpapers\dealwithpapers\dto\PaperSearchDTO.class

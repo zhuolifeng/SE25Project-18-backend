@@ -22,13 +22,13 @@ public interface UserViewHistoryRepository extends JpaRepository<UserViewHistory
     List<UserViewHistory> findTop10ByUserIdOrderByViewTimeDesc(Long userId);
     
     // 查找特定论文的浏览记录
-    List<UserViewHistory> findByPaperIdOrderByViewTimeDesc(String paperId, Pageable pageable);
+    List<UserViewHistory> findByPaperIdOrderByViewTimeDesc(Long paperId, Pageable pageable);
     
     // 检查用户是否浏览过某篇论文
-    boolean existsByUserIdAndPaperId(Long userId, String paperId);
+    boolean existsByUserIdAndPaperId(Long userId, Long paperId);
     
     // 获取论文的浏览次数
-    long countByPaperId(String paperId);
+    long countByPaperId(Long paperId);
     
     // 获取用户的浏览次数
     long countByUserId(Long userId);

@@ -30,10 +30,24 @@ public class PaperServiceImpl implements PaperService {
     }
 
     @Override
-    public PaperDTO getPaperById(String id) {
+    public PaperDTO getPaperById(Long id) {
         return paperRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new RuntimeException("论文未找到，ID: " + id));
+    }
+    
+    @Override
+    public PaperDTO getPaperByDoi(String doi) {
+        if (doi == null || doi.trim().isEmpty()) {
+            throw new IllegalArgumentException("DOI不能为空");
+        }
+        
+        Paper paper = paperRepository.findByDoi(doi);
+        if (paper == null) {
+            throw new RuntimeException("论文未找到，DOI: " + doi);
+        }
+        
+        return convertToDTO(paper);
     }
 
     @Override
@@ -45,7 +59,7 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     @Transactional
-    public PaperDTO updatePaper(String id, PaperDTO paperDTO) {
+    public PaperDTO updatePaper(Long id, PaperDTO paperDTO) {
         if (!paperRepository.existsById(id)) {
             throw new RuntimeException("论文未找到，ID: " + id);
         }
@@ -58,7 +72,7 @@ public class PaperServiceImpl implements PaperService {
 
     @Override
     @Transactional
-    public void deletePaper(String id) {
+    public void deletePaper(Long id) {
         if (!paperRepository.existsById(id)) {
             throw new RuntimeException("论文未找到，ID: " + id);
         }
@@ -97,36 +111,38 @@ public class PaperServiceImpl implements PaperService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-
+    
     @Override
     public List<PaperDTO> searchByTerm(String searchTerm) {
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
-            return getAllPapers();
+            return new ArrayList<>();
         }
         
-        searchTerm = searchTerm.trim();
-        Set<Paper> results = new HashSet<>();
-        
-        // 首先尝试使用综合搜索
-        results.addAll(paperRepository.searchByTerm(searchTerm));
-        
-        // 尝试解析年份
-        try {
-            int year = Integer.parseInt(searchTerm);
-            results.addAll(paperRepository.findByYear(year));
-        } catch (NumberFormatException e) {
-            // 不是有效的年份，忽略
-        }
-        
-        return results.stream()
+        return paperRepository.searchByTerm(searchTerm.trim()).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
     
-    // 辅助方法：将DTO转换为实体
+    // 实体转换为DTO
+    private PaperDTO convertToDTO(Paper paper) {
+        PaperDTO dto = new PaperDTO();
+        dto.setId(paper.getId());
+        dto.setDoi(paper.getDoi());
+        dto.setTitle(paper.getTitle());
+        dto.setAuthors(paper.getAuthors());
+        dto.setAbstractText(paper.getAbstractText());
+        dto.setYear(paper.getYear());
+        dto.setJournal(paper.getJournal());
+        dto.setCategory(paper.getCategory());
+        dto.setUrl(paper.getUrl());
+        return dto;
+    }
+    
+    // DTO转换为实体
     private Paper convertToEntity(PaperDTO dto) {
         Paper paper = new Paper();
-        paper.setId(dto.getId());
+        paper.setId(dto.getId()); // 可能为null，如果是新建
+        paper.setDoi(dto.getDoi());
         paper.setTitle(dto.getTitle());
         paper.setAuthors(dto.getAuthors());
         paper.setAbstractText(dto.getAbstractText());
@@ -136,18 +152,43 @@ public class PaperServiceImpl implements PaperService {
         paper.setUrl(dto.getUrl());
         return paper;
     }
+    @Override
+    public boolean existsById(Long id) {
+        return paperRepository.existsById(id);
+    }
     
-    // 辅助方法：将实体转换为DTO
-    private PaperDTO convertToDTO(Paper paper) {
-        return new PaperDTO(
-                paper.getId(),
-                paper.getTitle(),
-                paper.getAuthors(),
-                paper.getAbstractText(),
-                paper.getYear(),
-                paper.getJournal(),
-                paper.getCategory(),
-                paper.getUrl()
-        );
+    @Override
+    public Paper findByDoi(String doi) {
+        if (doi == null || doi.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // 先尝试精确匹配
+            Paper paper = paperRepository.findByDoi(doi);
+            if (paper != null) {
+                return paper;
+            }
+            
+            // 如果精确匹配不到，尝试通过搜索找到匹配的DOI
+            String cleanedDoi = doi.trim().toLowerCase().replace("doi:", "");
+            List<Paper> papers = paperRepository.searchByTerm(cleanedDoi);
+            
+            // 查找完全匹配DOI的论文
+            for (Paper p : papers) {
+                if (p.getDoi() != null && 
+                    (p.getDoi().equalsIgnoreCase(cleanedDoi) || 
+                     p.getDoi().equalsIgnoreCase("doi:" + cleanedDoi))) {
+                    return p;
+                }
+            }
+            
+            return null;
+        } catch (Exception e) {
+            // 出现异常时记录并返回null
+            System.err.println("查找DOI发生异常: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 } 

@@ -18,25 +18,26 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 创建用户密码表
 CREATE TABLE IF NOT EXISTS user_passwords (
-    user_id BIGINT PRIMARY KEY,
+     user_id BIGINT NOT NULL,
     password VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 创建论文表
 CREATE TABLE IF NOT EXISTS papers (
-    id VARCHAR(100) PRIMARY KEY,
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
     year INT,
     journal VARCHAR(255),
     category VARCHAR(100),
-    url VARCHAR(255)
+    url VARCHAR(255),
+     doi VARCHAR(255) UNIQUE
 );
 
 -- 创建论文作者关联表
 CREATE TABLE IF NOT EXISTS paper_authors (
-    paper_id VARCHAR(100),
+    paper_id BIGINT,
     author VARCHAR(255),
     PRIMARY KEY (paper_id, author),
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
@@ -75,7 +76,10 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(255) NOT NULL,
     content TEXT,
     author_id BIGINT,
-    paper_id VARCHAR(100),
+    paper_id BIGINT,
+    type VARCHAR(50), -- 新增：帖子类型
+    category VARCHAR(50), -- 新增：帖子分类
+    status INT NOT NULL DEFAULT 1, -- 新增：帖子状态，1正常0删除
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL,
@@ -94,6 +98,7 @@ CREATE TABLE IF NOT EXISTS post_likes (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
 
+
 -- 创建用户搜索历史表
 CREATE TABLE IF NOT EXISTS user_search_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -108,9 +113,76 @@ CREATE TABLE IF NOT EXISTS user_search_history (
 CREATE TABLE IF NOT EXISTS user_view_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    paper_id VARCHAR(100) NOT NULL,
+    paper_id BIGINT NOT NULL,
     view_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
     INDEX idx_user_views (user_id, view_time DESC)
+);
+
+-- 创建用户收藏论文表
+CREATE TABLE IF NOT EXISTS user_favorites (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    paper_id BIGINT NOT NULL,
+    collect_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_paper (user_id, paper_id),
+    INDEX idx_user_favorites (user_id, collect_time DESC)
+); 
+
+-- 创建用户论文标签表
+CREATE TABLE IF NOT EXISTS user_paper_tags (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    paper_id BIGINT NOT NULL,
+    tag_name VARCHAR(50) NOT NULL,
+    tag_color VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
+
+    -- 确保每个用户对每篇论文的每个标签只能添加一次
+    UNIQUE KEY unique_user_paper_tag (user_id, paper_id, tag_name)
+);
+
+-- 标签表
+CREATE TABLE IF NOT EXISTS post_tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- 帖子-标签多对多关系表
+CREATE TABLE IF NOT EXISTS post_relation_tag (
+    post_id BIGINT NOT NULL,
+    tag_id BIGINT NOT NULL,
+    PRIMARY KEY (post_id, tag_id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES post_tag(id) ON DELETE CASCADE
+);
+
+-- 评论表
+CREATE TABLE IF NOT EXISTS comment (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT NOT NULL,
+    post_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    parent_id BIGINT,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE
+);
+-- 创建帖子收藏表（与论文收藏表user_favorites分开）
+CREATE TABLE IF NOT EXISTS post_favorites (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    post_id BIGINT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_user_post_fav (user_id, post_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    INDEX idx_user_post_favorites (user_id, create_time DESC)
 );

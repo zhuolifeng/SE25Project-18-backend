@@ -9,10 +9,16 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserViewHistoryDTO {
+public class UserPaperTagDTO {
     private Long id;
     private Long userId;
     private Long paperId;
-    private String paperTitle; // 论文标题，方便前端显示
-    private LocalDateTime viewTime;
+    private String tagName;
+    private String tagColor;
+    private LocalDateTime createdAt;
+    
+    // 附加信息 - 用于前端展示
+    private String paperTitle;
+    private String paperAuthors;
+    private String paperYear;
 } 

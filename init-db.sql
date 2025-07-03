@@ -144,3 +144,31 @@ CREATE TABLE IF NOT EXISTS user_paper_tags (
     -- 确保每个用户对每篇论文的每个标签只能添加一次
     UNIQUE KEY unique_user_paper_tag (user_id, paper_id, tag_name)
 );
+
+-- 标签表
+CREATE TABLE IF NOT EXISTS post_tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- 帖子-标签多对多关系表
+CREATE TABLE IF NOT EXISTS post_relation_tag (
+    post_id BIGINT NOT NULL,
+    tag_id BIGINT NOT NULL,
+    PRIMARY KEY (post_id, tag_id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES post_tag(id) ON DELETE CASCADE
+);
+
+-- 评论表
+CREATE TABLE IF NOT EXISTS comment (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT NOT NULL,
+    post_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    parent_id BIGINT,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE
+);

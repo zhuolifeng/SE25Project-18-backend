@@ -10,4 +10,5 @@ public interface PostService {
     List<PostDTO> searchPosts(String keyword, String author, String type, String category, Integer page, Integer size);
     List<PostDTO> searchByTerm(String searchTerm);
     void deletePost(Long id);
+    List<PostDTO> searchPostsByTag(String tagName);
 } 

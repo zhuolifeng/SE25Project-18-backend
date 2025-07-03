@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/posts/**").permitAll()
                 .requestMatchers("/api/history/**").permitAll()
                 .requestMatchers("/api/tags/**").permitAll()
+                .requestMatchers("/api/comments/**").permitAll()
                 .requestMatchers("/", "/error").permitAll()
                 .requestMatchers(request -> "OPTIONS".equals(request.getMethod())).permitAll()
                 .anyRequest().authenticated()

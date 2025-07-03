@@ -17,4 +17,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
            "LOWER(p.content) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
            "LOWER(a.username) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
     List<Post> searchByTerm(@Param("searchTerm") String searchTerm);
+
+    @Query("SELECT p FROM Post p JOIN p.tags t WHERE t.name = :tagName")
+    List<Post> findByTagName(@Param("tagName") String tagName);
+
+    @Query("SELECT p FROM Post p WHERE (:type IS NULL OR p.type = :type) AND (:category IS NULL OR p.category = :category) AND p.status = 1")
+    List<Post> findByTypeAndCategory(@Param("type") String type, @Param("category") String category);
 } 

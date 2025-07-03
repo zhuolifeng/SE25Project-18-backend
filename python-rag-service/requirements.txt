@@ -1,0 +1,38 @@
+# Core dependencies
+fastapi
+uvicorn
+pydantic
+python-multipart
+
+# LangChain ecosystem
+langchain
+langchain-community
+langchain-core
+
+# Qwen/Tongyi dependencies
+dashscope
+
+# Vector databases
+qdrant-client
+chromadb
+
+# Document processing
+pypdf
+docx2txt
+pandas
+tiktoken
+
+# Embeddings
+sentence-transformers
+
+# Utilities
+python-dotenv
+requests
+numpy
+tenacity
+aiohttp
+
+# Development
+pytest
+black
+flake8

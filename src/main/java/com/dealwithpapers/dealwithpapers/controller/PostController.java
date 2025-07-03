@@ -1,15 +1,22 @@
 package com.dealwithpapers.dealwithpapers.controller;
 
 import com.dealwithpapers.dealwithpapers.dto.PostDTO;
+import com.dealwithpapers.dealwithpapers.entity.User;
+import com.dealwithpapers.dealwithpapers.repository.UserRepository;
+import com.dealwithpapers.dealwithpapers.service.CommentService;
 import com.dealwithpapers.dealwithpapers.service.PostService;
 import com.dealwithpapers.dealwithpapers.service.PostLikeService;
+import com.dealwithpapers.dealwithpapers.util.AuthUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -19,6 +26,20 @@ public class PostController {
 
     @Autowired
     private PostLikeService postLikeService;
+    
+    @Autowired
+    private CommentService commentService;
+    
+    @Autowired
+    private UserRepository userRepository;
+
+    /**
+     * 获取当前用户
+     * @return 当前用户ID
+     */
+    private User getCurrentUser() {
+        return AuthUtils.getCurrentUser(userRepository);
+    }
 
     @PostMapping
     public PostDTO createPost(@RequestBody PostDTO postDTO) {
@@ -112,12 +133,174 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public void deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    public Map<String, Object> deletePost(@PathVariable Long id) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 检查当前用户是否是帖子作者
+            User currentUser = getCurrentUser();
+            PostDTO post = postService.getPostById(id);
+            if (post == null) {
+                response.put("success", false);
+                response.put("message", "帖子不存在");
+                return response;
+            }
+            
+            if (!post.getAuthorId().equals(currentUser.getId())) {
+                response.put("success", false);
+                response.put("message", "只能删除自己发布的帖子");
+                return response;
+            }
+            
+            postService.deletePost(id);
+            response.put("success", true);
+            response.put("message", "帖子删除成功");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "删除失败: " + e.getMessage());
+        }
+        return response;
     }
 
     @GetMapping("/byTag")
     public List<PostDTO> getPostsByPostTag(@RequestParam String postTag) {
         return postService.searchPostsByTag(postTag);
+    }
+    
+    // 获取当前用户发布的帖子
+    @GetMapping("/user/published")
+    public Map<String, Object> getUserPosts() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User currentUser = getCurrentUser();
+            List<PostDTO> posts = postService.searchPosts(null, currentUser.getUsername(), null, null, null, null);
+            
+            // 转换为前端需要的格式
+            List<Map<String, Object>> result = posts.stream().map(post -> {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", post.getId());
+                item.put("title", post.getTitle());
+                item.put("content", post.getContent());
+                item.put("category", post.getCategory());
+                item.put("type", post.getType());
+                item.put("author", post.getAuthorName());
+                item.put("likes", postLikeService.countLikes(post.getId()));
+                item.put("dislikes", postLikeService.countDislikes(post.getId()));
+                item.put("comments", 0); // 暂无评论统计
+                item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
+                return item;
+            }).toList();
+            
+            response.put("success", true);
+            response.put("data", result);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "获取发布帖子失败: " + e.getMessage());
+            response.put("data", new ArrayList<>());
+        }
+        return response;
+    }
+    
+    // 获取当前用户点赞的帖子
+    @GetMapping("/user/liked")
+    public Map<String, Object> getUserLikedPosts() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User currentUser = getCurrentUser();
+            List<PostDTO> posts = postLikeService.getUserLikedPosts(currentUser.getId());
+            
+            // 转换为前端需要的格式
+            List<Map<String, Object>> result = posts.stream().map(post -> {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", post.getId());
+                item.put("title", post.getTitle());
+                item.put("content", post.getContent());
+                item.put("category", post.getCategory());
+                item.put("type", post.getType());
+                item.put("author", post.getAuthorName());
+                item.put("likes", postLikeService.countLikes(post.getId()));
+                item.put("dislikes", postLikeService.countDislikes(post.getId()));
+                item.put("comments", 0); // 暂无评论统计
+                item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
+                return item;
+            }).toList();
+            
+            response.put("success", true);
+            response.put("data", result);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "获取点赞帖子失败: " + e.getMessage());
+            response.put("data", new ArrayList<>());
+        }
+        return response;
+    }
+    
+    // 获取当前用户点踩的帖子
+    @GetMapping("/user/disliked")
+    public Map<String, Object> getUserDislikedPosts() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User currentUser = getCurrentUser();
+            List<PostDTO> posts = postLikeService.getUserDislikedPosts(currentUser.getId());
+            
+            // 转换为前端需要的格式
+            List<Map<String, Object>> result = posts.stream().map(post -> {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", post.getId());
+                item.put("title", post.getTitle());
+                item.put("content", post.getContent());
+                item.put("category", post.getCategory());
+                item.put("type", post.getType());
+                item.put("author", post.getAuthorName());
+                item.put("likes", postLikeService.countLikes(post.getId()));
+                item.put("dislikes", postLikeService.countDislikes(post.getId()));
+                item.put("comments", 0); // 暂无评论统计
+                item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
+                return item;
+            }).toList();
+            
+            response.put("success", true);
+            response.put("data", result);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "获取点踩帖子失败: " + e.getMessage());
+            response.put("data", new ArrayList<>());
+        }
+        return response;
+    }
+    
+    // 获取当前用户评论的帖子
+    @GetMapping("/user/commented")
+    public Map<String, Object> getUserCommentedPosts() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User currentUser = getCurrentUser();
+            
+            // 使用评论服务获取用户评论过的帖子
+            List<PostDTO> posts = commentService.getUserCommentedPosts(currentUser.getId());
+            
+            // 转换为前端需要的格式
+            List<Map<String, Object>> result = posts.stream().map(post -> {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", post.getId());
+                item.put("title", post.getTitle());
+                item.put("content", post.getContent());
+                item.put("category", post.getCategory());
+                item.put("type", post.getType());
+                item.put("author", post.getAuthorName());
+                item.put("likes", postLikeService.countLikes(post.getId()));
+                item.put("dislikes", postLikeService.countDislikes(post.getId()));
+                item.put("comments", 0); // 暂无评论统计
+                item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
+                return item;
+            }).toList();
+            
+            response.put("success", true);
+            response.put("data", result);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "获取评论帖子失败: " + e.getMessage());
+            response.put("data", new ArrayList<>());
+        }
+        return response;
     }
 } 

@@ -9,6 +9,7 @@ com\dealwithpapers\dealwithpapers\dto\PasswordUpdateDTO.class
 com\dealwithpapers\dealwithpapers\DealwithpapersApplication.class
 com\dealwithpapers\dealwithpapers\service\PaperService.class
 com\dealwithpapers\dealwithpapers\service\UserHistoryService.class
+com\dealwithpapers\dealwithpapers\config\SecurityConfig$1.class
 com\dealwithpapers\dealwithpapers\entity\User.class
 com\dealwithpapers\dealwithpapers\dto\UserSearchHistoryDTO.class
 com\dealwithpapers\dealwithpapers\entity\UserFavorite.class
@@ -22,9 +23,11 @@ com\dealwithpapers\dealwithpapers\controller\UserFavoriteController.class
 com\dealwithpapers\dealwithpapers\service\PostLikeService.class
 com\dealwithpapers\dealwithpapers\controller\PostLikeController.class
 com\dealwithpapers\dealwithpapers\dto\UserViewHistoryDTO.class
+com\dealwithpapers\dealwithpapers\service\impl\PostFavoriteServiceImpl.class
 com\dealwithpapers\dealwithpapers\service\impl\PaperServiceImpl.class
 com\dealwithpapers\dealwithpapers\dto\UserPaperTagDTO.class
 com\dealwithpapers\dealwithpapers\repository\UserRepository.class
+com\dealwithpapers\dealwithpapers\service\PostFavoriteService.class
 com\dealwithpapers\dealwithpapers\repository\UserFavoriteRepository.class
 com\dealwithpapers\dealwithpapers\entity\PostLike.class
 com\dealwithpapers\dealwithpapers\service\UserFavoriteService.class
@@ -34,6 +37,7 @@ com\dealwithpapers\dealwithpapers\dto\UserUpdateDTO.class
 com\dealwithpapers\dealwithpapers\service\impl\CommentServiceImpl.class
 com\dealwithpapers\dealwithpapers\service\UserService.class
 com\dealwithpapers\dealwithpapers\config\SecurityConfig.class
+com\dealwithpapers\dealwithpapers\repository\PostFavoriteRepository.class
 com\dealwithpapers\dealwithpapers\entity\PostTag.class
 com\dealwithpapers\dealwithpapers\entity\UserPaperTag.class
 com\dealwithpapers\dealwithpapers\entity\UserViewHistory.class
@@ -45,6 +49,7 @@ com\dealwithpapers\dealwithpapers\dto\CommentDTO.class
 com\dealwithpapers\dealwithpapers\repository\PaperRepository.class
 com\dealwithpapers\dealwithpapers\repository\PostRepository.class
 com\dealwithpapers\dealwithpapers\service\UserPaperTagService.class
+com\dealwithpapers\dealwithpapers\config\SecurityConfig$UserAuthentication.class
 com\dealwithpapers\dealwithpapers\dto\UserRegisterDTO.class
 com\dealwithpapers\dealwithpapers\repository\UserPaperTagRepository.class
 com\dealwithpapers\dealwithpapers\controller\UserHistoryController.class
@@ -52,10 +57,13 @@ com\dealwithpapers\dealwithpapers\dto\PaperSearchDTO.class
 com\dealwithpapers\dealwithpapers\repository\CommentRepository.class
 com\dealwithpapers\dealwithpapers\service\impl\PostLikeServiceImpl.class
 com\dealwithpapers\dealwithpapers\controller\PaperController.class
+com\dealwithpapers\dealwithpapers\controller\PostFavoriteController.class
 com\dealwithpapers\dealwithpapers\controller\PostController.class
 com\dealwithpapers\dealwithpapers\controller\CommentController.class
 com\dealwithpapers\dealwithpapers\dto\UserResponseDTO.class
 com\dealwithpapers\dealwithpapers\repository\UserViewHistoryRepository.class
 com\dealwithpapers\dealwithpapers\entity\UserPassword.class
+com\dealwithpapers\dealwithpapers\entity\PostFavorite.class
+com\dealwithpapers\dealwithpapers\util\AuthUtils.class
 com\dealwithpapers\dealwithpapers\service\PostService.class
 com\dealwithpapers\dealwithpapers\service\CommentService.class

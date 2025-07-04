@@ -15,4 +15,5 @@ public class UserResponseDTO {
     private String email;
     private String phone;
     private LocalDateTime registerTime;
+    private String bio;
 }

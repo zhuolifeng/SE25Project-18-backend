@@ -186,3 +186,16 @@ CREATE TABLE IF NOT EXISTS post_favorites (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     INDEX idx_user_post_favorites (user_id, create_time DESC)
 );
+
+-- 创建用户关注表
+CREATE TABLE IF NOT EXISTS user_follows (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    follower_id BIGINT NOT NULL,
+    following_id BIGINT NOT NULL,
+    follow_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_follow_relation (follower_id, following_id),
+    FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_follower (follower_id),
+    INDEX idx_following (following_id)
+);

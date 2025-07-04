@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/tags/**").permitAll()
                 .requestMatchers("/api/comments/**").permitAll()
                 .requestMatchers("/", "/error").permitAll()
+                .requestMatchers("/api/chat/query").permitAll()
                 .requestMatchers(request -> "OPTIONS".equals(request.getMethod())).permitAll()
                 .anyRequest().authenticated()
             )

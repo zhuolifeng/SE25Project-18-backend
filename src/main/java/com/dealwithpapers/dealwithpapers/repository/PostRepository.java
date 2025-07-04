@@ -23,4 +23,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE (:type IS NULL OR p.type = :type) AND (:category IS NULL OR p.category = :category) AND p.status = 1")
     List<Post> findByTypeAndCategory(@Param("type") String type, @Param("category") String category);
+
+    // 统计用户发布的帖子数量
+    int countByAuthorId(Long authorId);
 } 

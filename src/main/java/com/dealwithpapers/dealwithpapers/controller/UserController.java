@@ -5,8 +5,15 @@ import com.dealwithpapers.dealwithpapers.dto.UserRegisterDTO;
 import com.dealwithpapers.dealwithpapers.dto.UserResponseDTO;
 import com.dealwithpapers.dealwithpapers.dto.UserUpdateDTO;
 import com.dealwithpapers.dealwithpapers.dto.PasswordUpdateDTO;
+import com.dealwithpapers.dealwithpapers.entity.User;
+import com.dealwithpapers.dealwithpapers.repository.UserRepository;
+import com.dealwithpapers.dealwithpapers.repository.UserFollowRepository;
+import com.dealwithpapers.dealwithpapers.repository.PostRepository;
+import com.dealwithpapers.dealwithpapers.repository.UserFavoriteRepository;
 import com.dealwithpapers.dealwithpapers.service.UserService;
+import com.dealwithpapers.dealwithpapers.util.AuthUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 import jakarta.servlet.http.HttpSession;
 
 @RestController
@@ -23,6 +31,18 @@ import jakarta.servlet.http.HttpSession;
 public class UserController {
 
     private final UserService userService;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private UserFollowRepository userFollowRepository;
+    
+    @Autowired
+    private PostRepository postRepository;
+    
+    @Autowired
+    private UserFavoriteRepository userFavoriteRepository;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO registerDTO) {
@@ -65,12 +85,12 @@ public class UserController {
         try {
             userService.logout();
             Map<String, String> response = new HashMap<>();
-            response.put("message", "退出登录成功");
+            response.put("message", "已成功退出登录");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         }
     }
 
@@ -139,5 +159,214 @@ public class UserController {
         response.put("userId", userId);
         
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 获取用户公开资料
+     * @param userId 用户ID
+     * @return 用户公开资料
+     */
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<?> getUserPublicProfile(@PathVariable Long userId) {
+        try {
+            Map<String, Object> profile = userService.getUserPublicProfile(userId);
+            return ResponseEntity.ok(profile);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * 关注用户
+     * @param userId 要关注的用户ID
+     * @return 操作结果
+     */
+    @PostMapping("/follow/{userId}")
+    public ResponseEntity<?> followUser(@PathVariable Long userId) {
+        try {
+            Map<String, Object> result = userService.followUser(userId);
+            if ((boolean) result.get("success")) {
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.badRequest().body(result);
+            }
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * 取消关注用户
+     * @param userId 要取消关注的用户ID
+     * @return 操作结果
+     */
+    @DeleteMapping("/follow/{userId}")
+    public ResponseEntity<?> unfollowUser(@PathVariable Long userId) {
+        try {
+            Map<String, Object> result = userService.unfollowUser(userId);
+            if ((boolean) result.get("success")) {
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.badRequest().body(result);
+            }
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * 获取用户关注的用户列表
+     * @param userId 用户ID
+     * @return 关注的用户列表
+     */
+    @GetMapping("/{userId}/following")
+    public ResponseEntity<?> getFollowingList(@PathVariable Long userId) {
+        try {
+            List<Map<String, Object>> followingList = userService.getFollowingList(userId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", followingList);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            error.put("data", List.of());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * 获取用户的粉丝列表
+     * @param userId 用户ID
+     * @return 粉丝列表
+     */
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<?> getFollowersList(@PathVariable Long userId) {
+        try {
+            List<Map<String, Object>> followersList = userService.getFollowersList(userId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("data", followersList);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            error.put("data", List.of());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * 检查当前用户是否关注了指定用户
+     * @param userId 要检查的用户ID
+     * @return 是否已关注
+     */
+    @GetMapping("/is-following/{userId}")
+    public ResponseEntity<?> isFollowing(@PathVariable Long userId) {
+        try {
+            boolean isFollowing = userService.isFollowing(userId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("isFollowing", isFollowing);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("isFollowing", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+    /**
+     * 获取当前用户的统计数据
+     * @return 用户统计数据
+     */
+    @GetMapping("/current/stats")
+    public ResponseEntity<?> getCurrentUserStats() {
+        try {
+            User currentUser = AuthUtils.getCurrentUser(userRepository);
+            if (currentUser == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "用户未登录");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            }
+            
+            Map<String, Object> stats = getUserStatsData(currentUser.getId());
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * 获取指定用户的统计数据
+     * @param userId 用户ID
+     * @return 用户统计数据
+     */
+    @GetMapping("/{userId}/stats")
+    public ResponseEntity<?> getUserStats(@PathVariable Long userId) {
+        try {
+            if (!userRepository.existsById(userId)) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "用户不存在");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+            
+            Map<String, Object> stats = getUserStatsData(userId);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+    
+    /**
+     * 获取用户统计数据的共用方法
+     * @param userId 用户ID
+     * @return 统计数据Map
+     */
+    private Map<String, Object> getUserStatsData(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        // 获取统计数据
+        int postCount = postRepository.countByAuthorId(userId);
+        long followersCount = userFollowRepository.countByFollowing(user);
+        long followingCount = userFollowRepository.countByFollower(user);
+        long favoriteCount = userFavoriteRepository.countByUserId(userId);
+        
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("postCount", postCount);
+        stats.put("followerCount", followersCount);
+        stats.put("followingCount", followingCount);
+        stats.put("favoriteCount", favoriteCount);
+        
+        // 如果当前有登录用户，检查是否已关注该用户
+        try {
+            User currentUser = AuthUtils.getCurrentUser(userRepository);
+            if (currentUser != null && !currentUser.getId().equals(userId)) {
+                boolean isFollowing = userService.isFollowing(userId);
+                stats.put("isFollowing", isFollowing);
+            }
+        } catch (Exception e) {
+            // 用户未登录，不处理
+            stats.put("isFollowing", false);
+        }
+        
+        return stats;
     }
 } 

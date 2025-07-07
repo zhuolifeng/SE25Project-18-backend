@@ -19,6 +19,9 @@ public class PostDTO {
     private String category;
     private int status;
     private Set<String> postTags;
+    private int commentCount;
+    private int likes;
+    private int dislikes;
     
     // Explicit getters to ensure they're available
     public Long getId() {
@@ -72,4 +75,11 @@ public class PostDTO {
     public Set<String> getPostTags() {
         return postTags;
     }
+
+    public int getCommentCount() { return commentCount; }
+    public void setCommentCount(int commentCount) { this.commentCount = commentCount; }
+    public int getLikes() { return likes; }
+    public void setLikes(int likes) { this.likes = likes; }
+    public int getDislikes() { return dislikes; }
+    public void setDislikes(int dislikes) { this.dislikes = dislikes; }
 } 

@@ -183,6 +183,9 @@ public class PostServiceImpl implements PostService {
             Set<String> tagNames = post.getTags().stream().map(PostTag::getName).collect(Collectors.toSet());
             dto.setPostTags(tagNames);
         }
+        // 设置评论数量
+        int commentCount = (int) commentRepository.countByPostId(post.getId());
+        dto.setCommentCount(commentCount);
         return dto;
     }
 } 

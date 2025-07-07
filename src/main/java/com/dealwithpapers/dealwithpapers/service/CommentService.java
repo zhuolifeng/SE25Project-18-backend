@@ -30,4 +30,11 @@ public interface CommentService {
      * @return 是否删除成功
      */
     boolean deleteComment(Long commentId, Long userId);
+
+    /**
+     * 统计某个帖子的评论数
+     * @param postId 帖子ID
+     * @return 评论数
+     */
+    long countCommentsByPostId(Long postId);
 } 

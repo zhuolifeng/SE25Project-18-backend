@@ -199,3 +199,34 @@ CREATE TABLE IF NOT EXISTS user_follows (
     INDEX idx_follower (follower_id),
     INDEX idx_following (following_id)
 );
+
+-- 创建私信表
+CREATE TABLE IF NOT EXISTS user_messages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sender_id BIGINT NOT NULL,
+    receiver_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_sender (sender_id, create_time DESC),
+    INDEX idx_receiver (receiver_id, create_time DESC)
+);
+
+-- 创建会话表(用于优化会话列表查询性能)
+CREATE TABLE IF NOT EXISTS message_conversations (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user1_id BIGINT NOT NULL,
+    user2_id BIGINT NOT NULL,
+    last_message_id BIGINT,
+    last_message_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    unread_count_user1 INT DEFAULT 0,
+    unread_count_user2 INT DEFAULT 0,
+    FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (last_message_id) REFERENCES user_messages(id) ON DELETE SET NULL,
+    UNIQUE KEY unique_conversation (user1_id, user2_id),
+    INDEX idx_user1_last_time (user1_id, last_message_time DESC),
+    INDEX idx_user2_last_time (user2_id, last_message_time DESC)
+);

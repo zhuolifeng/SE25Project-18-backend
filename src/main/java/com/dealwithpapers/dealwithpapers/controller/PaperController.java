@@ -2,8 +2,11 @@ package com.dealwithpapers.dealwithpapers.controller;
 
 import com.dealwithpapers.dealwithpapers.dto.PaperDTO;
 import com.dealwithpapers.dealwithpapers.dto.PaperSearchDTO;
+import com.dealwithpapers.dealwithpapers.dto.DoiProxyResponseDTO;
+import com.dealwithpapers.dealwithpapers.dto.PdfExtractResponseDTO;
 import com.dealwithpapers.dealwithpapers.entity.Paper;
 import com.dealwithpapers.dealwithpapers.service.PaperService;
+import com.dealwithpapers.dealwithpapers.service.DoiProxyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import java.util.Map;
 public class PaperController {
 
     private final PaperService paperService;
+    private final DoiProxyService doiProxyService;
 
     @PostMapping
     public ResponseEntity<?> savePaper(@RequestBody PaperDTO paperDTO) {
@@ -174,6 +178,94 @@ public class PaperController {
             response.put("error", e.getMessage());
             
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
+    /**
+     * DOI代理端点 - 解决CORS问题
+     * @param doi DOI标识符
+     * @return DOI代理响应结果
+     */
+    @GetMapping("/proxy/doi/{doi}")
+    public ResponseEntity<DoiProxyResponseDTO> proxyDoiRequest(@PathVariable String doi) {
+        try {
+            DoiProxyResponseDTO response = doiProxyService.proxyDoiRequest(doi);
+            
+            if (response.isSuccess()) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+        } catch (Exception e) {
+            DoiProxyResponseDTO errorResponse = new DoiProxyResponseDTO(
+                false, doi, null, e.getMessage(), "DOI代理请求失败"
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+    /**
+     * PDF提取端点 - 从URL提取PDF链接
+     * @param url 原始URL
+     * @return PDF提取响应结果
+     */
+    @GetMapping("/extract-pdf")
+    public ResponseEntity<PdfExtractResponseDTO> extractPdfFromUrl(@RequestParam String url) {
+        try {
+            if (url == null || url.trim().isEmpty()) {
+                PdfExtractResponseDTO errorResponse = new PdfExtractResponseDTO(
+                    false, null, null, url, "URL参数不能为空", "缺少URL参数"
+                );
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            PdfExtractResponseDTO response = doiProxyService.extractPdfFromUrl(url);
+            
+            if (response.isSuccess()) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+        } catch (Exception e) {
+            PdfExtractResponseDTO errorResponse = new PdfExtractResponseDTO(
+                false, null, null, url, e.getMessage(), "PDF提取失败"
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+    /**
+     * DOI解析端点 - 获取DOI重定向后的URL并尝试提取PDF
+     * @param doi DOI标识符
+     * @return 包含重定向URL和PDF链接的响应
+     */
+    @GetMapping("/resolve-doi/{doi}")
+    public ResponseEntity<Map<String, Object>> resolveDoi(@PathVariable String doi) {
+        try {
+            Map<String, Object> result = new HashMap<>();
+            
+            // 第一步：获取DOI重定向URL
+            DoiProxyResponseDTO doiResponse = doiProxyService.proxyDoiRequest(doi);
+            result.put("doiProxy", doiResponse);
+            
+            // 第二步：如果DOI解析成功，尝试提取PDF
+            if (doiResponse.isSuccess() && doiResponse.getRedirectUrl() != null) {
+                PdfExtractResponseDTO pdfResponse = doiProxyService.extractPdfFromUrl(doiResponse.getRedirectUrl());
+                result.put("pdfExtract", pdfResponse);
+            }
+            
+            result.put("success", doiResponse.isSuccess());
+            result.put("originalDoi", doi);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("success", false);
+            errorResult.put("originalDoi", doi);
+            errorResult.put("error", e.getMessage());
+            errorResult.put("message", "DOI解析失败");
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResult);
         }
     }
 } 

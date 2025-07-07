@@ -18,21 +18,21 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 创建用户密码表
 CREATE TABLE IF NOT EXISTS user_passwords (
-     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT PRIMARY KEY,
     password VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 创建论文表
 CREATE TABLE IF NOT EXISTS papers (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
     year INT,
     journal VARCHAR(255),
     category VARCHAR(100),
     url VARCHAR(255),
-     doi VARCHAR(255) UNIQUE
+    doi VARCHAR(255) UNIQUE
 );
 
 -- 创建论文作者关联表
@@ -138,8 +138,8 @@ CREATE TABLE IF NOT EXISTS user_paper_tags (
     tag_color VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-    FOREIGN KEY (paper_id) REFERENCES paper(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
 
     -- 确保每个用户对每篇论文的每个标签只能添加一次
     UNIQUE KEY unique_user_paper_tag (user_id, paper_id, tag_name)

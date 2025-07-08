@@ -22,6 +22,9 @@ public class PostDTO {
     private String category;
     private int status;
     private Set<String> postTags;
+    private int commentCount;
+    private int likes;
+    private int dislikes;
     
     // 添加关联论文ID列表
     private Set<Long> relatedPaperIds = new HashSet<>();
@@ -81,6 +84,7 @@ public class PostDTO {
     public Set<String> getPostTags() {
         return postTags;
     }
+
     
     // 新字段的getter和setter
     public Set<Long> getRelatedPaperIds() {
@@ -98,4 +102,13 @@ public class PostDTO {
     public void setRelatedPapers(List<PaperDTO> relatedPapers) {
         this.relatedPapers = relatedPapers;
     }
+
+
+    public int getCommentCount() { return commentCount; }
+    public void setCommentCount(int commentCount) { this.commentCount = commentCount; }
+    public int getLikes() { return likes; }
+    public void setLikes(int likes) { this.likes = likes; }
+    public int getDislikes() { return dislikes; }
+    public void setDislikes(int dislikes) { this.dislikes = dislikes; }
+
 } 

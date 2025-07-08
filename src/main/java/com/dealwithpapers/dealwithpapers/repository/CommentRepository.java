@@ -18,6 +18,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByUserId(Long userId);
     
     /**
+     * 统计某个帖子的评论数
+     * @param postId 帖子ID
+     * @return 评论数
+     */
+    long countByPostId(Long postId);
+    
+    /**
      * 根据帖子ID删除所有评论
      * @param postId 帖子ID
      * @return 删除的评论数量

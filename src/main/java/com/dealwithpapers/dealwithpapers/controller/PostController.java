@@ -67,7 +67,7 @@ public class PostController {
             result.put("authorBio", ""); // 可扩展
             result.put("likes", postLikeService.countLikes(post.getId()));
             result.put("dislikes", postLikeService.countDislikes(post.getId()));
-            result.put("comments", 0); // 暂无评论统计
+            result.put("comments", commentService.countCommentsByPostId(post.getId()));
             result.put("postTags", post.getPostTags());
             result.put("views", 0); // 暂无浏览量
             result.put("relatedPapers", new Object[]{}); // 暂无相关论文
@@ -99,7 +99,7 @@ public class PostController {
             result.put("authorBio", ""); // 可扩展
             result.put("likes", postLikeService.countLikes(post.getId()));
             result.put("dislikes", postLikeService.countDislikes(post.getId()));
-            result.put("comments", 0); // 暂无评论统计
+            result.put("comments", commentService.countCommentsByPostId(post.getId()));
             result.put("postTags", post.getPostTags());
             result.put("views", 0); // 暂无浏览量
             result.put("relatedPapers", new Object[]{}); // 暂无相关论文
@@ -126,7 +126,7 @@ public class PostController {
         result.put("authorBio", ""); // 可扩展
         result.put("likes", postLikeService.countLikes(id));
         result.put("dislikes", postLikeService.countDislikes(id));
-        result.put("comments", 0); // 暂无评论统计
+        result.put("comments", commentService.countCommentsByPostId(id));
         result.put("postTags", post.getPostTags());
         result.put("views", 0); // 暂无浏览量
         result.put("relatedPapers", new Object[]{}); // 暂无相关论文
@@ -189,7 +189,7 @@ public class PostController {
                 item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();
@@ -224,7 +224,7 @@ public class PostController {
                 item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();
@@ -259,7 +259,7 @@ public class PostController {
                 item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();
@@ -296,7 +296,7 @@ public class PostController {
                 item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();
@@ -334,7 +334,7 @@ public class PostController {
                 item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();

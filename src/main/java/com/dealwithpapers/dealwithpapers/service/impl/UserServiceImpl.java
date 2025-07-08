@@ -312,7 +312,8 @@ public class UserServiceImpl implements UserService {
                 user.getEmail(),
                 user.getPhone(),
                 user.getRegisterTime(),
-                user.getBio()
+                user.getBio(),
+                user.getAvatarUrl() // 新增
         );
     }
 

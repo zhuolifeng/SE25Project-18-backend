@@ -10,6 +10,7 @@ import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -76,5 +77,14 @@ public class WebConfig implements WebMvcConfigurer {
                 jacksonConverter.setDefaultCharset(StandardCharsets.UTF_8);
             }
         }
+    }
+
+    /**
+     * 配置静态资源映射，支持头像等图片访问
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
     }
 } 

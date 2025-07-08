@@ -35,6 +35,9 @@ public class User {
     @Column(length = 500)
     private String bio;
     
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
+    
     // Explicitly add getters to ensure they're available
     public Long getId() {
         return id;
@@ -59,4 +62,7 @@ public class User {
     public String getBio() {
         return bio;
     }
+
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 } 

@@ -26,4 +26,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 统计用户发布的帖子数量
     int countByAuthorId(Long authorId);
+    
+    // 根据论文ID查找相关帖子(包括主要论文和关联论文)
+    @Query("SELECT p FROM Post p LEFT JOIN p.relatedPapers rp WHERE p.paper.id = :paperId OR rp.id = :paperId")
+    List<Post> findByPaperIdOrRelatedPapersId(@Param("paperId") Long paperId);
 } 

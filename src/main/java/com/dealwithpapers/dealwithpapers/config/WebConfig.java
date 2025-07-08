@@ -21,14 +21,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")
-                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD")
-                .allowedHeaders("*")
-                .exposedHeaders("Authorization", "Content-Type", "Content-Length", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")
-                .allowCredentials(true)
-                .maxAge(3600);
+                .allowedOriginPatterns("*")  // 允许所有来源
+                .allowedMethods("*")         // 允许所有HTTP方法
+                .allowedHeaders("*")         // 允许所有头部
+                .exposedHeaders("*")         // 暴露所有头部
+                .allowCredentials(true)      // 允许发送凭证
+                .maxAge(3600);               // 预检请求缓存时间
                 
-        System.out.println("CORS配置已加载：允许http://localhost:3000跨域访问，允许携带凭证");
+        System.out.println("CORS配置已加载：允许所有源跨域访问，允许携带凭证");
     }
     
     /**
@@ -37,13 +37,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setCookieName("SESSIONID");           // 设置Cookie名称
-        serializer.setCookiePath("/");                   // Cookie路径
-        serializer.setDomainNamePattern("^.+?\\.(\\w+\\.[a-z]+)$"); // 允许子域名共享Cookie
-        serializer.setCookieMaxAge(3600);                // Cookie最大存活时间（秒）
-        serializer.setUseHttpOnlyCookie(false);          // 允许JS访问Cookie
-        serializer.setUseSecureCookie(false);            // 开发环境不要求HTTPS
-        serializer.setSameSite(null);                    // 允许跨站请求
+        serializer.setCookieName("SESSIONID");       // 设置Cookie名称
+        serializer.setCookiePath("/");               // Cookie路径
+        serializer.setCookieMaxAge(3600);            // Cookie最大存活时间（秒）
+        serializer.setUseHttpOnlyCookie(false);      // 允许JS访问Cookie
+        serializer.setUseSecureCookie(false);        // 开发环境不要求HTTPS
+        serializer.setSameSite(null);                // 在局域网环境中使用默认SameSite设置
         
         System.out.println("Cookie序列化器配置完成: cookieName=SESSIONID, maxAge=3600秒");
         return serializer;

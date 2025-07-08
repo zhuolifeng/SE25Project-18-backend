@@ -152,44 +152,17 @@ public class UserController {
         }
     }
 
+    /**
+     * 测试会话状态的端点
+     */
     @GetMapping("/session-test")
     public ResponseEntity<?> testSession(HttpSession session) {
-        System.out.println("=================== 测试会话状态 ===================");
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        // 打印会话信息
-        System.out.println("会话ID: " + session.getId());
-        System.out.println("会话创建时间: " + new Date(session.getCreationTime()));
-        System.out.println("会话是否为新会话: " + session.isNew());
-        System.out.println("会话超时时间: " + session.getMaxInactiveInterval() + "秒");
-        
-        // 获取所有会话属性
-        System.out.println("会话属性列表:");
-        Enumeration<String> attributeNames = session.getAttributeNames();
-        Map<String, Object> sessionAttributes = new HashMap<>();
-        
-        while (attributeNames.hasMoreElements()) {
-            String name = attributeNames.nextElement();
-            Object value = session.getAttribute(name);
-            System.out.println("  " + name + ": " + value);
-            sessionAttributes.put(name, value == null ? "null" : value.toString());
-        }
-        
-        // 从会话获取当前用户ID
         Long userId = (Long) session.getAttribute("currentUser");
-        boolean isLoggedIn = userId != null;
-        
-        // 构建响应
+        Map<String, Object> response = new HashMap<>();
         response.put("sessionId", session.getId());
-        response.put("isNewSession", session.isNew());
-        response.put("creationTime", new Date(session.getCreationTime()).toString());
-        response.put("lastAccessedTime", new Date(session.getLastAccessedTime()).toString());
-        response.put("maxInactiveInterval", session.getMaxInactiveInterval());
-        response.put("attributes", sessionAttributes);
-        response.put("isLoggedIn", isLoggedIn);
         response.put("userId", userId);
-        
+        response.put("isNew", session.isNew());
+        response.put("creationTime", new Date(session.getCreationTime()));
         return ResponseEntity.ok(response);
     }
 
@@ -401,4 +374,4 @@ public class UserController {
         
         return stats;
     }
-} 
+}

@@ -17,6 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -117,6 +121,34 @@ public class UserController {
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+    @PostMapping("/avatar")
+    public ResponseEntity<?> uploadAvatar(@RequestParam("avatar") MultipartFile file) {
+        try {
+            // 获取当前登录用户
+            User user = AuthUtils.getCurrentUser(userRepository);
+            // 保存文件到本地
+            String uploadDir = "uploads/avatars/";
+            Files.createDirectories(Paths.get(uploadDir));
+            String filename = "avatar_" + user.getId() + "_" + System.currentTimeMillis() + ".png";
+            Path filePath = Paths.get(uploadDir, filename);
+            file.transferTo(filePath);
+            // 更新用户头像URL
+            String avatarUrl = "/" + uploadDir + filename;
+            user.setAvatarUrl(avatarUrl);
+            userRepository.save(user);
+            // 返回新头像URL
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("avatarUrl", avatarUrl);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
@@ -342,4 +374,4 @@ public class UserController {
         
         return stats;
     }
-} 
+}

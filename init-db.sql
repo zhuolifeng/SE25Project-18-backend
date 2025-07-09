@@ -9,11 +9,13 @@ USE dwp;
 
 -- 创建用户表
 CREATE TABLE IF NOT EXISTS users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(20),
-    register_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    register_time TIMESTAMP,
+    bio VARCHAR(500),
+    avatar_url VARCHAR(255) -- 新增头像字段
 );
 
 -- 创建用户密码表

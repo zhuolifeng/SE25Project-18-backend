@@ -16,4 +16,5 @@ public class UserResponseDTO {
     private String phone;
     private LocalDateTime registerTime;
     private String bio;
+    private String avatarUrl;
 }

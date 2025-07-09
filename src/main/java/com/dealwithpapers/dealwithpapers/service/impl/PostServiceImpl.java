@@ -93,16 +93,29 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDTO> searchPosts(String keyword, String author, String type, String category, Integer page, Integer size) {
-        if ((keyword != null && !keyword.trim().isEmpty()) || (author != null && !author.trim().isEmpty())) {
+    public List<PostDTO> searchPosts(String keyword, String author, String type, String category, Long userId, Integer size) {
+        // 如果提供了userId，按用户ID查询帖子
+        if (userId != null) {
+            return postRepository.findAll().stream()
+                .filter(post -> post.getStatus() == 1)
+                .filter(post -> post.getAuthor() != null && post.getAuthor().getId().equals(userId))
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+        }
+        // 如果提供了关键词或作者，通过标题/内容/作者搜索
+        else if ((keyword != null && !keyword.trim().isEmpty()) || (author != null && !author.trim().isEmpty())) {
             String searchTerm = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : author.trim();
             return searchByTerm(searchTerm);
-        } else if ((type != null && !type.trim().isEmpty()) || (category != null && !category.trim().isEmpty())) {
+        } 
+        // 如果提供了类型或分类，按类型/分类过滤
+        else if ((type != null && !type.trim().isEmpty()) || (category != null && !category.trim().isEmpty())) {
             return postRepository.findByTypeAndCategory(
                 (type != null && !type.trim().isEmpty()) ? type.trim() : null,
                 (category != null && !category.trim().isEmpty()) ? category.trim() : null
             ).stream().map(this::toDTO).collect(Collectors.toList());
-        } else {
+        } 
+        // 没有条件则返回所有状态为1的帖子
+        else {
             return postRepository.findAll().stream()
                 .filter(post -> post.getStatus() == 1)
                 .map(this::toDTO).collect(Collectors.toList());
@@ -170,6 +183,9 @@ public class PostServiceImpl implements PostService {
             Set<String> tagNames = post.getTags().stream().map(PostTag::getName).collect(Collectors.toSet());
             dto.setPostTags(tagNames);
         }
+        // 设置评论数量
+        int commentCount = (int) commentRepository.countByPostId(post.getId());
+        dto.setCommentCount(commentCount);
         return dto;
     }
 } 

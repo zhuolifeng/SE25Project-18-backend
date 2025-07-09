@@ -7,8 +7,11 @@ import com.dealwithpapers.dealwithpapers.dto.UserUpdateDTO;
 import com.dealwithpapers.dealwithpapers.dto.PasswordUpdateDTO;
 import com.dealwithpapers.dealwithpapers.entity.User;
 import com.dealwithpapers.dealwithpapers.entity.UserPassword;
+import com.dealwithpapers.dealwithpapers.entity.UserFollow;
 import com.dealwithpapers.dealwithpapers.repository.UserPasswordRepository;
 import com.dealwithpapers.dealwithpapers.repository.UserRepository;
+import com.dealwithpapers.dealwithpapers.repository.UserFollowRepository;
+import com.dealwithpapers.dealwithpapers.repository.PostRepository;
 import com.dealwithpapers.dealwithpapers.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +36,8 @@ public class UserServiceImpl implements UserService {
     private final UserPasswordRepository userPasswordRepository;
     private final PasswordEncoder passwordEncoder;
     private final HttpSession httpSession;
+    private final PostRepository postRepository;
+    private final UserFollowRepository userFollowRepository;
     
     private static final String USER_SESSION_KEY = "currentUser";
 
@@ -301,7 +311,215 @@ public class UserServiceImpl implements UserService {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getRegisterTime()
+                user.getRegisterTime(),
+                user.getBio(),
+                user.getAvatarUrl() // 新增
         );
+    }
+
+    @Override
+    public Map<String, Object> getUserPublicProfile(Long userId) {
+        // 查找用户
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("id", user.getId());
+        profile.put("username", user.getUsername());
+        profile.put("registerTime", user.getRegisterTime());
+        profile.put("bio", user.getBio()); // 用户简介
+        
+        // 统计用户数据
+        // 用户发布的帖子数
+        int postCount = postRepository.countByAuthorId(userId);
+        profile.put("postCount", postCount);
+        
+        // 添加关注和粉丝统计
+        long followingCount = userFollowRepository.countByFollower(user);
+        long followersCount = userFollowRepository.countByFollowing(user);
+        profile.put("followingCount", followingCount);
+        profile.put("followersCount", followersCount);
+        
+        // 如果当前有登录用户，检查是否已关注该用户
+        try {
+            User currentUser = getCurrentUserEntity();
+            if (currentUser != null && !currentUser.getId().equals(userId)) {
+                boolean isFollowing = isFollowing(userId);
+                profile.put("isFollowing", isFollowing);
+            }
+        } catch (Exception e) {
+            // 用户未登录，不处理
+            profile.put("isFollowing", false);
+        }
+        
+        return profile;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> followUser(Long followingId) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // 获取当前用户
+            User currentUser = getCurrentUserEntity();
+            
+            // 不能关注自己
+            if (currentUser.getId().equals(followingId)) {
+                result.put("success", false);
+                result.put("message", "不能关注自己");
+                return result;
+            }
+            
+            // 查找要关注的用户
+            User followingUser = userRepository.findById(followingId)
+                .orElseThrow(() -> new RuntimeException("要关注的用户不存在"));
+            
+            // 检查是否已经关注
+            Optional<UserFollow> existingFollow = userFollowRepository.findByFollowerAndFollowing(currentUser, followingUser);
+            if (existingFollow.isPresent()) {
+                result.put("success", false);
+                result.put("message", "已经关注该用户");
+                return result;
+            }
+            
+            // 创建关注关系
+            UserFollow userFollow = new UserFollow();
+            userFollow.setFollower(currentUser);
+            userFollow.setFollowing(followingUser);
+            userFollow.setFollowTime(LocalDateTime.now());
+            
+            // 保存关注关系
+            userFollowRepository.save(userFollow);
+            
+            result.put("success", true);
+            result.put("message", "关注成功");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "关注失败: " + e.getMessage());
+        }
+        
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public Map<String, Object> unfollowUser(Long followingId) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // 获取当前用户
+            User currentUser = getCurrentUserEntity();
+            
+            // 查找要取消关注的用户
+            User followingUser = userRepository.findById(followingId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+            
+            // 查找关注关系
+            Optional<UserFollow> existingFollow = userFollowRepository.findByFollowerAndFollowing(currentUser, followingUser);
+            if (existingFollow.isEmpty()) {
+                result.put("success", false);
+                result.put("message", "未关注该用户");
+                return result;
+            }
+            
+            // 删除关注关系
+            userFollowRepository.deleteByFollowerAndFollowing(currentUser, followingUser);
+            
+            result.put("success", true);
+            result.put("message", "取消关注成功");
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "取消关注失败: " + e.getMessage());
+        }
+        
+        return result;
+    }
+
+    @Override
+    public List<Map<String, Object>> getFollowingList(Long userId) {
+        // 查找用户
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        // 获取该用户关注的所有用户
+        List<UserFollow> followings = userFollowRepository.findByFollower(user);
+        
+        // 转换为前端需要的格式
+        return followings.stream().map(follow -> {
+            User followingUser = follow.getFollowing();
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", followingUser.getId());
+            map.put("username", followingUser.getUsername());
+            map.put("bio", followingUser.getBio());
+            map.put("followTime", follow.getFollowTime());
+            
+            // 如果当前有登录用户，检查是否也关注了这个用户
+            try {
+                User currentUser = getCurrentUserEntity();
+                if (currentUser != null) {
+                    boolean isFollowing = userFollowRepository.findByFollowerAndFollowing(
+                            currentUser, followingUser).isPresent();
+                    map.put("isFollowing", isFollowing);
+                }
+            } catch (Exception e) {
+                // 用户未登录，不处理
+                map.put("isFollowing", false);
+            }
+            
+            return map;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Map<String, Object>> getFollowersList(Long userId) {
+        // 查找用户
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("用户不存在"));
+        
+        // 获取关注该用户的所有用户
+        List<UserFollow> followers = userFollowRepository.findByFollowing(user);
+        
+        // 转换为前端需要的格式
+        return followers.stream().map(follow -> {
+            User followerUser = follow.getFollower();
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", followerUser.getId());
+            map.put("username", followerUser.getUsername());
+            map.put("bio", followerUser.getBio());
+            map.put("followTime", follow.getFollowTime());
+            
+            // 如果当前有登录用户，检查是否也关注了这个用户
+            try {
+                User currentUser = getCurrentUserEntity();
+                if (currentUser != null) {
+                    boolean isFollowing = userFollowRepository.findByFollowerAndFollowing(
+                            currentUser, followerUser).isPresent();
+                    map.put("isFollowing", isFollowing);
+                }
+            } catch (Exception e) {
+                // 用户未登录，不处理
+                map.put("isFollowing", false);
+            }
+            
+            return map;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isFollowing(Long userId) {
+        try {
+            // 获取当前用户
+            User currentUser = getCurrentUserEntity();
+            
+            // 查找要检查的用户
+            User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+            
+            // 检查是否已关注
+            return userFollowRepository.findByFollowerAndFollowing(currentUser, targetUser).isPresent();
+        } catch (Exception e) {
+            return false;
+        }
     }
 } 

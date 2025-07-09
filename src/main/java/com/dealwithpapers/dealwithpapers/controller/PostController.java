@@ -61,12 +61,13 @@ public class PostController {
             result.put("category", post.getCategory());
             result.put("type", post.getType());
             result.put("author", post.getAuthorName());
+            result.put("authorId", post.getAuthorId());
             result.put("authorAvatar", ""); // 可扩展
             result.put("authorTitle", ""); // 可扩展
             result.put("authorBio", ""); // 可扩展
             result.put("likes", postLikeService.countLikes(post.getId()));
             result.put("dislikes", postLikeService.countDislikes(post.getId()));
-            result.put("comments", 0); // 暂无评论统计
+            result.put("comments", commentService.countCommentsByPostId(post.getId()));
             result.put("postTags", post.getPostTags());
             result.put("views", 0); // 暂无浏览量
             result.put("relatedPapers", new Object[]{}); // 暂无相关论文
@@ -92,12 +93,13 @@ public class PostController {
             result.put("category", post.getCategory());
             result.put("type", post.getType());
             result.put("author", post.getAuthorName());
+            result.put("authorId", post.getAuthorId());
             result.put("authorAvatar", ""); // 可扩展
             result.put("authorTitle", ""); // 可扩展
             result.put("authorBio", ""); // 可扩展
             result.put("likes", postLikeService.countLikes(post.getId()));
             result.put("dislikes", postLikeService.countDislikes(post.getId()));
-            result.put("comments", 0); // 暂无评论统计
+            result.put("comments", commentService.countCommentsByPostId(post.getId()));
             result.put("postTags", post.getPostTags());
             result.put("views", 0); // 暂无浏览量
             result.put("relatedPapers", new Object[]{}); // 暂无相关论文
@@ -118,12 +120,13 @@ public class PostController {
         result.put("category", post.getCategory());
         result.put("type", post.getType());
         result.put("author", post.getAuthorName());
+        result.put("authorId", post.getAuthorId());
         result.put("authorAvatar", ""); // 可扩展
         result.put("authorTitle", ""); // 可扩展
         result.put("authorBio", ""); // 可扩展
         result.put("likes", postLikeService.countLikes(id));
         result.put("dislikes", postLikeService.countDislikes(id));
-        result.put("comments", 0); // 暂无评论统计
+        result.put("comments", commentService.countCommentsByPostId(id));
         result.put("postTags", post.getPostTags());
         result.put("views", 0); // 暂无浏览量
         result.put("relatedPapers", new Object[]{}); // 暂无相关论文
@@ -183,9 +186,10 @@ public class PostController {
                 item.put("category", post.getCategory());
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
+                item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();
@@ -217,9 +221,10 @@ public class PostController {
                 item.put("category", post.getCategory());
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
+                item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();
@@ -251,9 +256,10 @@ public class PostController {
                 item.put("category", post.getCategory());
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
+                item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();
@@ -287,9 +293,10 @@ public class PostController {
                 item.put("category", post.getCategory());
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
+                item.put("authorId", post.getAuthorId());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
-                item.put("comments", 0); // 暂无评论统计
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
                 item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
                 return item;
             }).toList();
@@ -299,6 +306,44 @@ public class PostController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "获取评论帖子失败: " + e.getMessage());
+            response.put("data", new ArrayList<>());
+        }
+        return response;
+    }
+
+    /**
+     * 获取指定用户发布的帖子
+     * @param userId 用户ID
+     * @return 帖子列表
+     */
+    @GetMapping("/user/{userId}/posts")
+    public Map<String, Object> getUserPostsByUserId(@PathVariable Long userId) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<PostDTO> posts = postService.searchPosts(null, null, null, null, userId, null);
+            
+            // 转换为前端需要的格式
+            List<Map<String, Object>> result = posts.stream().map(post -> {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", post.getId());
+                item.put("title", post.getTitle());
+                item.put("content", post.getContent());
+                item.put("category", post.getCategory());
+                item.put("type", post.getType());
+                item.put("author", post.getAuthorName());
+                item.put("authorId", post.getAuthorId());
+                item.put("likes", postLikeService.countLikes(post.getId()));
+                item.put("dislikes", postLikeService.countDislikes(post.getId()));
+                item.put("comments", commentService.countCommentsByPostId(post.getId()));
+                item.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
+                return item;
+            }).toList();
+            
+            response.put("success", true);
+            response.put("data", result);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "获取用户帖子失败: " + e.getMessage());
             response.put("data", new ArrayList<>());
         }
         return response;

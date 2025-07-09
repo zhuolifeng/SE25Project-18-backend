@@ -98,6 +98,11 @@ public class CommentServiceImpl implements CommentService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public long countCommentsByPostId(Long postId) {
+        return commentRepository.countByPostId(postId);
+    }
+
     private CommentDTO toDTO(Comment comment) {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());

@@ -9,11 +9,13 @@ USE dwp;
 
 -- 创建用户表
 CREATE TABLE IF NOT EXISTS users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) UNIQUE,
     phone VARCHAR(20),
-    register_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    register_time TIMESTAMP,
+    bio VARCHAR(500),
+    avatar_url VARCHAR(255) -- 新增头像字段
 );
 
 -- 创建用户密码表
@@ -185,6 +187,7 @@ CREATE TABLE IF NOT EXISTS post_favorites (
     INDEX idx_user_post_favorites (user_id, create_time DESC)
 );
 
+
 -- 创建论文引用关系表
 CREATE TABLE IF NOT EXISTS paper_relations (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -212,4 +215,48 @@ CREATE TABLE IF NOT EXISTS paper_relations (
     INDEX idx_source_paper_type (source_paper_id, relation_type),
     INDEX idx_target_paper_type (target_paper_id, relation_type),
     INDEX idx_priority_score (priority_score DESC)
+
+-- 创建用户关注表
+CREATE TABLE IF NOT EXISTS user_follows (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    follower_id BIGINT NOT NULL,
+    following_id BIGINT NOT NULL,
+    follow_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_follow_relation (follower_id, following_id),
+    FOREIGN KEY (follower_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (following_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_follower (follower_id),
+    INDEX idx_following (following_id)
+);
+
+-- 创建私信表
+CREATE TABLE IF NOT EXISTS user_messages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sender_id BIGINT NOT NULL,
+    receiver_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_sender (sender_id, create_time DESC),
+    INDEX idx_receiver (receiver_id, create_time DESC)
+);
+
+-- 创建会话表(用于优化会话列表查询性能)
+CREATE TABLE IF NOT EXISTS message_conversations (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user1_id BIGINT NOT NULL,
+    user2_id BIGINT NOT NULL,
+    last_message_id BIGINT,
+    last_message_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    unread_count_user1 INT DEFAULT 0,
+    unread_count_user2 INT DEFAULT 0,
+    FOREIGN KEY (user1_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user2_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (last_message_id) REFERENCES user_messages(id) ON DELETE SET NULL,
+    UNIQUE KEY unique_conversation (user1_id, user2_id),
+    INDEX idx_user1_last_time (user1_id, last_message_time DESC),
+    INDEX idx_user2_last_time (user2_id, last_message_time DESC)
+
 );

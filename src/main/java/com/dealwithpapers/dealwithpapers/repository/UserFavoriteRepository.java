@@ -30,4 +30,9 @@ public interface UserFavoriteRepository extends JpaRepository<UserFavorite, Long
      * 检查用户是否已收藏某篇论文
      */
     boolean existsByUserIdAndPaperId(Long userId, Long paperId);
+    
+    /**
+     * 统计用户收藏的论文数量
+     */
+    long countByUserId(Long userId);
 } 

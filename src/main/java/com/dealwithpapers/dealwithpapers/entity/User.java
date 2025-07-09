@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -29,4 +31,38 @@ public class User {
     
     @Column(name = "register_time")
     private LocalDateTime registerTime;
+    
+    @Column(length = 500)
+    private String bio;
+    
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
+    
+    // Explicitly add getters to ensure they're available
+    public Long getId() {
+        return id;
+    }
+    
+    public String getUsername() {
+        return username;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+    
+    public String getPhone() {
+        return phone;
+    }
+    
+    public LocalDateTime getRegisterTime() {
+        return registerTime;
+    }
+    
+    public String getBio() {
+        return bio;
+    }
+
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 } 

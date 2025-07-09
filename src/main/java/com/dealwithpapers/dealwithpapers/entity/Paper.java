@@ -40,4 +40,41 @@ public class Paper {
     private String category; // 论文类别
     
     private String url; // 论文链接
+    
+    // Explicit getters
+    public Long getId() {
+        return id;
+    }
+    
+    public String getDoi() {
+        return doi;
+    }
+    
+    public String getTitle() {
+        return title;
+    }
+    
+    public Set<String> getAuthors() {
+        return authors;
+    }
+    
+    public String getAbstractText() {
+        return abstractText;
+    }
+    
+    public Integer getYear() {
+        return year;
+    }
+    
+    public String getJournal() {
+        return journal;
+    }
+    
+    public String getCategory() {
+        return category;
+    }
+    
+    public String getUrl() {
+        return url;
+    }
 } 

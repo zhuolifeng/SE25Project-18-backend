@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS paper_relations (
     INDEX idx_source_paper_type (source_paper_id, relation_type),
     INDEX idx_target_paper_type (target_paper_id, relation_type),
     INDEX idx_priority_score (priority_score DESC)
-
+);
 -- 创建用户关注表
 CREATE TABLE IF NOT EXISTS user_follows (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

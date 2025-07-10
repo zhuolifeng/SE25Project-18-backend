@@ -7,6 +7,7 @@ import com.dealwithpapers.dealwithpapers.dto.PdfExtractResponseDTO;
 import com.dealwithpapers.dealwithpapers.entity.Paper;
 import com.dealwithpapers.dealwithpapers.service.PaperService;
 import com.dealwithpapers.dealwithpapers.service.DoiProxyService;
+import com.dealwithpapers.dealwithpapers.service.PdfExtractionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ public class PaperController {
 
     private final PaperService paperService;
     private final DoiProxyService doiProxyService;
+    private final PdfExtractionService pdfExtractionService;
 
     @PostMapping
     public ResponseEntity<?> savePaper(@RequestBody PaperDTO paperDTO) {
@@ -266,6 +268,106 @@ public class PaperController {
             errorResult.put("message", "DOI解析失败");
             
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResult);
+        }
+    }
+    
+    /**
+     * PDF内容提取端点 - 提取PDF内容到RAG系统
+     * @param id 论文ID
+     * @return PDF内容提取结果
+     */
+    @PostMapping("/{id}/extract-content")
+    public ResponseEntity<Map<String, Object>> extractPdfContent(@PathVariable Long id) {
+        try {
+            if (id == null || id <= 0) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "无效的论文ID");
+                errorResponse.put("paperId", id);
+                errorResponse.put("status", "invalid_id");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            Map<String, Object> response = pdfExtractionService.extractPdfContent(id);
+            
+            if ((Boolean) response.getOrDefault("success", false)) {
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            }
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "PDF内容提取失败: " + e.getMessage());
+            errorResponse.put("paperId", id);
+            errorResponse.put("status", "error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+    /**
+     * 异步PDF内容提取端点 - 异步提取PDF内容到RAG系统
+     * @param id 论文ID
+     * @return PDF内容提取任务启动结果
+     */
+    @PostMapping("/{id}/extract-content-async")
+    public ResponseEntity<Map<String, Object>> extractPdfContentAsync(@PathVariable Long id) {
+        try {
+            if (id == null || id <= 0) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "无效的论文ID");
+                errorResponse.put("paperId", id);
+                errorResponse.put("status", "invalid_id");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            // 启动异步任务
+            pdfExtractionService.extractPdfContentAsync(id);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "PDF内容提取任务已启动");
+            response.put("paperId", id);
+            response.put("status", "started");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "启动PDF内容提取任务失败: " + e.getMessage());
+            errorResponse.put("paperId", id);
+            errorResponse.put("status", "error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    
+    /**
+     * PDF提取状态查询端点 - 查询PDF内容提取状态
+     * @param id 论文ID
+     * @return PDF内容提取状态
+     */
+    @GetMapping("/{id}/extract-status")
+    public ResponseEntity<Map<String, Object>> getPdfExtractionStatus(@PathVariable Long id) {
+        try {
+            if (id == null || id <= 0) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("extracted", false);
+                errorResponse.put("chunks_count", 0);
+                errorResponse.put("status", "invalid_id");
+                errorResponse.put("error", "无效的论文ID");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            Map<String, Object> response = pdfExtractionService.getPdfExtractionStatus(id);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("extracted", false);
+            errorResponse.put("chunks_count", 0);
+            errorResponse.put("status", "error");
+            errorResponse.put("error", "查询PDF提取状态失败: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 } 

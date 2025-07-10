@@ -18,6 +18,8 @@ chromadb
 
 # Document processing
 pypdf
+PyPDF2
+pdfplumber
 docx2txt
 pandas
 tiktoken

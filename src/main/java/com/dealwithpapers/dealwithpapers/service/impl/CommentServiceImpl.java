@@ -110,6 +110,7 @@ public class CommentServiceImpl implements CommentService {
         dto.setPostId(comment.getPost().getId());
         dto.setUserId(comment.getUser().getId());
         dto.setUserName(comment.getUser().getUsername());
+        dto.setAvatar(comment.getUser().getAvatarUrl());
         dto.setParentId(comment.getParent() != null ? comment.getParent().getId() : null);
         dto.setCreateTime(comment.getCreateTime());
         return dto;
@@ -128,6 +129,7 @@ public class CommentServiceImpl implements CommentService {
             result.put("id", comment.getId());
             result.put("content", comment.getContent());
             result.put("createTime", comment.getCreateTime());
+            result.put("avatar", comment.getUser().getAvatarUrl());
             
             // 帖子信息
             Post post = comment.getPost();

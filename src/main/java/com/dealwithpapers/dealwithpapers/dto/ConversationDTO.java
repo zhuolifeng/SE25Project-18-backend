@@ -16,4 +16,5 @@ public class ConversationDTO {
     private LocalDateTime lastMessageTime;
     private int unreadCount;
     private boolean online;
+    private String avatar; // 对方头像url
 } 

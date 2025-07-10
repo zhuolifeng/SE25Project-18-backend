@@ -328,6 +328,7 @@ public class UserServiceImpl implements UserService {
         profile.put("username", user.getUsername());
         profile.put("registerTime", user.getRegisterTime());
         profile.put("bio", user.getBio()); // 用户简介
+        profile.put("avatarUrl", user.getAvatarUrl());
         
         // 统计用户数据
         // 用户发布的帖子数
@@ -453,6 +454,7 @@ public class UserServiceImpl implements UserService {
             map.put("username", followingUser.getUsername());
             map.put("bio", followingUser.getBio());
             map.put("followTime", follow.getFollowTime());
+            map.put("avatarUrl", followingUser.getAvatarUrl());
             
             // 如果当前有登录用户，检查是否也关注了这个用户
             try {
@@ -488,6 +490,7 @@ public class UserServiceImpl implements UserService {
             map.put("username", followerUser.getUsername());
             map.put("bio", followerUser.getBio());
             map.put("followTime", follow.getFollowTime());
+            map.put("avatarUrl", followerUser.getAvatarUrl());
             
             // 如果当前有登录用户，检查是否也关注了这个用户
             try {

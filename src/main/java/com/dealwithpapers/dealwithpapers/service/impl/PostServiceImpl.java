@@ -201,6 +201,7 @@ public class PostServiceImpl implements PostService {
         if (post.getAuthor() != null) {
             dto.setAuthorId(post.getAuthor().getId());
             dto.setAuthorName(post.getAuthor().getUsername());
+            dto.setAuthorAvatar(post.getAuthor().getAvatarUrl());
         }
         
         // 设置主要论文

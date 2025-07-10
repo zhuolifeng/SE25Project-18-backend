@@ -153,6 +153,31 @@ public class UserController {
     }
 
     /**
+     * 重置用户头像为默认
+     * @return 操作结果
+     */
+    @PostMapping("/reset-avatar")
+    public ResponseEntity<?> resetAvatar() {
+        try {
+            // 获取当前登录用户
+            User user = AuthUtils.getCurrentUser(userRepository);
+            // 清空用户头像URL
+            user.setAvatarUrl(null);
+            userRepository.save(user);
+            // 返回结果
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "头像已重置为默认");
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    /**
      * 测试会话状态的端点
      */
     @GetMapping("/session-test")

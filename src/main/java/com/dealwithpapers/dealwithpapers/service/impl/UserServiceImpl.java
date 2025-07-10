@@ -328,15 +328,7 @@ public class UserServiceImpl implements UserService {
         profile.put("username", user.getUsername());
         profile.put("registerTime", user.getRegisterTime());
         profile.put("bio", user.getBio()); // 用户简介
-<<<<<<< HEAD
-<<<<<<< HEAD
         profile.put("avatarUrl", user.getAvatarUrl());
-=======
-        profile.put("avatarUrl", user.getAvatarUrl()); // 添加头像URL
->>>>>>> 80648c5a757be120071b246d1261a4d8fa1ceb6d
-=======
-        profile.put("avatarUrl", user.getAvatarUrl()); // 添加头像URL
->>>>>>> 0dc75956680eb3138828498bd4d19367938f3a19
         
         // 统计用户数据
         // 用户发布的帖子数

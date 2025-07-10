@@ -20,21 +20,21 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- 创建用户密码表
 CREATE TABLE IF NOT EXISTS user_passwords (
-     user_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     password VARCHAR(255) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- 创建论文表
 CREATE TABLE IF NOT EXISTS papers (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
     year INT,
     journal VARCHAR(255),
     category VARCHAR(100),
     url VARCHAR(255),
-     doi VARCHAR(255) UNIQUE
+    doi VARCHAR(255) UNIQUE
 );
 
 -- 创建论文作者关联表
@@ -47,29 +47,29 @@ CREATE TABLE IF NOT EXISTS paper_authors (
 
 -- 先创建 spring_session 表
 CREATE TABLE `spring_session` (
-  `PRIMARY_ID` char(36) NOT NULL,
-  `SESSION_ID` char(36) NOT NULL,
-  `CREATION_TIME` bigint NOT NULL,
-  `LAST_ACCESS_TIME` bigint NOT NULL,
-  `MAX_INACTIVE_INTERVAL` int NOT NULL,
-  `EXPIRY_TIME` bigint NOT NULL,
-  `PRINCIPAL_NAME` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`PRIMARY_ID`),
-  UNIQUE KEY `SPRING_SESSION_IX1` (`SESSION_ID`),
-  KEY `SPRING_SESSION_IX2` (`EXPIRY_TIME`),
-  KEY `SPRING_SESSION_IX3` (`PRINCIPAL_NAME`)
+    `PRIMARY_ID` char(36) NOT NULL,
+    `SESSION_ID` char(36) NOT NULL,
+    `CREATION_TIME` bigint NOT NULL,
+    `LAST_ACCESS_TIME` bigint NOT NULL,
+    `MAX_INACTIVE_INTERVAL` int NOT NULL,
+    `EXPIRY_TIME` bigint NOT NULL,
+    `PRINCIPAL_NAME` varchar(100) DEFAULT NULL,
+    PRIMARY KEY (`PRIMARY_ID`),
+    UNIQUE KEY `SPRING_SESSION_IX1` (`SESSION_ID`),
+    KEY `SPRING_SESSION_IX2` (`EXPIRY_TIME`),
+    KEY `SPRING_SESSION_IX3` (`PRINCIPAL_NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 再创建 spring_session_attributes 表
 CREATE TABLE `spring_session_attributes` (
-  `SESSION_PRIMARY_ID` char(36) NOT NULL,
-  `ATTRIBUTE_NAME` varchar(200) NOT NULL,
-  `ATTRIBUTE_BYTES` blob NOT NULL,
-  PRIMARY KEY (`SESSION_PRIMARY_ID`,`ATTRIBUTE_NAME`),
-  CONSTRAINT `SPRING_SESSION_ATTRIBUTES_FK` 
-    FOREIGN KEY (`SESSION_PRIMARY_ID`) 
-    REFERENCES `spring_session` (`PRIMARY_ID`) 
-    ON DELETE CASCADE
+    `SESSION_PRIMARY_ID` char(36) NOT NULL,
+    `ATTRIBUTE_NAME` varchar(200) NOT NULL,
+    `ATTRIBUTE_BYTES` blob NOT NULL,
+    PRIMARY KEY (`SESSION_PRIMARY_ID`,`ATTRIBUTE_NAME`),
+    CONSTRAINT `SPRING_SESSION_ATTRIBUTES_FK` 
+        FOREIGN KEY (`SESSION_PRIMARY_ID`) 
+        REFERENCES `spring_session` (`PRIMARY_ID`) 
+        ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 创建帖子表
@@ -99,7 +99,6 @@ CREATE TABLE IF NOT EXISTS post_likes (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
-
 
 -- 创建用户搜索历史表
 CREATE TABLE IF NOT EXISTS user_search_history (
@@ -142,10 +141,8 @@ CREATE TABLE IF NOT EXISTS user_paper_tags (
     tag_name VARCHAR(50) NOT NULL,
     tag_color VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
-
     -- 确保每个用户对每篇论文的每个标签只能添加一次
     UNIQUE KEY unique_user_paper_tag (user_id, paper_id, tag_name)
 );
@@ -179,6 +176,7 @@ CREATE TABLE IF NOT EXISTS comment (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (parent_id) REFERENCES comment(id) ON DELETE CASCADE
 );
+
 -- 创建帖子收藏表（与论文收藏表user_favorites分开）
 CREATE TABLE IF NOT EXISTS post_favorites (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -190,6 +188,35 @@ CREATE TABLE IF NOT EXISTS post_favorites (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     INDEX idx_user_post_favorites (user_id, create_time DESC)
 );
+
+
+-- 创建论文引用关系表
+CREATE TABLE IF NOT EXISTS paper_relations (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    source_paper_id BIGINT NOT NULL COMMENT '源论文ID（本地数据库中的论文）',
+    target_paper_id BIGINT COMMENT '目标论文ID（如果在本地数据库中存在）',
+    relation_type VARCHAR(20) NOT NULL COMMENT '关系类型：REFERENCES或CITED_BY',
+    target_title VARCHAR(500) NOT NULL COMMENT '目标论文标题',
+    target_doi VARCHAR(200) COMMENT '目标论文DOI',
+    target_authors VARCHAR(1000) COMMENT '目标论文作者列表（逗号分隔）',
+    target_year INT COMMENT '目标论文发表年份',
+    citation_count INT COMMENT '目标论文被引用次数',
+    influential_citation_count INT COMMENT '目标论文有影响力的引用次数',
+    target_venue VARCHAR(200) COMMENT '目标论文发表期刊/会议',
+    target_abstract VARCHAR(2000) COMMENT '目标论文摘要',
+    semantic_scholar_id VARCHAR(100) COMMENT 'Semantic Scholar论文ID',
+    citation_intent VARCHAR(200) COMMENT '引用意图：background,methodology,result等',
+    open_access_url VARCHAR(500) COMMENT '开放访问PDF链接',
+    priority_score DOUBLE COMMENT '优先级分数（用于排序）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (source_paper_id) REFERENCES papers(id) ON DELETE CASCADE,
+    FOREIGN KEY (target_paper_id) REFERENCES papers(id) ON DELETE SET NULL,
+    -- 确保同一源论文对同一目标论文的同一关系类型只能有一条记录
+    UNIQUE KEY unique_source_target_doi_type (source_paper_id, target_doi, relation_type),
+    INDEX idx_source_paper_type (source_paper_id, relation_type),
+    INDEX idx_target_paper_type (target_paper_id, relation_type),
+    INDEX idx_priority_score (priority_score DESC)
 
 -- 创建用户关注表
 CREATE TABLE IF NOT EXISTS user_follows (
@@ -233,6 +260,7 @@ CREATE TABLE IF NOT EXISTS message_conversations (
     UNIQUE KEY unique_conversation (user1_id, user2_id),
     INDEX idx_user1_last_time (user1_id, last_message_time DESC),
     INDEX idx_user2_last_time (user2_id, last_message_time DESC)
+
 );
 
 

@@ -1,0 +1,166 @@
+{
+  "搜索论文响应格式": {
+    "total": 1000,
+    "offset": 0,
+    "next": 10,
+    "data": [
+      {
+        "paperId": "649def34f8be52c8b66281af98ae884c09aef38b",
+        "title": "Construction of the Literature Graph in Semantic Scholar",
+        "authors": [
+          {
+            "authorId": "1741101",
+            "name": "Waleed Ammar"
+          },
+          {
+            "authorId": "1399143",
+            "name": "Dirk Groeneveld"
+          }
+        ],
+        "year": 2018,
+        "doi": "10.18653/v1/n18-3011",
+        "citationCount": 365,
+        "influentialCitationCount": 23,
+        "venue": "NAACL",
+        "abstract": "We describe a deployed scalable system for organizing published scientific literature..."
+      }
+    ]
+  },
+  "单个论文详情响应格式": {
+    "paperId": "649def34f8be52c8b66281af98ae884c09aef38b",
+    "title": "Construction of the Literature Graph in Semantic Scholar",
+    "authors": [
+      {
+        "authorId": "1741101",
+        "name": "Waleed Ammar"
+      }
+    ],
+    "year": 2018,
+    "doi": "10.18653/v1/n18-3011",
+    "citationCount": 365,
+    "influentialCitationCount": 23,
+    "venue": "NAACL",
+    "abstract": "We describe a deployed scalable system...",
+    "openAccessPdf": {
+      "url": "https://arxiv.org/pdf/1805.02262.pdf",
+      "status": "GREEN"
+    },
+    "references": [
+      {
+        "paperId": "abc123def456",
+        "title": "Referenced Paper Title",
+        "authors": [
+          {
+            "authorId": "123456",
+            "name": "Author Name"
+          }
+        ],
+        "year": 2017,
+        "doi": "10.1000/456",
+        "citationCount": 100,
+        "influentialCitationCount": 5,
+        "venue": "ICML",
+        "abstract": "This paper presents...",
+        "intent": ["background", "methodology"],
+        "openAccessPdf": {
+          "url": "https://arxiv.org/pdf/1234.5678.pdf",
+          "status": "GREEN"
+        }
+      }
+    ],
+    "citations": [
+      {
+        "paperId": "def456ghi789",
+        "title": "Citing Paper Title",
+        "authors": [
+          {
+            "authorId": "789012",
+            "name": "Citing Author"
+          }
+        ],
+        "year": 2019,
+        "doi": "10.1000/789",
+        "citationCount": 50,
+        "influentialCitationCount": 3,
+        "venue": "NeurIPS",
+        "abstract": "Building on previous work...",
+        "intent": ["background"],
+        "openAccessPdf": {
+          "url": "https://arxiv.org/pdf/9876.5432.pdf",
+          "status": "GREEN"
+        }
+      }
+    ]
+  },
+  "ArXiv论文响应格式": {
+    "paperId": "arXiv:2301.00001",
+    "title": "Some ArXiv Paper Title",
+    "authors": [
+      {
+        "authorId": "987654",
+        "name": "ArXiv Author"
+      }
+    ],
+    "year": 2023,
+    "doi": null,
+    "citationCount": 25,
+    "influentialCitationCount": 2,
+    "venue": "arXiv",
+    "abstract": "This paper introduces...",
+    "openAccessPdf": {
+      "url": "https://arxiv.org/pdf/2301.00001.pdf",
+      "status": "GREEN"
+    },
+    "references": [],
+    "citations": []
+  },
+  "前端发送给后端的数据格式": {
+    "paperId": 1,
+    "references": [
+      {
+        "paperId": "649def34f8be52c8b66281af98ae884c09aef38b",
+        "title": "Construction of the Literature Graph in Semantic Scholar",
+        "authors": [
+          {
+            "authorId": "1741101",
+            "name": "Waleed Ammar"
+          }
+        ],
+        "year": 2018,
+        "doi": "10.18653/v1/n18-3011",
+        "citationCount": 365,
+        "influentialCitationCount": 23,
+        "venue": "NAACL",
+        "abstractText": "We describe a deployed scalable system...",
+        "intent": ["background", "methodology"],
+        "openAccessPdf": {
+          "url": "https://arxiv.org/pdf/1805.02262.pdf",
+          "status": "GREEN"
+        }
+      }
+    ],
+    "citations": [
+      {
+        "paperId": "def456ghi789",
+        "title": "Citing Paper Title",
+        "authors": [
+          {
+            "authorId": "789012",
+            "name": "Citing Author"
+          }
+        ],
+        "year": 2019,
+        "doi": "10.1000/789",
+        "citationCount": 50,
+        "influentialCitationCount": 3,
+        "venue": "NeurIPS",
+        "abstractText": "Building on previous work...",
+        "intent": ["background"],
+        "openAccessPdf": {
+          "url": "https://arxiv.org/pdf/9876.5432.pdf",
+          "status": "GREEN"
+        }
+      }
+    ]
+  }
+}

@@ -3,6 +3,9 @@ package com.dealwithpapers.dealwithpapers.dto;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.List;
+import java.util.HashSet;
+import java.util.ArrayList;
 
 @Data
 public class PostDTO {
@@ -22,6 +25,12 @@ public class PostDTO {
     private int commentCount;
     private int likes;
     private int dislikes;
+    
+    // 添加关联论文ID列表
+    private Set<Long> relatedPaperIds = new HashSet<>();
+    
+    // 添加关联论文对象列表，用于返回详细信息
+    private List<PaperDTO> relatedPapers = new ArrayList<>();
     
     // Explicit getters to ensure they're available
     public Long getId() {
@@ -76,10 +85,30 @@ public class PostDTO {
         return postTags;
     }
 
+    
+    // 新字段的getter和setter
+    public Set<Long> getRelatedPaperIds() {
+        return relatedPaperIds;
+    }
+    
+    public void setRelatedPaperIds(Set<Long> relatedPaperIds) {
+        this.relatedPaperIds = relatedPaperIds;
+    }
+    
+    public List<PaperDTO> getRelatedPapers() {
+        return relatedPapers;
+    }
+    
+    public void setRelatedPapers(List<PaperDTO> relatedPapers) {
+        this.relatedPapers = relatedPapers;
+    }
+
+
     public int getCommentCount() { return commentCount; }
     public void setCommentCount(int commentCount) { this.commentCount = commentCount; }
     public int getLikes() { return likes; }
     public void setLikes(int likes) { this.likes = likes; }
     public int getDislikes() { return dislikes; }
     public void setDislikes(int dislikes) { this.dislikes = dislikes; }
+
 } 

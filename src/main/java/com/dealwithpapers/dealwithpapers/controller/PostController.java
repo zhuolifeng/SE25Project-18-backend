@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import com.dealwithpapers.dealwithpapers.dto.PaperDTO;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -129,10 +133,108 @@ public class PostController {
         result.put("comments", commentService.countCommentsByPostId(id));
         result.put("postTags", post.getPostTags());
         result.put("views", 0); // 暂无浏览量
-        result.put("relatedPapers", new Object[]{}); // 暂无相关论文
+        
+        // 添加主要论文信息
+        if (post.getPaperId() != null) {
+            Map<String, Object> mainPaper = new HashMap<>();
+            mainPaper.put("id", post.getPaperId());
+            mainPaper.put("title", post.getPaperTitle());
+            result.put("mainPaper", mainPaper);
+        }
+        
+        // 添加相关论文信息
+        List<Map<String, Object>> relatedPapers = new ArrayList<>();
+        if (post.getRelatedPapers() != null && !post.getRelatedPapers().isEmpty()) {
+            for (PaperDTO paper : post.getRelatedPapers()) {
+                Map<String, Object> paperMap = new HashMap<>();
+                paperMap.put("id", paper.getId());
+                paperMap.put("title", paper.getTitle());
+                paperMap.put("authors", paper.getAuthors());
+                paperMap.put("abstract", paper.getAbstractText());
+                paperMap.put("year", paper.getYear());
+                paperMap.put("doi", paper.getDoi());
+                paperMap.put("url", paper.getUrl());
+                relatedPapers.add(paperMap);
+            }
+        }
+        result.put("relatedPapers", relatedPapers);
         result.put("relatedPosts", new Object[]{}); // 暂无相关帖子
         result.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
         return result;
+    }
+    
+    // 更新帖子关联论文的API
+    @PostMapping("/{id}/papers")
+    public Map<String, Object> updatePostRelatedPapers(@PathVariable Long id, @RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // 检查当前用户是否是帖子作者
+            User currentUser = getCurrentUser();
+            PostDTO post = postService.getPostById(id);
+            if (post == null) {
+                response.put("success", false);
+                response.put("message", "帖子不存在");
+                return response;
+            }
+            
+            if (!post.getAuthorId().equals(currentUser.getId())) {
+                response.put("success", false);
+                response.put("message", "只能修改自己发布的帖子");
+                return response;
+            }
+            
+            // 更新主要论文
+            Long mainPaperId = request.get("paperId") != null ? Long.valueOf(request.get("paperId").toString()) : null;
+            if (mainPaperId != null) {
+                post.setPaperId(mainPaperId);
+            }
+            
+            // 更新关联论文
+            if (request.get("relatedPaperIds") != null) {
+                List<?> paperIds = (List<?>) request.get("relatedPaperIds");
+                Set<Long> relatedPaperIds = new HashSet<>();
+                for (Object paperItemId : paperIds) {
+                    relatedPaperIds.add(Long.valueOf(paperItemId.toString()));
+                }
+                post.setRelatedPaperIds(relatedPaperIds);
+            }
+            
+            // 保存更新
+            PostDTO updatedPost = postService.createPost(post);
+            
+            response.put("success", true);
+            response.put("message", "更新成功");
+            response.put("post", updatedPost);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "更新失败: " + e.getMessage());
+        }
+        return response;
+    }
+    
+    // 获取与指定论文相关的帖子
+    @GetMapping("/byPaper/{paperId}")
+    public List<Map<String, Object>> getPostsByPaper(@PathVariable Long paperId) {
+        try {
+            List<PostDTO> posts = postService.searchPostsByPaper(paperId);
+            return posts.stream().map(post -> {
+                Map<String, Object> result = new HashMap<>();
+                result.put("id", post.getId());
+                result.put("title", post.getTitle());
+                result.put("content", post.getContent());
+                result.put("category", post.getCategory());
+                result.put("type", post.getType());
+                result.put("author", post.getAuthorName());
+                result.put("authorId", post.getAuthorId());
+                result.put("likes", postLikeService.countLikes(post.getId()));
+                result.put("dislikes", postLikeService.countDislikes(post.getId()));
+                result.put("comments", 0); // 暂无评论统计
+                result.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
+                return result;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 
     @DeleteMapping("/{id}")

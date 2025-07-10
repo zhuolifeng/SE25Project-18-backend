@@ -1,11 +1,13 @@
 package com.dealwithpapers.dealwithpapers.service.impl;
 
+import com.dealwithpapers.dealwithpapers.dto.PaperDTO;
 import com.dealwithpapers.dealwithpapers.dto.PostDTO;
 import com.dealwithpapers.dealwithpapers.entity.Paper;
 import com.dealwithpapers.dealwithpapers.entity.Post;
 import com.dealwithpapers.dealwithpapers.entity.PostTag;
 import com.dealwithpapers.dealwithpapers.entity.User;
 import com.dealwithpapers.dealwithpapers.repository.*;
+import com.dealwithpapers.dealwithpapers.service.PaperService;
 import com.dealwithpapers.dealwithpapers.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,8 +37,12 @@ public class PostServiceImpl implements PostService {
     private PostLikeRepository postLikeRepository;
     @Autowired
     private PostFavoriteRepository postFavoriteRepository;
+    
+    @Autowired
+    private PaperService paperService;
 
     @Override
+    @Transactional
     public PostDTO createPost(PostDTO postDTO) {
         Post post = new Post();
         post.setTitle(postDTO.getTitle());
@@ -48,11 +55,13 @@ public class PostServiceImpl implements PostService {
         // 关联作者
         Optional<User> userOpt = userRepository.findById(postDTO.getAuthorId());
         userOpt.ifPresent(post::setAuthor);
-        // 关联论文
+        
+        // 关联主要论文
         if (postDTO.getPaperId() != null) {
             Optional<Paper> paperOpt = paperRepository.findById(postDTO.getPaperId());
             paperOpt.ifPresent(post::setPaper);
         }
+        
         // 处理标签
         if (postDTO.getPostTags() != null) {
             Set<PostTag> tagSet = new HashSet<>();
@@ -66,6 +75,16 @@ public class PostServiceImpl implements PostService {
             }
             post.setTags(tagSet);
         }
+        
+        // 关联多篇相关论文
+        if (postDTO.getRelatedPaperIds() != null && !postDTO.getRelatedPaperIds().isEmpty()) {
+            Set<Paper> relatedPapers = new HashSet<>();
+            for (Long paperId : postDTO.getRelatedPaperIds()) {
+                paperRepository.findById(paperId).ifPresent(relatedPapers::add);
+            }
+            post.setRelatedPapers(relatedPapers);
+        }
+        
         Post saved = postRepository.save(post);
         return toDTO(saved);
     }
@@ -160,6 +179,17 @@ public class PostServiceImpl implements PostService {
         return postRepository.findByTagName(tagName).stream().map(this::toDTO).collect(Collectors.toList());
     }
 
+    @Override
+    public List<PostDTO> searchPostsByPaper(Long paperId) {
+        if (paperId == null) {
+            return new ArrayList<>();
+        }
+        return postRepository.findByPaperIdOrRelatedPapersId(paperId).stream()
+            .filter(post -> post.getStatus() == 1) // 仅返回状态正常的帖子
+            .map(this::toDTO)
+            .collect(Collectors.toList());
+    }
+
     private PostDTO toDTO(Post post) {
         PostDTO dto = new PostDTO();
         dto.setId(post.getId());
@@ -172,20 +202,49 @@ public class PostServiceImpl implements PostService {
             dto.setAuthorId(post.getAuthor().getId());
             dto.setAuthorName(post.getAuthor().getUsername());
         }
+        
+        // 设置主要论文
         if (post.getPaper() != null) {
             dto.setPaperId(post.getPaper().getId());
             dto.setPaperTitle(post.getPaper().getTitle());
         }
+        
+        // 设置关联论文
+        if (post.getRelatedPapers() != null && !post.getRelatedPapers().isEmpty()) {
+            // 提取关联论文ID
+            Set<Long> relatedPaperIds = post.getRelatedPapers().stream()
+                .map(Paper::getId)
+                .collect(Collectors.toSet());
+            dto.setRelatedPaperIds(relatedPaperIds);
+            
+            // 提取关联论文详细信息
+            List<PaperDTO> relatedPapers = new ArrayList<>();
+            for (Paper paper : post.getRelatedPapers()) {
+                PaperDTO paperDTO = new PaperDTO();
+                paperDTO.setId(paper.getId());
+                paperDTO.setTitle(paper.getTitle());
+                paperDTO.setAuthors(paper.getAuthors());
+                paperDTO.setAbstractText(paper.getAbstractText());
+                paperDTO.setYear(paper.getYear());
+                paperDTO.setDoi(paper.getDoi());
+                paperDTO.setUrl(paper.getUrl());
+                relatedPapers.add(paperDTO);
+            }
+            dto.setRelatedPapers(relatedPapers);
+        }
+        
         dto.setCreateTime(post.getCreateTime());
         dto.setUpdateTime(post.getUpdateTime());
+        
         // 设置标签
         if (post.getTags() != null) {
             Set<String> tagNames = post.getTags().stream().map(PostTag::getName).collect(Collectors.toSet());
             dto.setPostTags(tagNames);
         }
-        // 设置评论数量
+
         int commentCount = (int) commentRepository.countByPostId(post.getId());
         dto.setCommentCount(commentCount);
+
         return dto;
     }
 } 

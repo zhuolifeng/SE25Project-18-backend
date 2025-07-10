@@ -165,6 +165,8 @@ CREATE TABLE IF NOT EXISTS post_relation_tag (
     FOREIGN KEY (tag_id) REFERENCES post_tag(id) ON DELETE CASCADE
 );
 
+
+
 -- 评论表
 CREATE TABLE IF NOT EXISTS comment (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -231,4 +233,14 @@ CREATE TABLE IF NOT EXISTS message_conversations (
     UNIQUE KEY unique_conversation (user1_id, user2_id),
     INDEX idx_user1_last_time (user1_id, last_message_time DESC),
     INDEX idx_user2_last_time (user2_id, last_message_time DESC)
+);
+
+
+-- 创建帖子-论文多对多关联表
+CREATE TABLE IF NOT EXISTS post_related_papers (
+    post_id BIGINT NOT NULL,
+    paper_id BIGINT NOT NULL,
+    PRIMARY KEY (post_id, paper_id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
 );

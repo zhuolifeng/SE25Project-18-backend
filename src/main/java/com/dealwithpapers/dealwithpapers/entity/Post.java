@@ -30,9 +30,19 @@ public class Post {
     @JoinColumn(name = "author_id")
     private User author;
 
+    // 原有的单个论文关联（作为主要论文）
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paper_id")
     private Paper paper;
+
+    // 添加多对多关联，允许一个帖子关联多篇论文
+    @ManyToMany
+    @JoinTable(
+        name = "post_related_papers",
+        joinColumns = @JoinColumn(name = "post_id"),
+        inverseJoinColumns = @JoinColumn(name = "paper_id")
+    )
+    private Set<Paper> relatedPapers = new HashSet<>();
 
     @Column(name = "create_time")
     private LocalDateTime createTime;

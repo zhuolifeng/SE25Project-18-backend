@@ -18,4 +18,6 @@ public class MessageDTO {
     private String content;
     private boolean read;
     private LocalDateTime createTime;
+    private String senderAvatar; // 发送者头像url
+    private String receiverAvatar; // 接收者头像url
 } 

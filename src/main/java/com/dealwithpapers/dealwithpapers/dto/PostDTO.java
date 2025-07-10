@@ -25,6 +25,7 @@ public class PostDTO {
     private int commentCount;
     private int likes;
     private int dislikes;
+    private String authorAvatar; // 作者头像url
     
     // 添加关联论文ID列表
     private Set<Long> relatedPaperIds = new HashSet<>();

@@ -455,6 +455,7 @@ public class UserServiceImpl implements UserService {
             map.put("bio", followingUser.getBio());
             map.put("avatarUrl", followingUser.getAvatarUrl()); // 添加头像URL
             map.put("followTime", follow.getFollowTime());
+            map.put("avatarUrl", followingUser.getAvatarUrl());
             
             // 如果当前有登录用户，检查是否也关注了这个用户
             try {
@@ -491,6 +492,7 @@ public class UserServiceImpl implements UserService {
             map.put("bio", followerUser.getBio());
             map.put("avatarUrl", followerUser.getAvatarUrl()); // 添加头像URL
             map.put("followTime", follow.getFollowTime());
+            map.put("avatarUrl", followerUser.getAvatarUrl());
             
             // 如果当前有登录用户，检查是否也关注了这个用户
             try {

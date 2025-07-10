@@ -66,7 +66,7 @@ public class PostController {
             result.put("type", post.getType());
             result.put("author", post.getAuthorName());
             result.put("authorId", post.getAuthorId());
-            result.put("authorAvatar", ""); // 可扩展
+            result.put("authorAvatar", post.getAuthorAvatar());
             result.put("authorTitle", ""); // 可扩展
             result.put("authorBio", ""); // 可扩展
             result.put("likes", postLikeService.countLikes(post.getId()));
@@ -98,7 +98,7 @@ public class PostController {
             result.put("type", post.getType());
             result.put("author", post.getAuthorName());
             result.put("authorId", post.getAuthorId());
-            result.put("authorAvatar", ""); // 可扩展
+            result.put("authorAvatar", post.getAuthorAvatar());
             result.put("authorTitle", ""); // 可扩展
             result.put("authorBio", ""); // 可扩展
             result.put("likes", postLikeService.countLikes(post.getId()));
@@ -125,7 +125,7 @@ public class PostController {
         result.put("type", post.getType());
         result.put("author", post.getAuthorName());
         result.put("authorId", post.getAuthorId());
-        result.put("authorAvatar", ""); // 可扩展
+        result.put("authorAvatar", post.getAuthorAvatar());
         result.put("authorTitle", ""); // 可扩展
         result.put("authorBio", ""); // 可扩展
         result.put("likes", postLikeService.countLikes(id));
@@ -226,6 +226,7 @@ public class PostController {
                 result.put("type", post.getType());
                 result.put("author", post.getAuthorName());
                 result.put("authorId", post.getAuthorId());
+                result.put("authorAvatar", post.getAuthorAvatar());
                 result.put("likes", postLikeService.countLikes(post.getId()));
                 result.put("dislikes", postLikeService.countDislikes(post.getId()));
                 result.put("comments", 0); // 暂无评论统计
@@ -289,6 +290,7 @@ public class PostController {
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
                 item.put("authorId", post.getAuthorId());
+                item.put("authorAvatar", post.getAuthorAvatar());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
                 item.put("comments", commentService.countCommentsByPostId(post.getId()));
@@ -324,6 +326,7 @@ public class PostController {
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
                 item.put("authorId", post.getAuthorId());
+                item.put("authorAvatar", post.getAuthorAvatar());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
                 item.put("comments", commentService.countCommentsByPostId(post.getId()));
@@ -359,6 +362,7 @@ public class PostController {
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
                 item.put("authorId", post.getAuthorId());
+                item.put("authorAvatar", post.getAuthorAvatar());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
                 item.put("comments", commentService.countCommentsByPostId(post.getId()));
@@ -396,6 +400,7 @@ public class PostController {
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
                 item.put("authorId", post.getAuthorId());
+                item.put("authorAvatar", post.getAuthorAvatar());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
                 item.put("comments", commentService.countCommentsByPostId(post.getId()));
@@ -434,6 +439,7 @@ public class PostController {
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
                 item.put("authorId", post.getAuthorId());
+                item.put("authorAvatar", post.getAuthorAvatar());
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
                 item.put("comments", commentService.countCommentsByPostId(post.getId()));

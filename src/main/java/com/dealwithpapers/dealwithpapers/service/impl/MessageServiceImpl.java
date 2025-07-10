@@ -103,6 +103,7 @@ public class MessageServiceImpl implements MessageService {
                 dto.setLastMessageTime(latestMessage.getCreateTime());
                 dto.setUnreadCount((int) unreadCount);
                 dto.setOnline(false); // 默认离线状态，实际应用中可以通过其他服务判断
+                dto.setAvatar(otherUser.getAvatarUrl());
                 
                 conversations.add(dto);
             }
@@ -206,6 +207,8 @@ public class MessageServiceImpl implements MessageService {
         dto.setContent(message.getContent());
         dto.setRead(message.isRead());
         dto.setCreateTime(message.getCreateTime());
+        dto.setSenderAvatar(message.getSender().getAvatarUrl());
+        dto.setReceiverAvatar(message.getReceiver().getAvatarUrl());
         return dto;
     }
     

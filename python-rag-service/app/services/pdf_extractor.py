@@ -23,8 +23,8 @@ except ImportError:
     pdfplumber = None
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from ..core.vector_store import VectorStore
-from ..models.models import PaperResponse
+from ..core.vector_store import VectorStoreManager
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class PDFExtractor:
     """PDF文本提取器"""
     
-    def __init__(self, vector_store: VectorStore):
+    def __init__(self,vector_store:VectorStoreManager):
         self.vector_store = vector_store
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
@@ -352,7 +352,7 @@ class PDFExtractor:
 # 单例实例
 pdf_extractor = None
 
-def get_pdf_extractor(vector_store: VectorStore) -> PDFExtractor:
+def get_pdf_extractor(vector_store: VectorStoreManager) -> PDFExtractor:
     """获取PDF提取器单例"""
     global pdf_extractor
     if pdf_extractor is None:

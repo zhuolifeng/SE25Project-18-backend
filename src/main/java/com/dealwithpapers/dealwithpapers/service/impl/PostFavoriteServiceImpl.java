@@ -132,6 +132,7 @@ public class PostFavoriteServiceImpl implements PostFavoriteService {
                         dto.setType(post.getType());
                         dto.setAuthorId(post.getAuthor().getId());
                         dto.setAuthorName(post.getAuthor().getUsername());
+                        dto.setAuthorAvatar(post.getAuthor().getAvatarUrl()); // 添加作者头像URL
                         dto.setCreateTime(post.getCreateTime());
                         dto.setPostTags(post.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toSet()));
                         return dto;

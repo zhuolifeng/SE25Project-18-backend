@@ -171,6 +171,8 @@ public class PostFavoriteController {
                 item.put("category", post.getCategory());
                 item.put("type", post.getType());
                 item.put("author", post.getAuthorName());
+                item.put("authorId", post.getAuthorId());
+                item.put("authorAvatar", post.getAuthorAvatar()); // 添加作者头像URL
                 item.put("likes", postLikeService.countLikes(post.getId()));
                 item.put("dislikes", postLikeService.countDislikes(post.getId()));
                 item.put("comments", 0); // 暂无评论统计

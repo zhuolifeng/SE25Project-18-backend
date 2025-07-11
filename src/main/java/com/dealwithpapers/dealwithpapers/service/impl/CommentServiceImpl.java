@@ -130,13 +130,23 @@ public class CommentServiceImpl implements CommentService {
             result.put("content", comment.getContent());
             result.put("createTime", comment.getCreateTime());
             result.put("avatar", comment.getUser().getAvatarUrl());
+            result.put("author", comment.getUser().getUsername());
+            result.put("authorId", comment.getUser().getId());
             
             // 帖子信息
             Post post = comment.getPost();
             if (post != null) {
                 result.put("postId", post.getId());
                 result.put("postTitle", post.getTitle());
-                result.put("postAuthor", post.getAuthor() != null ? post.getAuthor().getUsername() : "未知");
+                
+                // 帖子作者信息
+                if (post.getAuthor() != null) {
+                    result.put("postAuthor", post.getAuthor().getUsername());
+                    result.put("postAuthorId", post.getAuthor().getId());
+                    result.put("postAuthorAvatar", post.getAuthor().getAvatarUrl()); // 添加帖子作者头像
+                } else {
+                    result.put("postAuthor", "未知");
+                }
             }
             
             return result;

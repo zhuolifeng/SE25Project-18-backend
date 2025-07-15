@@ -83,6 +83,10 @@ public class MessageController {
         try {
             User currentUser = getCurrentUser();
             
+            // 获取对话用户信息，确保头像URL可用
+            User otherUser = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("用户不存在"));
+            
             // 标记消息为已读
             messageService.markConversationAsRead(currentUser.getId(), userId);
             
@@ -92,6 +96,33 @@ public class MessageController {
                     userId,
                     PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createTime"))
             );
+            
+            // 确保每条消息都有完整的发送者和接收者信息
+            for (MessageDTO message : messages.getContent()) {
+                // 如果发送者是当前用户，确保有当前用户的头像
+                if (message.getSenderId().equals(currentUser.getId())) {
+                    if (message.getSenderAvatar() == null) {
+                        message.setSenderAvatar(currentUser.getAvatarUrl());
+                    }
+                } else {
+                    // 发送者是对话用户，确保有对话用户的头像
+                    if (message.getSenderAvatar() == null) {
+                        message.setSenderAvatar(otherUser.getAvatarUrl());
+                    }
+                }
+                
+                // 如果接收者是当前用户，确保有当前用户的头像
+                if (message.getReceiverId().equals(currentUser.getId())) {
+                    if (message.getReceiverAvatar() == null) {
+                        message.setReceiverAvatar(currentUser.getAvatarUrl());
+                    }
+                } else {
+                    // 接收者是对话用户，确保有对话用户的头像
+                    if (message.getReceiverAvatar() == null) {
+                        message.setReceiverAvatar(otherUser.getAvatarUrl());
+                    }
+                }
+            }
             
             return ResponseEntity.ok(Map.of(
                 "success", true,

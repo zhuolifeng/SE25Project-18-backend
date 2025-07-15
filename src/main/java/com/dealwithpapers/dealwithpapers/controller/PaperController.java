@@ -24,6 +24,7 @@ public class PaperController {
     private final PaperService paperService;
     private final DoiProxyService doiProxyService;
 
+
     @PostMapping
     public ResponseEntity<?> savePaper(@RequestBody PaperDTO paperDTO) {
         try {
@@ -268,5 +269,5 @@ public class PaperController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResult);
         }
     }
-    
+
 } 

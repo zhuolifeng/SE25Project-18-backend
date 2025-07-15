@@ -103,7 +103,7 @@ public class MessageServiceImpl implements MessageService {
                 dto.setLastMessageTime(latestMessage.getCreateTime());
                 dto.setUnreadCount((int) unreadCount);
                 dto.setOnline(false); // 默认离线状态，实际应用中可以通过其他服务判断
-                dto.setAvatar(otherUser.getAvatarUrl());
+                dto.setAvatar(normalizeAvatarUrl(otherUser.getAvatarUrl()));
                 
                 conversations.add(dto);
             }
@@ -196,6 +196,15 @@ public class MessageServiceImpl implements MessageService {
         return true;
     }
     
+    private String normalizeAvatarUrl(String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.isEmpty()) return null;
+        int idx = avatarUrl.indexOf("/uploads/");
+        if (idx != -1) {
+            return avatarUrl.substring(idx);
+        }
+        return avatarUrl;
+    }
+
     // 辅助方法: 将实体转换为DTO
     private MessageDTO convertToDTO(UserMessage message) {
         MessageDTO dto = new MessageDTO();
@@ -207,8 +216,8 @@ public class MessageServiceImpl implements MessageService {
         dto.setContent(message.getContent());
         dto.setRead(message.isRead());
         dto.setCreateTime(message.getCreateTime());
-        dto.setSenderAvatar(message.getSender().getAvatarUrl());
-        dto.setReceiverAvatar(message.getReceiver().getAvatarUrl());
+        dto.setSenderAvatar(normalizeAvatarUrl(message.getSender().getAvatarUrl()));
+        dto.setReceiverAvatar(normalizeAvatarUrl(message.getReceiver().getAvatarUrl()));
         return dto;
     }
     

@@ -33,6 +33,9 @@ public class Paper {
     @Column(columnDefinition = "TEXT")
     private String abstractText; // 论文摘要
     
+    @Column(name = "has_abstract")
+    private Boolean hasAbstract; // 是否存在摘要
+    
     private Integer year; // 发布年份
     
     private String journal; // 期刊名称
@@ -60,6 +63,10 @@ public class Paper {
     
     public String getAbstractText() {
         return abstractText;
+    }
+    
+    public Boolean getHasAbstract() {
+        return hasAbstract;
     }
     
     public Integer getYear() {

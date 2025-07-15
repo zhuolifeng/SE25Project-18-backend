@@ -16,6 +16,7 @@ public class PaperDTO {
     private String title;
     private Set<String> authors = new HashSet<>();
     private String abstractText;
+    private Boolean hasAbstract;
     private Integer year;
     private String journal;
     private String category;

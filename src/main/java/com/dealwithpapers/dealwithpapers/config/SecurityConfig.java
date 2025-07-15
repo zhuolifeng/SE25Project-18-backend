@@ -59,8 +59,17 @@ public class SecurityConfig {
                 .requestMatchers("/api/comments/**").permitAll()
                 .requestMatchers("/", "/error").permitAll()
                 .requestMatchers("/api/chat/query").permitAll()
+                // 允许WebSocket相关所有端点
+                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/app/**").permitAll()
+                .requestMatchers("/topic/**").permitAll()
+                .requestMatchers("/user/**").permitAll()
+                .requestMatchers("/queue/**").permitAll()
                 .requestMatchers(request -> "OPTIONS".equals(request.getMethod())).permitAll()
                 .anyRequest().authenticated()
+            )
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.sameOrigin())
             )
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable());
@@ -83,7 +92,43 @@ public class SecurityConfig {
                 // 调试信息
                 System.out.println("=== 会话认证过滤器 ===");
                 System.out.println("请求路径: " + request.getRequestURI());
+                System.out.println("请求方法: " + request.getMethod());
                 System.out.println("会话存在: " + (session != null));
+                
+                // 处理WebSocket握手请求
+                if (request.getRequestURI().startsWith("/ws")) {
+                    System.out.println("WebSocket连接请求: " + request.getRequestURI());
+                    String userId = request.getParameter("userId");
+                    System.out.println("WebSocket请求参数userId: " + userId);
+                    
+                    // 如果请求中包含userId参数，尝试从数据库获取用户
+                    if (userId != null && !userId.isEmpty()) {
+                        try {
+                            Long userIdLong = Long.parseLong(userId);
+                            Optional<User> userOpt = userRepository.findById(userIdLong);
+                            
+                            if (userOpt.isPresent()) {
+                                User user = userOpt.get();
+                                System.out.println("WebSocket请求的用户已找到: " + user.getUsername());
+                                
+                                // 保存到会话
+                                if (session != null) {
+                                    session.setAttribute(USER_SESSION_KEY, user.getId());
+                                    System.out.println("已将用户ID保存到WebSocket会话: " + user.getId());
+                                }
+                                
+                                // 创建认证对象并设置到SecurityContext
+                                Authentication authentication = new UserAuthentication(user);
+                                SecurityContextHolder.getContext().setAuthentication(authentication);
+                                System.out.println("已设置WebSocket用户认证信息到SecurityContext");
+                            } else {
+                                System.out.println("WebSocket请求的用户未找到: " + userId);
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("WebSocket请求的userId参数格式错误: " + userId);
+                        }
+                    }
+                }
                 
                 // 如果会话存在且包含用户ID
                 if (session != null) {
@@ -109,6 +154,15 @@ public class SecurityConfig {
                 }
                 
                 filterChain.doFilter(request, response);
+            }
+            
+            @Override
+            protected boolean shouldNotFilter(HttpServletRequest request) {
+                // 静态资源不需要认证过滤
+                String path = request.getRequestURI();
+                return path.startsWith("/static/") || 
+                       path.startsWith("/favicon.ico") ||
+                       path.startsWith("/robots.txt");
             }
         };
     }

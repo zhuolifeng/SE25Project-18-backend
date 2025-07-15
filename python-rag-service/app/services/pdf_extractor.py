@@ -23,7 +23,7 @@ except ImportError:
     pdfplumber = None
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from ..core.vector_store import VectorStore
+from ..core.vector_store import VectorStoreManager
 from ..models.models import PaperResponse
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 class PDFExtractor:
     """PDF文本提取器"""
     
-    def __init__(self, vector_store: VectorStore):
+    def __init__(self, vector_store: VectorStoreManager):
         self.vector_store = vector_store
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
@@ -115,9 +115,9 @@ class PDFExtractor:
         try:
             # 在Qdrant中搜索是否存在该论文的PDF内容
             search_results = await self.vector_store.search_documents(
-                query_text=f"paper_id_{paper_id}",
-                top_k=1,
-                score_threshold=0.1
+                query=f"paper_id_{paper_id}",
+                k=1,
+                filter_dict={"paper_id": paper_id, "content_type": "pdf_content"}
             )
             
             # 检查是否存在PDF内容标记
@@ -279,26 +279,29 @@ class PDFExtractor:
                                        paper_title: str, pdf_url: str) -> int:
         """将文本块存储到向量数据库"""
         try:
+            from langchain.schema import Document
             documents = []
-            metadatas = []
             
             for i, chunk in enumerate(chunks):
                 if len(chunk.strip()) < 50:  # 跳过过短的块
                     continue
                 
-                documents.append(chunk)
-                metadatas.append({
-                    "paper_id": paper_id,
-                    "paper_title": paper_title,
-                    "pdf_url": pdf_url,
-                    "chunk_index": i,
-                    "content_type": "pdf_content",
-                    "source": "pdf_extractor"
-                })
+                # 创建Document对象，将元数据包含在对象中
+                documents.append(Document(
+                    page_content=chunk,
+                    metadata={
+                        "paper_id": paper_id,
+                        "paper_title": paper_title,
+                        "pdf_url": pdf_url,
+                        "chunk_index": i,
+                        "content_type": "pdf_content",
+                        "source": "pdf_extractor"
+                    }
+                ))
             
             if documents:
                 # 存储到向量数据库
-                await self.vector_store.add_documents(documents, metadatas)
+                await self.vector_store.add_documents(documents)
                 logger.info(f"成功存储{len(documents)}个文本块到向量数据库")
                 return len(documents)
             else:
@@ -314,9 +317,9 @@ class PDFExtractor:
         try:
             # 搜索该论文的PDF内容
             search_results = await self.vector_store.search_documents(
-                query_text=f"paper_id_{paper_id}",
-                top_k=10,
-                score_threshold=0.1
+                query=f"paper_id_{paper_id}",
+                k=10,
+                filter_dict={"paper_id": paper_id, "content_type": "pdf_content"}
             )
             
             pdf_chunks = []
@@ -352,7 +355,7 @@ class PDFExtractor:
 # 单例实例
 pdf_extractor = None
 
-def get_pdf_extractor(vector_store: VectorStore) -> PDFExtractor:
+def get_pdf_extractor(vector_store: VectorStoreManager) -> PDFExtractor:
     """获取PDF提取器单例"""
     global pdf_extractor
     if pdf_extractor is None:

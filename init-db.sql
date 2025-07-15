@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS papers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
+    has_abstract BOOLEAN DEFAULT FALSE,
     year INT,
     journal VARCHAR(255),
     category VARCHAR(100),

@@ -35,7 +35,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // 启用简单消息代理，用于将消息从服务端发送到客户端
         // 客户端订阅 /topic 和 /queue 前缀的目的地时会路由到消息代理
         config.enableSimpleBroker("/topic", "/queue")
-              .setHeartbeatValue(new long[] {10000, 10000}) // 设置心跳间隔
+              .setHeartbeatValue(new long[] {5000, 5000}) // 设置心跳间隔为5秒，提高实时性
               .setTaskScheduler(heartbeatScheduler()); // 设置心跳任务调度器
         
         // 客户端向服务器发送消息的前缀
@@ -52,8 +52,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("*")  // 允许任何源
                 .addInterceptors(sessionHandshakeInterceptor()) // 添加自定义握手拦截器
                 .withSockJS()  // 启用 SockJS 作为备用方案
-                .setDisconnectDelay(30 * 1000) // 设置断开连接延迟为30秒
-                .setHeartbeatTime(25 * 1000)   // 设置心跳间隔为25秒
+                .setDisconnectDelay(15 * 1000) // 设置断开连接延迟为15秒，更快检测断开连接
+                .setHeartbeatTime(10 * 1000)   // 设置心跳间隔为10秒，提高连接保持的实时性
                 .setStreamBytesLimit(512 * 1024) // 设置流字节限制
                 .setHttpMessageCacheSize(1000)   // 设置HTTP消息缓存大小
                 .setWebSocketEnabled(true);      // 启用WebSocket

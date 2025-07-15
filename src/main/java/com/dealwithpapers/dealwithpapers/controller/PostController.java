@@ -73,7 +73,7 @@ public class PostController {
             result.put("dislikes", postLikeService.countDislikes(post.getId()));
             result.put("comments", commentService.countCommentsByPostId(post.getId()));
             result.put("postTags", post.getPostTags());
-            result.put("views", 0); // 暂无浏览量
+            result.put("views", post.getViews()); // 返回真实浏览量
             result.put("relatedPapers", new Object[]{}); // 暂无相关论文
             result.put("relatedPosts", new Object[]{}); // 暂无相关帖子
             result.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
@@ -105,7 +105,7 @@ public class PostController {
             result.put("dislikes", postLikeService.countDislikes(post.getId()));
             result.put("comments", commentService.countCommentsByPostId(post.getId()));
             result.put("postTags", post.getPostTags());
-            result.put("views", 0); // 暂无浏览量
+            result.put("views", post.getViews()); // 返回真实浏览量
             result.put("relatedPapers", new Object[]{}); // 暂无相关论文
             result.put("relatedPosts", new Object[]{}); // 暂无相关帖子
             result.put("time", post.getCreateTime() != null ? post.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "");
@@ -132,7 +132,7 @@ public class PostController {
         result.put("dislikes", postLikeService.countDislikes(id));
         result.put("comments", commentService.countCommentsByPostId(id));
         result.put("postTags", post.getPostTags());
-        result.put("views", 0); // 暂无浏览量
+        result.put("views", post.getViews()); // 返回真实浏览量
         
         // 添加主要论文信息
         if (post.getPaperId() != null) {
@@ -236,6 +236,15 @@ public class PostController {
         } catch (Exception e) {
             return new ArrayList<>();
         }
+    }
+
+    @PostMapping("/{id}/view")
+    public Map<String, Object> incrementViews(@PathVariable Long id) {
+        postService.incrementViews(id);
+        Map<String, Object> res = new HashMap<>();
+        res.put("success", true);
+        res.put("views", postService.getViews(id));
+        return res;
     }
 
     @DeleteMapping("/{id}")

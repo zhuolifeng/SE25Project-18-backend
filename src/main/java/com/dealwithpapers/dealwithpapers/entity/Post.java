@@ -59,6 +59,9 @@ public class Post {
     @Column(name = "status", nullable = false)
     private int status = 1;
 
+    @Column(name = "views", nullable = false)
+    private int views = 0;
+
     @ManyToMany
     @JoinTable(
         name = "post_relation_tag",

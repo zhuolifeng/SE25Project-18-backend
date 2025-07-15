@@ -190,6 +190,20 @@ public class PostServiceImpl implements PostService {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public int getViews(Long postId) {
+        return postRepository.findById(postId).map(Post::getViews).orElse(0);
+    }
+
+    @Override
+    @Transactional
+    public void incrementViews(Long postId) {
+        postRepository.findById(postId).ifPresent(post -> {
+            post.setViews(post.getViews() + 1);
+            postRepository.save(post);
+        });
+    }
+
     private String normalizeAvatarUrl(String avatarUrl) {
         if (avatarUrl == null || avatarUrl.isEmpty()) return null;
         int idx = avatarUrl.indexOf("/uploads/");
@@ -245,6 +259,7 @@ public class PostServiceImpl implements PostService {
         
         dto.setCreateTime(post.getCreateTime());
         dto.setUpdateTime(post.getUpdateTime());
+        dto.setViews(post.getViews());
         
         // 设置标签
         if (post.getTags() != null) {

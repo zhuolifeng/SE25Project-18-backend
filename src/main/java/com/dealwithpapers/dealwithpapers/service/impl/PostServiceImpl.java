@@ -190,6 +190,15 @@ public class PostServiceImpl implements PostService {
             .collect(Collectors.toList());
     }
 
+    private String normalizeAvatarUrl(String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.isEmpty()) return null;
+        int idx = avatarUrl.indexOf("/uploads/");
+        if (idx != -1) {
+            return avatarUrl.substring(idx);
+        }
+        return avatarUrl;
+    }
+
     private PostDTO toDTO(Post post) {
         PostDTO dto = new PostDTO();
         dto.setId(post.getId());
@@ -201,7 +210,7 @@ public class PostServiceImpl implements PostService {
         if (post.getAuthor() != null) {
             dto.setAuthorId(post.getAuthor().getId());
             dto.setAuthorName(post.getAuthor().getUsername());
-            dto.setAuthorAvatar(post.getAuthor().getAvatarUrl());
+            dto.setAuthorAvatar(normalizeAvatarUrl(post.getAuthor().getAvatarUrl()));
         }
         
         // 设置主要论文

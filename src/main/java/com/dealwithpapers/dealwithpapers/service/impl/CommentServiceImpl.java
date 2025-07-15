@@ -103,6 +103,15 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.countByPostId(postId);
     }
 
+    private String normalizeAvatarUrl(String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.isEmpty()) return null;
+        int idx = avatarUrl.indexOf("/uploads/");
+        if (idx != -1) {
+            return avatarUrl.substring(idx);
+        }
+        return avatarUrl;
+    }
+
     private CommentDTO toDTO(Comment comment) {
         CommentDTO dto = new CommentDTO();
         dto.setId(comment.getId());
@@ -110,7 +119,7 @@ public class CommentServiceImpl implements CommentService {
         dto.setPostId(comment.getPost().getId());
         dto.setUserId(comment.getUser().getId());
         dto.setUserName(comment.getUser().getUsername());
-        dto.setAvatar(comment.getUser().getAvatarUrl());
+        dto.setAvatar(normalizeAvatarUrl(comment.getUser().getAvatarUrl()));
         dto.setParentId(comment.getParent() != null ? comment.getParent().getId() : null);
         dto.setCreateTime(comment.getCreateTime());
         return dto;
@@ -129,7 +138,7 @@ public class CommentServiceImpl implements CommentService {
             result.put("id", comment.getId());
             result.put("content", comment.getContent());
             result.put("createTime", comment.getCreateTime());
-            result.put("avatar", comment.getUser().getAvatarUrl());
+            result.put("avatar", normalizeAvatarUrl(comment.getUser().getAvatarUrl()));
             
             // 帖子信息
             Post post = comment.getPost();

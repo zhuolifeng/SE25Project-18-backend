@@ -304,7 +304,16 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
     }
     
-    // 将User实体转换为UserResponseDTO
+    private String normalizeAvatarUrl(String avatarUrl) {
+        if (avatarUrl == null || avatarUrl.isEmpty()) return null;
+        // 如果是完整URL，提取相对路径
+        int idx = avatarUrl.indexOf("/uploads/");
+        if (idx != -1) {
+            return avatarUrl.substring(idx);
+        }
+        return avatarUrl;
+    }
+
     private UserResponseDTO convertToResponseDTO(User user) {
         return new UserResponseDTO(
                 user.getId(),
@@ -313,7 +322,7 @@ public class UserServiceImpl implements UserService {
                 user.getPhone(),
                 user.getRegisterTime(),
                 user.getBio(),
-                user.getAvatarUrl() // 新增
+                normalizeAvatarUrl(user.getAvatarUrl()) // 保证为相对路径
         );
     }
 
@@ -328,8 +337,8 @@ public class UserServiceImpl implements UserService {
         profile.put("username", user.getUsername());
         profile.put("registerTime", user.getRegisterTime());
         profile.put("bio", user.getBio()); // 用户简介
-        profile.put("avatarUrl", user.getAvatarUrl());
-        
+        profile.put("avatarUrl", normalizeAvatarUrl(user.getAvatarUrl()));
+
         // 统计用户数据
         // 用户发布的帖子数
         int postCount = postRepository.countByAuthorId(userId);
@@ -453,9 +462,9 @@ public class UserServiceImpl implements UserService {
             map.put("id", followingUser.getId());
             map.put("username", followingUser.getUsername());
             map.put("bio", followingUser.getBio());
-            map.put("avatarUrl", followingUser.getAvatarUrl()); // 添加头像URL
+            map.put("avatarUrl", normalizeAvatarUrl(followingUser.getAvatarUrl())); // 添加头像URL
             map.put("followTime", follow.getFollowTime());
-            map.put("avatarUrl", followingUser.getAvatarUrl());
+            map.put("avatarUrl", normalizeAvatarUrl(followingUser.getAvatarUrl()));
             
             // 如果当前有登录用户，检查是否也关注了这个用户
             try {
@@ -490,9 +499,9 @@ public class UserServiceImpl implements UserService {
             map.put("id", followerUser.getId());
             map.put("username", followerUser.getUsername());
             map.put("bio", followerUser.getBio());
-            map.put("avatarUrl", followerUser.getAvatarUrl()); // 添加头像URL
+            map.put("avatarUrl", normalizeAvatarUrl(followerUser.getAvatarUrl())); // 添加头像URL
             map.put("followTime", follow.getFollowTime());
-            map.put("avatarUrl", followerUser.getAvatarUrl());
+            map.put("avatarUrl", normalizeAvatarUrl(followerUser.getAvatarUrl()));
             
             // 如果当前有登录用户，检查是否也关注了这个用户
             try {

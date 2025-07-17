@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS papers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     abstract_text TEXT,
+    has_abstract BOOLEAN DEFAULT FALSE,
     year INT,
     journal VARCHAR(255),
     category VARCHAR(100),
@@ -272,3 +273,5 @@ CREATE TABLE IF NOT EXISTS post_related_papers (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
 );
+
+ALTER TABLE posts ADD COLUMN views INT NOT NULL DEFAULT 0;

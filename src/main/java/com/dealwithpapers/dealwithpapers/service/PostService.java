@@ -19,4 +19,6 @@ public interface PostService {
      * @return 相关帖子列表
      */
     List<PostDTO> searchPostsByPaper(Long paperId);
+    int getViews(Long postId);
+    void incrementViews(Long postId);
 } 

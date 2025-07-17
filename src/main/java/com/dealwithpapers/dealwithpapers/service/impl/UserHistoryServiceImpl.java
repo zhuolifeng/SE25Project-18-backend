@@ -146,8 +146,8 @@ public class UserHistoryServiceImpl implements UserHistoryService {
             viewHistory.setViewTime(now);
         } else {
             viewHistory = new UserViewHistory();
-            viewHistory.setUser(user);
-            viewHistory.setPaper(paper);
+        viewHistory.setUser(user);
+        viewHistory.setPaper(paper);
             viewHistory.setViewTime(now);
         }
 

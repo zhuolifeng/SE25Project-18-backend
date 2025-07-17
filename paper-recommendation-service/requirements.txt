@@ -1,0 +1,18 @@
+# --- Web ---
+fastapi
+uvicorn[standard]
+
+# --- DB ---
+sqlalchemy>=2.0
+pymysql
+python-dotenv
+
+# --- Embedding & Vector ---
+sentence-transformers
+torch>=2.0
+faiss-cpu              # GPU 请改成 faiss-gpu
+
+# --- Utils ---
+tqdm
+pandas
+numpy

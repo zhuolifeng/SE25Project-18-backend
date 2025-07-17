@@ -147,10 +147,7 @@ public class PaperServiceImpl implements PaperService {
         paper.setTitle(dto.getTitle());
         paper.setAuthors(dto.getAuthors());
         paper.setAbstractText(dto.getAbstractText());
-        paper.setHasAbstract(dto.getHasAbstract() != null ? dto.getHasAbstract() : false);
-        
-        // 移除根据abstractText自动设置hasAbstract的逻辑
-        
+        paper.setHasAbstract(dto.getHasAbstract());
         paper.setYear(dto.getYear());
         paper.setJournal(dto.getJournal());
         paper.setCategory(dto.getCategory());

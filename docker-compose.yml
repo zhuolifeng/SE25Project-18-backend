@@ -1,21 +1,6 @@
 version: '3.8'
 
 services:
-  # MySQL数据库
-  mysql:
-    image: mysql:8.0
-    container_name: dwp-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: 123
-      MYSQL_DATABASE: dwp
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    networks:
-      - dwp-network
-
   # Qdrant向量数据库
   qdrant:
     image: qdrant/qdrant
@@ -27,7 +12,7 @@ services:
     networks:
       - dwp-network
 
-  # Java后端服务
+   # ---------- Java 后端 ----------
   java-backend:
     build:
       context: .
@@ -38,10 +23,13 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/dwp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=utf8
       PYTHON_RAG_SERVICE_URL: http://python-rag:8002
+      # ← 新增：推荐服务 URL（在代码里用 System.getenv("RECOMMENDER_URL") 读取）
+      RECOMMENDER_URL: http://paper-recommender:8000
     depends_on:
-      - mysql
+      - paper-recommender
     networks:
       - dwp-network
+
 
   # Python RAG服务
   python-rag:
@@ -61,7 +49,36 @@ services:
     networks:
       - dwp-network
 
-  # Nginx反向代理（可选）
+ # ---------------- 用户行为推荐（Paper Recommender） ----------------
+  paper-recommender:
+    build:
+      context: ./paper-recommendation-service        # ← 你的 paper‑recommendation-service 目录
+      dockerfile: Dockerfile
+    container_name: dwp-paper-recommender
+    ports:
+      - "8010:8000"      # 开发期暴露；线上内部即可
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASS: 123123LSH
+      DB_NAME: dwp
+      MODEL_NAME: allenai-specter         # 或 all-MiniLM-L6-v2
+    volumes:
+      - recommender_cache:/root/.cache/huggingface
+      - recommender_data:/app                      # 存 faiss.index / *.npy
+    depends_on: [ ]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    networks: [ dwp-network ]
+
+
+ # ---------- Nginx 反向代理 ----------
   nginx:
     image: nginx:alpine
     container_name: dwp-nginx
@@ -72,13 +89,18 @@ services:
     depends_on:
       - java-backend
       - python-rag
+      - paper-recommender
     networks:
       - dwp-network
 
+# ---------- 数据卷 ----------
 volumes:
   mysql_data:
   qdrant_data:
+  recommender_cache:     # HugginFace 权重缓存 (≈500 MB)
+  recommender_data:      # faiss.index & embeddings.npy
 
+# ---------- 网络 ----------
 networks:
   dwp-network:
-    driver: bridge 
+    driver: bridge

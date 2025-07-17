@@ -1,9 +1,12 @@
 package com.dealwithpapers.dealwithpapers.service.impl;
 
 import com.dealwithpapers.dealwithpapers.dto.PaperDTO;
+import com.dealwithpapers.dealwithpapers.dto.PaperRelationDto;
 import com.dealwithpapers.dealwithpapers.dto.PaperSearchDTO;
 import com.dealwithpapers.dealwithpapers.entity.Paper;
 import com.dealwithpapers.dealwithpapers.repository.PaperRepository;
+import com.dealwithpapers.dealwithpapers.service.CitationDataService;
+import com.dealwithpapers.dealwithpapers.service.PaperRelationService;
 import com.dealwithpapers.dealwithpapers.service.PaperService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
 public class PaperServiceImpl implements PaperService {
 
     private final PaperRepository paperRepository;
+    private final CitationDataService citationDataService;
+    private final PaperRelationService paperRelationService;
     
     @Override
     @Transactional
@@ -121,6 +126,44 @@ public class PaperServiceImpl implements PaperService {
         return paperRepository.searchByTerm(searchTerm.trim()).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<PaperDTO> searchByTermWithCitations(String searchTerm, boolean fetchCitations) {
+        // 首先执行基本搜索
+        List<PaperDTO> papers = searchByTerm(searchTerm);
+        
+        // 如果需要获取引用数据且找到了论文
+        if (fetchCitations && !papers.isEmpty()) {
+            for (PaperDTO paper : papers) {
+                try {
+                    // 获取引用数据
+                    PaperRelationDto relationDto = null;
+                    
+                    // 优先使用DOI获取
+                    if (paper.getDoi() != null && !paper.getDoi().trim().isEmpty()) {
+                        relationDto = citationDataService.getCitationDataByDoi(paper.getDoi());
+                    }
+                    
+                    // 如果DOI获取失败，尝试用标题获取
+                    if (relationDto == null && paper.getTitle() != null && !paper.getTitle().trim().isEmpty()) {
+                        relationDto = citationDataService.getCitationDataByTitle(paper.getTitle());
+                    }
+                    
+                    // 如果成功获取到引用数据，保存到数据库
+                    if (relationDto != null) {
+                        relationDto.setPaperId(paper.getId());
+                        paperRelationService.savePaperRelations(relationDto);
+                    }
+                    
+                } catch (Exception e) {
+                    // 获取引用数据失败不应该影响搜索结果
+                    System.err.println("获取论文引用数据失败: " + paper.getTitle() + ", 错误: " + e.getMessage());
+                }
+            }
+        }
+        
+        return papers;
     }
     
     // 实体转换为DTO

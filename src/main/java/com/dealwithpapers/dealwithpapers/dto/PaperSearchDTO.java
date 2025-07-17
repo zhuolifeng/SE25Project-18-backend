@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PaperSearchDTO {
     private String searchTerm; // 单一搜索框，可用于ID、标题或作者
-    private Integer year; // 年份筛选
+    private String conferenceName; // 新增：会议名
+    private Integer year; // 新增：年份
+    private String topic; // 新增：主题
+    private String keyword; // 新增：关键词
+    private String arxivCategory; // 新增：arxiv学科分类
     
     // Explicit getters
     public String getSearchTerm() {

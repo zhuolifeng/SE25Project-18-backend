@@ -5,9 +5,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserViewHistoryRepository extends JpaRepository<UserViewHistory, Long> {
@@ -40,4 +43,7 @@ public interface UserViewHistoryRepository extends JpaRepository<UserViewHistory
     
     // 删除指定用户的所有浏览历史
     void deleteByUserId(Long userId);
+
+    @Query("SELECT v FROM UserViewHistory v WHERE v.user.id = :userId AND v.paper.id = :paperId AND v.viewTime >= :fromTime ORDER BY v.viewTime DESC")
+    Optional<UserViewHistory> findRecentView(@Param("userId") Long userId, @Param("paperId") Long paperId, @Param("fromTime") LocalDateTime fromTime);
 } 

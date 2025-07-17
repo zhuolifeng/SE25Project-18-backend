@@ -135,15 +135,26 @@ public class UserHistoryServiceImpl implements UserHistoryService {
         Paper paper = paperRepository.findById(paperId)
                 .orElseThrow(() -> new RuntimeException("论文不存在"));
 
-        UserViewHistory viewHistory = new UserViewHistory();
-        viewHistory.setUser(user);
-        viewHistory.setPaper(paper);
-        viewHistory.setViewTime(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime fromTime = now.minusMinutes(5);
+
+        Optional<UserViewHistory> recentViewOpt = viewHistoryRepository.findRecentView(userId, paperId, fromTime);
+
+        UserViewHistory viewHistory;
+        if (recentViewOpt.isPresent()) {
+            viewHistory = recentViewOpt.get();
+            viewHistory.setViewTime(now);
+        } else {
+            viewHistory = new UserViewHistory();
+            viewHistory.setUser(user);
+            viewHistory.setPaper(paper);
+            viewHistory.setViewTime(now);
+        }
 
         UserViewHistory savedHistory = viewHistoryRepository.save(viewHistory);
         
-        // 限制用户浏览历史记录数量
-        limitUserViewHistory(userId, 50);
+        // 注释掉限额调用以停止自动清除
+        // limitUserViewHistory(userId, 50);
         
         return convertToViewHistoryDTO(savedHistory);
     }

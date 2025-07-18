@@ -32,6 +32,9 @@ public interface PaperService {
     // 通过搜索词搜索论文（ID、标题或作者）
     List<PaperDTO> searchByTerm(String searchTerm);
     
+    // 通过搜索词搜索论文并可选择获取引用数据
+    List<PaperDTO> searchByTermWithCitations(String searchTerm, boolean fetchCitations);
+    
     // 检查论文ID是否存在
     boolean existsById(Long id);
     

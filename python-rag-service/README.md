@@ -64,26 +64,19 @@ python-rag-service/
 cd python-rag-service
 ```
 
-### 2. 创建虚拟环境
+### 2. 使用自动依赖检查脚本
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# 或
-venv\Scripts\activate  # Windows
+python check_and_install_dependencies.py
 ```
+这个脚本将自动检查所有必要的依赖项，并在需要时安装它们。
 
-### 3. 安装依赖
-```bash
-pip install -r requirements.txt
-```
-
-### 4. 配置环境变量
+### 3. 配置环境变量
 ```bash
 cp .env.example .env
 # 编辑 .env 文件，填入必要的配置
 ```
 
-### 5. 启动向量数据库
+### 4. 启动向量数据库
 
 **使用Qdrant:**
 ```bash
@@ -93,10 +86,18 @@ docker run -p 6333:6333 qdrant/qdrant
 **使用ChromaDB:**
 ChromaDB会自动在本地创建持久化目录。
 
-### 6. 运行服务
+### 5. 运行服务
 ```bash
+# 使用增强的启动脚本（包含依赖检查）
+python start_rag_service.py
+
+# 跳过依赖检查
+python start_rag_service.py --skip-deps-check
+
+# 直接使用uvicorn启动
 python -m app.main
-# 或使用 uvicorn
+
+# 或使用uvicorn命令
 uvicorn app.main:app --reload --port 8002
 ```
 

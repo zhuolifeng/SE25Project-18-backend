@@ -6,7 +6,13 @@ LLM Provider Manager
 import logging
 import os
 from typing import Optional
-from app.core.config import settings
+import sys
+
+# 添加项目根目录到Python路径
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, root_path)
+
+from config import config
 
 logger = logging.getLogger(__name__)
 
@@ -33,23 +39,23 @@ class LLMProvider:
     
     def _create_qwen_llm(self):
         """创建Qwen LLM实例使用阿里云API"""
-        if not settings.QWEN_API_KEY:
+        if not config.QWEN_API_KEY:
             raise ValueError("QWEN_API_KEY is required for Qwen provider")
         
         try:
             # 设置环境变量给dashscope使用
-            os.environ["DASHSCOPE_API_KEY"] = settings.QWEN_API_KEY
+            os.environ["DASHSCOPE_API_KEY"] = config.QWEN_API_KEY
             
             from langchain_community.llms import Tongyi
             
             llm = Tongyi(
-                model_name=settings.LLM_MODEL or "qwen-turbo",
-                temperature=settings.LLM_TEMPERATURE,
-                max_tokens=settings.LLM_MAX_TOKENS,
+                model_name=config.LLM_MODEL or "qwen-turbo",
+                temperature=config.LLM_TEMPERATURE,
+                max_tokens=config.LLM_MAX_TOKENS,
                 top_p=0.8
             )
             
-            logger.info(f"Successfully initialized Qwen LLM with model: {settings.LLM_MODEL}")
+            logger.info(f"Successfully initialized Qwen LLM with model: {config.LLM_MODEL}")
             return llm
             
         except ImportError:

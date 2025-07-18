@@ -15,6 +15,7 @@ import time
 import re
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import traceback
 
 from app.core.vector_store import VectorStoreManager
 from app.core.llm_provider import LLMProvider
@@ -304,6 +305,9 @@ class RAGEngine:
         logging.info(f"处理查询 - 用户ID: {user_id}, 论文ID: {paper_id}, 会话ID: {session_id}")
         logging.info(f"查询问题: {question}")
 
+        # 初始化docs变量，确保在所有路径中都有值
+        docs = []
+        
         try:
             # 构建过滤器来限定特定论文
             filter_dict = {}
@@ -380,7 +384,13 @@ class RAGEngine:
                                 docs = alt_docs
                                 logging.info(f"使用备用过滤器找到 {len(docs)} 个文档")
                                 break
-                        
+                else:
+                    # 当没有指定paper_id时，也应进行文档检索
+                    docs = await self.vector_store_manager.search_documents(
+                        query=question, 
+                        k=retrieval_k
+                    )
+                
                 # 根据文档元数据优先级排序
                 if docs:
                     # 按照元数据中的优先级和相关性重新排序
@@ -393,6 +403,9 @@ class RAGEngine:
                         logging.debug(f"文档 {i}: {doc.metadata}")
                 else:
                     logging.warning("没有找到相关文档！")
+
+                retrieval_time = time.time() - start_time
+                logging.info(f"向量检索完成，耗时: {retrieval_time:.2f}秒，找到文档数: {len(docs)}")
                     
                 # 使用LLM生成回答
                 sources = []
@@ -442,72 +455,27 @@ class RAGEngine:
                 }
                 
             except Exception as e:
-                # ... 异常处理代码 ...
-                pass # 保留原始异常处理逻辑
-            
-            retrieval_time = time.time() - start_time
-            logging.info(f"向量检索完成，耗时: {retrieval_time:.2f}秒，找到文档数: {len(docs)}")
-            
-            # 记录检索到的文档的元数据以便调试
-            if docs:
-                logging.debug("检索到的文档元数据示例:")
-                for i, doc in enumerate(docs[:2]):
-                    logging.debug(f"文档 {i}: {doc.metadata}")
-            else:
-                logging.warning("没有找到相关文档！")
-                
-            # 使用LLM生成回答
-            sources = []
-            for doc in docs:
-                metadata = doc.metadata
-                source_info = {
-                    "content": doc.page_content[:200] + "...",  # 截取前200字符
-                    "paper_id": metadata.get("paper_id") or metadata.get("paperId"),
-                    "title": metadata.get("title") or metadata.get("paper_title"),
-                    "source": metadata.get("source", ""),
+                # 捕获内部异常并记录日志
+                logging.error(f"向量检索或LLM处理过程中出错: {str(e)}")
+                # 设置一个默认的空文档列表，确保代码可以继续运行
+                docs = []
+                # 返回一个友好的错误信息
+                return {
+                    "message": f"抱歉，我在处理您的问题时遇到了一些困难: {str(e)}",
+                    "answer": f"处理查询时出现错误: {str(e)}",
+                    "sources": [],
+                    "question": question,
+                    "conversation_id": session_id
                 }
-                sources.append(source_info)
-            
-            # 准备历史对话记录
-            processed_history = []
-            if history:
-                logging.debug(f"处理历史对话，长度: {len(history)}")
-                for item in history:
-                    if isinstance(item, dict):
-                        role = item.get("role", "")
-                        content = item.get("content", "")
-                        processed_history.append({"role": role, "content": content})
-            
-            # 执行LLM查询
-            logging.info("开始LLM查询生成")
-            start_time = time.time()
-            # 不要重新创建，直接使用已经初始化的qa_chain
-            # qa_chain = self._create_qa_chain()
-            chain_result = await self.qa_chain.ainvoke({
-                "question": question,
-                "context": [doc.page_content for doc in docs],
-                "history": processed_history
-            })
-            llm_time = time.time() - start_time
-            logging.info(f"LLM生成完成，耗时: {llm_time:.2f}秒")
-            
-            # 处理结果
-            answer = chain_result.get("answer", "")
-            logging.info(f"生成的回答长度: {len(answer)} 字符")
-            
-            return {
-                "message": answer,  # 保持兼容性
-                "answer": answer,
-                "sources": sources,
-                "question": question,
-                "conversation_id": session_id
-            }
             
         except Exception as e:
-            logging.exception(f"查询处理时出错: {str(e)}")
+            # 捕获最外层的异常
+            logging.error(f"查询处理时出错: {str(e)}")
+            traceback.print_exc()
+            # 确保返回一个有效的响应
             return {
-                "message": f"处理查询时发生错误: {str(e)}",
-                "answer": f"抱歉，处理您的问题时出现了技术问题。",
+                "message": f"抱歉，处理您的问题时发生了错误: {str(e)}",
+                "answer": f"处理查询时出现错误: {str(e)}",
                 "sources": [],
                 "question": question,
                 "conversation_id": session_id

@@ -238,13 +238,16 @@ class VectorStoreManager:
             
             # 使用向量存储搜索
             if self.vector_store is None:
-                self.initialize()
+                # 修正：初始化方法现在是异步的，需要await调用
+                await self.initialize()
             
             if filter_dict:
                 logging.info(f"Applying filter: {filter_dict}")
             
             # 获取向量存储类型，默认使用qdrant
             vector_store_type = getattr(config, "VECTOR_STORE_TYPE", "qdrant")
+            
+            results = []  # 初始化结果变量，确保在所有路径中都有值
             
             if vector_store_type == "qdrant":
                 results = await self._search_qdrant(query, k, filter_dict)

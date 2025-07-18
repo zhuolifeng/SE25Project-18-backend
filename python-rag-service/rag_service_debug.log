@@ -747,3 +747,74 @@ b'{"status":{"error":"Not found: Collection `papers` doesn\'t exist!"},"time":0.
 2025-07-18 12:40:07,847 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
 2025-07-18 12:40:16,788 - root - INFO - LLM生成完成，耗时: 8.96秒
 2025-07-18 12:40:16,789 - root - INFO - 生成的回答长度: 474 字符
+2025-07-18 12:41:41,151 - app.api.chat - INFO - Processing query: speak Chinese to tell me the contributions of the ...
+2025-07-18 12:41:41,152 - root - INFO - 处理查询 - 用户ID: 1, 论文ID: None, 会话ID: 4c34a8e6-9bfb-4cdf-b8fd-7c09d2333137
+2025-07-18 12:41:41,152 - root - INFO - 查询问题: speak Chinese to tell me the contributions of the paper
+2025-07-18 12:41:41,152 - root - INFO - 开始向量检索
+2025-07-18 12:41:41,152 - root - INFO - 开始向量检索
+2025-07-18 12:41:41,152 - root - ERROR - 查询处理时出错: local variable 'docs' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/zhuolifeng/SE-Project/SE25Project-18-backend/python-rag-service/app/core/rag_engine.py", line 449, in query
+    logging.info(f"向量检索完成，耗时: {retrieval_time:.2f}秒，找到文档数: {len(docs)}")
+UnboundLocalError: local variable 'docs' referenced before assignment
+2025-07-18 12:44:09,317 - root - INFO - 正在初始化RAG服务...
+2025-07-18 12:44:09,317 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 12:44:12,780 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 12:44:20,760 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 12:44:20,828 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 12:44:20,838 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers "HTTP/1.1 409 Conflict"
+2025-07-18 12:44:20,849 - app.core.vector_store - INFO - Qdrant集合 papers 已存在
+2025-07-18 12:44:20,850 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 12:44:20,850 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 12:44:20,850 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 12:44:20,850 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 12:44:20,892 - app.core.llm_provider - INFO - Successfully initialized Qwen LLM with model: qwen-turbo
+2025-07-18 12:44:20,893 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 12:44:20,893 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 12:44:20,893 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 12:44:20,893 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 12:45:27,686 - app.api.chat - INFO - Processing query: speak Chinese to tell me this paper...
+2025-07-18 12:45:27,687 - root - INFO - 处理查询 - 用户ID: 1, 论文ID: None, 会话ID: f45fbd8b-d897-4467-b683-1b333a60a67c
+2025-07-18 12:45:27,687 - root - INFO - 查询问题: speak Chinese to tell me this paper
+2025-07-18 12:45:27,687 - root - INFO - 开始向量检索
+2025-07-18 12:45:27,688 - root - INFO - 开始向量检索
+2025-07-18 12:45:27,690 - root - ERROR - 查询处理时出错: local variable 'docs' referenced before assignment
+Traceback (most recent call last):
+  File "/Users/zhuolifeng/SE-Project/SE25Project-18-backend/python-rag-service/app/core/rag_engine.py", line 449, in query
+    logging.info(f"向量检索完成，耗时: {retrieval_time:.2f}秒，找到文档数: {len(docs)}")
+UnboundLocalError: local variable 'docs' referenced before assignment
+2025-07-18 12:49:08,569 - root - INFO - 正在关闭RAG服务...
+2025-07-18 12:49:08,572 - app.core.vector_store - INFO - 向量存储资源清理完成
+2025-07-18 12:49:08,572 - root - INFO - RAG服务已关闭!
+2025-07-18 12:49:12,201 - root - INFO - 正在初始化RAG服务...
+2025-07-18 12:49:12,201 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 12:49:15,260 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 12:49:21,555 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 12:49:21,655 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 12:49:21,662 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers "HTTP/1.1 409 Conflict"
+2025-07-18 12:49:21,663 - app.core.vector_store - INFO - Qdrant集合 papers 已存在
+2025-07-18 12:49:21,663 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 12:49:21,663 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 12:49:21,663 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 12:49:21,663 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 12:49:21,711 - app.core.llm_provider - INFO - Successfully initialized Qwen LLM with model: qwen-turbo
+2025-07-18 12:49:21,712 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 12:49:21,712 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 12:49:21,712 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 12:49:21,712 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 12:49:46,166 - app.api.chat - INFO - Processing query: speak Chinese to tell me the contributions of the ...
+2025-07-18 12:49:46,166 - root - INFO - 处理查询 - 用户ID: 1, 论文ID: None, 会话ID: fe25de98-6519-4c90-a09f-5291585f0926
+2025-07-18 12:49:46,166 - root - INFO - 查询问题: speak Chinese to tell me the contributions of the paper
+2025-07-18 12:49:46,166 - root - INFO - 开始向量检索
+2025-07-18 12:49:46,166 - root - INFO - 开始向量检索
+2025-07-18 12:49:46,167 - root - INFO - Searching for documents with query: speak Chinese to tell me the contributions of the ... (k=5)
+2025-07-18 12:49:46,307 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 12:49:46,309 - root - INFO - Found 5 matching documents
+2025-07-18 12:49:46,309 - root - INFO - 向量检索完成，耗时: 0.14秒，找到文档数: 5
+2025-07-18 12:49:46,309 - root - INFO - 开始LLM查询生成
+2025-07-18 12:49:46,330 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 12:49:56,484 - root - INFO - LLM生成完成，耗时: 10.17秒
+2025-07-18 12:49:56,485 - root - INFO - 生成的回答长度: 786 字符
+2025-07-18 12:50:04,108 - root - INFO - 正在关闭RAG服务...
+2025-07-18 12:50:04,109 - app.core.vector_store - INFO - 向量存储资源清理完成
+2025-07-18 12:50:04,109 - root - INFO - RAG服务已关闭!

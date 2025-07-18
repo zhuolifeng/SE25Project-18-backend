@@ -345,6 +345,19 @@ class RAGEngine:
                         filter_dict=filter_dict
                     )
                     
+                    # 增加明确的标题和摘要匹配的优先级
+                    if docs:
+                        # 首先按元数据中的优先级进行主排序
+                        docs = sorted(docs, key=lambda x: x.metadata.get("priority", 0), reverse=True)
+                        
+                        # 其次，对于关于核心创新、方法的问题，优先考虑摘要和介绍
+                        if re.search(r'(?i)核心|创新|提出|方法|贡献|主要', question):
+                            # 提升包含摘要或介绍的文档排序
+                            docs = sorted(docs, 
+                                         key=lambda x: 1 if re.search(r'摘要|介绍|abstract|introduction', 
+                                                                    x.page_content.lower()) else 0, 
+                                         reverse=True) + docs
+                    
                     # 如果没有找到结果，尝试其他过滤方式
                     if not docs:
                         logging.warning(f"使用主过滤器没有找到文档，尝试备用字段")

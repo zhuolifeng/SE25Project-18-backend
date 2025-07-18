@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 import asyncio
 import aiohttp
 from datetime import datetime
+import textwrap # Added for text wrapping
 
 try:
     import PyPDF2
@@ -253,52 +254,40 @@ class PDFExtractor:
             return False
     
     def _extract_text_from_pdf(self, pdf_content: bytes) -> str:
-        """从PDF内容中提取文本"""
-        if not self.pdf_extraction_available:
-            logger.error("没有可用的PDF提取库(PyPDF2/pdfplumber)，无法提取文本")
+        """从PDF中提取文本，尝试多种方法以获得最佳结果"""
+        logging.info("开始从PDF提取文本...")
+        text = ""
+        
+        # 首先尝试PyPDF2 (处理正常PDF)
+        try:
+            pdf_text = self._extract_with_pypdf2(pdf_content)
+            if pdf_text and len(pdf_text.strip()) > 500:  # 检查提取的文本是否足够长
+                text = pdf_text
+                logging.info("使用PyPDF2成功提取文本")
+            else:
+                logging.warning("PyPDF2提取的文本不足，尝试其他方法")
+        except Exception as e:
+            logging.warning(f"PyPDF2提取失败: {str(e)}")
+        
+        # 如果PyPDF2失败，尝试pdfplumber (更好处理复杂布局)
+        if not text or len(text.strip()) < 500:
+            try:
+                plumber_text = self._extract_with_pdfplumber(pdf_content)
+                if plumber_text and len(plumber_text.strip()) > 500:
+                    text = plumber_text
+                    logging.info("使用pdfplumber成功提取文本")
+                else:
+                    logging.warning("pdfplumber提取的文本不足")
+            except Exception as e:
+                logging.warning(f"pdfplumber提取失败: {str(e)}")
+        
+        # 如果两种方法都提取到了一些内容，选择长度更长的结果
+        if not text or len(text.strip()) < 200:
+            logging.error("所有PDF文本提取方法都失败")
             return ""
-            
-        # 尝试使用pdfplumber提取文本
-        if pdfplumber:
-            try:
-                with pdfplumber.open(io.BytesIO(pdf_content)) as pdf:
-                    pages_text = []
-                    for page_num, page in enumerate(pdf.pages):
-                        try:
-                            text = page.extract_text()
-                            if text:
-                                # 特殊处理前几页（通常包含摘要和介绍）
-                                if page_num < 3:
-                                    pages_text.append(f"[IMPORTANT_SECTION] --- Page {page_num + 1} ---\n{text}")
-                                else:
-                                    pages_text.append(f"--- Page {page_num + 1} ---\n{text}")
-                        except Exception as e:
-                            logger.warning(f"页面{page_num + 1}文本提取失败: {str(e)}")
-                            continue
-                    
-                    logger.info(f"使用pdfplumber成功提取了{len(pages_text)}页内容")
-                    extracted_text = "\n\n".join(pages_text)
-                    
-                    # 识别和标记摘要和介绍部分
-                    extracted_text = self._mark_important_sections(extracted_text)
-                    return extracted_text
-                    
-            except Exception as e:
-                logger.warning(f"pdfplumber提取失败: {str(e)}")
         
-        # 尝试使用PyPDF2提取文本
-        if PyPDF2:
-            try:
-                extracted_text = self._extract_with_pypdf2(pdf_content)
-                if extracted_text.strip():
-                    logger.info("使用PyPDF2成功提取文本")
-                    return extracted_text
-            except Exception as e:
-                logger.warning(f"PyPDF2提取失败: {str(e)}")
-        
-        # 如果都失败了，返回空字符串
-        logger.error("所有PDF文本提取方法都失败了")
-        return ""
+        logging.info(f"PDF文本提取完成，共{len(text)}字符")
+        return text
     
     def _extract_with_pdfplumber(self, pdf_content: bytes) -> str:
         """使用pdfplumber提取文本"""
@@ -355,132 +344,135 @@ class PDFExtractor:
     
     def _clean_text(self, text: str) -> str:
         """清理和格式化文本"""
-        # 原有代码保留
+        if text is None:
+            return ""
         
-        # 1. 修复乱码
-        text = re.sub(r'>SOE<|>dap<|>eod<', ' ', text)
+        # 基础清理
+        text = re.sub(r'\s+', ' ', text)
+        text = re.sub(r'-\s+', '', text)
         
-        # 2. 修复词语连接问题 - 使用正则表达式识别驼峰式连接词
+        # 移除重复的换行符
+        text = re.sub(r'\n\s*\n', '\n\n', text)
+        
+        # 修复乱码
+        text = re.sub(r'>SOE<|>dap<|>eod<|>SOE|SOE<|>dap|dap<', ' ', text)
+        
+        # 修复连在一起的单词 (使用驼峰拆分)
         text = re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
         
-        # 3. 检测并修复常见的合并单词模式
-        common_words = ['the', 'and', 'for', 'that', 'with', 'this', 'from']
+        # 修复常见组合词
+        common_words = ['the', 'and', 'for', 'that', 'with', 'this', 'from', 'is', 'to', 'in', 'of', 'on']
         for word in common_words:
             pattern = f'([a-z])({word})([A-Z]|[a-z])'
             text = re.sub(pattern, r'\1 \2 \3', text, flags=re.IGNORECASE)
         
-        # 4. 确保空格正确
+        # 移除多余空格
         text = re.sub(r'\s+', ' ', text)
         
-        # 清理后的文本
-        lines = text.split('\n')
-        cleaned_lines = []
-        for line in lines:
-            line = line.strip()
-            if len(line) > 3:  # 保留更多的行（3个字符以上）
-                cleaned_lines.append(line)
+        # 标记重要章节
+        return self._mark_important_sections(text)
+
+    def _mark_important_sections(self, text: str) -> str:
+        """识别和标记摘要和介绍部分"""
+        # 标记Abstract部分
+        abstract_pattern = re.compile(r'(abstract|摘要)[:\.\s\n]*(.*?)(?=\n\s*(?:introduction|引言|1\.\s*introduction|1\.\s*引言|\d+\.\s*|$))', re.IGNORECASE | re.DOTALL)
+        abstract_match = abstract_pattern.search(text)
+        if abstract_match:
+            abstract_text = abstract_match.group(2).strip()
+            if len(abstract_text) > 50:  # 确保找到的摘要有足够长度
+                text = text.replace(abstract_text, f"[ABSTRACT] {abstract_text} [/ABSTRACT]")
         
-        cleaned_text = '\n'.join(cleaned_lines)
-        logger.info(f"文本清理：原长度{len(text)}字符，清理后{len(cleaned_text)}字符")
-        return cleaned_text
-    
+        # 标记Introduction部分
+        intro_pattern = re.compile(r'(introduction|引言|1\.\s*introduction|1\.\s*引言)[:\.\s\n]*(.*?)(?=\n\s*(?:\d+\.\s*|conclusion|references|参考文献|$))', re.IGNORECASE | re.DOTALL)
+        intro_match = intro_pattern.search(text)
+        if intro_match:
+            intro_text = intro_match.group(2).strip()
+            if len(intro_text) > 100:  # 确保找到的介绍有足够长度
+                text = text.replace(intro_text, f"[INTRODUCTION] {intro_text} [/INTRODUCTION]")
+        
+        return text
+
     def _split_text_into_chunks(self, text: str) -> List[str]:
-        """将文本分割成块"""
-        try:
-            # 特别处理包含[IMPORTANT_SECTION]标记的文本
-            important_sections = []
-            regular_text = text
+        """将文本分割成多个块，优先处理标记的重要部分"""
+        logging.info("开始将文本分割成块...")
+        
+        chunks = []
+        
+        # 首先提取并处理摘要部分
+        abstract_match = re.search(r'\[ABSTRACT\](.*?)\[\/ABSTRACT\]', text, re.DOTALL)
+        if abstract_match:
+            abstract_text = abstract_match.group(1).strip()
+            # 将摘要分成较小的块
+            abstract_chunks = textwrap.wrap(abstract_text, width=1000, replace_whitespace=False, break_long_words=False)
+            for i, chunk in enumerate(abstract_chunks):
+                chunks.append(f"[摘要部分 {i+1}/{len(abstract_chunks)}] {chunk}")
             
-            # 提取出重要章节
-            important_pattern = re.compile(r'\[IMPORTANT_SECTION\].*?(?=\[IMPORTANT_SECTION\]|$)', re.DOTALL)
-            for match in important_pattern.finditer(text):
-                important_section = match.group(0)
-                important_sections.append(important_section)
-                # 从原文中移除重要章节，避免重复
-                regular_text = regular_text.replace(important_section, '')
+            # 从原文移除已处理的摘要
+            text = text.replace(f"[ABSTRACT]{abstract_text}[/ABSTRACT]", "")
+        
+        # 然后提取并处理介绍部分
+        intro_match = re.search(r'\[INTRODUCTION\](.*?)\[\/INTRODUCTION\]', text, re.DOTALL)
+        if intro_match:
+            intro_text = intro_match.group(1).strip()
+            # 将介绍分成较小的块
+            intro_chunks = textwrap.wrap(intro_text, width=1000, replace_whitespace=False, break_long_words=False)
+            for i, chunk in enumerate(intro_chunks):
+                chunks.append(f"[介绍部分 {i+1}/{len(intro_chunks)}] {chunk}")
             
-            # 对重要章节使用较小的块大小进行分割
-            important_chunks = []
-            for section in important_sections:
-                section_chunks = RecursiveCharacterTextSplitter(
-                    chunk_size=500,  # 较小的块大小
-                    chunk_overlap=100,
-                    length_function=len,
-                    separators=["\n\n", "\n", ".", "!", "?", ",", " ", ""]
-                ).split_text(section)
-                important_chunks.extend(section_chunks)
+            # 从原文移除已处理的介绍
+            text = text.replace(f"[INTRODUCTION]{intro_text}[/INTRODUCTION]", "")
+        
+        # 检测并处理其他章节
+        sections = re.split(r'\n\s*\d+\.', text)
+        for i, section in enumerate(sections):
+            if i > 0:  # 第一个通常是文章前导，不加入序号
+                section = f"{i}. {section}"
             
-            # 对常规文本使用标准块大小进行分割
-            regular_chunks = RecursiveCharacterTextSplitter(
-                chunk_size=self.chunk_size,
-                chunk_overlap=self.chunk_overlap,
-                length_function=len,
-                separators=["\n\n", "\n", ".", "!", "?", ",", " ", ""]
-            ).split_text(regular_text)
-            
-            # 优先返回重要章节的块
-            chunks = important_chunks + regular_chunks
-            logger.info(f"文本分割成{len(chunks)}个块 (重要章节:{len(important_chunks)}, 常规章节:{len(regular_chunks)})")
-            return chunks
-            
-        except Exception as e:
-            logger.error(f"文本分割失败: {str(e)}")
-            # 如果分割失败，返回整个文本作为一个块
-            return [text]
-    
+            if len(section.strip()) > 100:  # 忽略太短的部分
+                # 将章节分成较小的块
+                section_chunks = textwrap.wrap(section.strip(), width=1000, replace_whitespace=False, break_long_words=False)
+                for j, chunk in enumerate(section_chunks):
+                    section_name = f"第{i}章" if i > 0 else "前言"
+                    chunks.append(f"[{section_name} {j+1}/{len(section_chunks)}] {chunk}")
+        
+        logging.info(f"文本分割完成，共生成{len(chunks)}个块")
+        return chunks
+
     async def _store_chunks_to_vector_db(self, chunks: List[str], paper_id: int, 
-                               paper_title: str, pdf_url: str) -> int:
-        """Store text chunks to vector database"""
+                                   paper_title: str, pdf_url: str) -> int:
+        """将文本块存储到向量数据库"""
+        logging.info(f"开始将{len(chunks)}个文本块存储到向量数据库...")
+        
+        documents = []
+        
+        # 为每个块创建Document对象
+        for i, chunk in enumerate(chunks):
+            # 检测块的优先级（摘要和介绍有更高优先级）
+            priority = 0  # 默认优先级
+            if chunk.startswith("[摘要"):
+                priority = 10  # 摘要优先级最高
+            elif chunk.startswith("[介绍"):
+                priority = 8  # 介绍部分优先级次之
+            
+            metadata = {
+                "paper_id": str(paper_id),
+                "title": paper_title,
+                "source": pdf_url,
+                "chunk_id": i,
+                "priority": priority,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            doc = Document(page_content=chunk, metadata=metadata)
+            documents.append(doc)
+        
+        # 添加到向量数据库
         try:
-            docs = []
-            for i, chunk in enumerate(chunks):
-                if not chunk.strip():  # 跳过空白块
-                    logging.debug(f"跳过空白文本块 {i}")
-                    continue
-                    
-                # 设置优先级
-                priority = 5  # 默认优先级
-                
-                # 检测重要章节
-                if "[IMPORTANT_SECTION]" in chunk:
-                    priority = 10
-                    if "[ABSTRACT]" in chunk:
-                        priority = 15  # 摘要最高优先级
-                    elif "[INTRODUCTION]" in chunk:
-                        priority = 12  # 介绍次高优先级
-                    
-                    # 移除标记，避免它们出现在实际文本中
-                    chunk = chunk.replace("[IMPORTANT_SECTION]", "")
-                    chunk = chunk.replace("[ABSTRACT]", "")
-                    chunk = chunk.replace("[INTRODUCTION]", "")
-                
-                metadata = {
-                    "paper_id": str(paper_id),  # 确保paper_id是字符串
-                    "title": paper_title,
-                    "source": pdf_url,
-                    "chunk_id": i,
-                    "priority": priority
-                }
-                
-                logging.debug(f"创建块 {i}, 大小: {len(chunk)} 字符, 优先级: {priority}")
-                doc = Document(page_content=chunk, metadata=metadata)
-                docs.append(doc)
-            
-            logging.info(f"准备存储 {len(docs)} 个文档到向量数据库")
-            if not docs:
-                logging.warning("没有有效文档可存储")
-                return 0
-                
-            # 记录metadata示例以便调试
-            logging.debug(f"示例元数据: {docs[0].metadata if docs else 'No docs'}")
-            
-            # Store documents in vector database
-            doc_ids = await self.vector_store.add_documents(docs)
-            logging.info(f"成功添加 {len(doc_ids)} 个文档到向量数据库，返回的ID: {doc_ids[:3]}...")
-            
-            return len(doc_ids)
+            await self.vector_store.add_documents(documents)
+            logging.info(f"成功存储 {len(documents)} 个块到向量数据库，论文ID: {paper_id}")
+            return len(documents)
         except Exception as e:
-            logging.exception(f"存储向量时出错: {str(e)}")
+            logging.error(f"向量数据库存储失败: {str(e)}")
             return 0
     
     async def get_pdf_extraction_status(self, paper_id: int) -> Dict:
@@ -541,25 +533,3 @@ def get_pdf_extractor(vector_store: VectorStoreManager) -> PDFExtractor:
     if pdf_extractor is None:
         pdf_extractor = PDFExtractor(vector_store)
     return pdf_extractor
-
-def _mark_important_sections(self, text: str) -> str:
-    """识别和标记摘要和介绍部分"""
-    # 标记Abstract部分
-    abstract_pattern = re.compile(r'(abstract|摘要)[:\.\s\n]*(.*?)(?=\n\s*(?:introduction|引言|1\.\s*introduction|1\.\s*引言|\d+\.\s*|$))', re.IGNORECASE | re.DOTALL)
-    abstract_match = abstract_pattern.search(text)
-    if abstract_match:
-        abstract_text = abstract_match.group(2).strip()
-        if len(abstract_text) > 50:  # 确保找到的摘要有足够长度
-            text = text.replace(abstract_match.group(0), 
-                               f"[IMPORTANT_SECTION][ABSTRACT]\n{abstract_match.group(0)}")
-    
-    # 标记Introduction部分
-    intro_pattern = re.compile(r'(introduction|引言|1\.\s*introduction|1\.\s*引言)[:\.\s\n]*(.*?)(?=\n\s*(?:\d+\.\s*|\w+\s*\n|$))', re.IGNORECASE | re.DOTALL)
-    intro_match = intro_pattern.search(text)
-    if intro_match:
-        intro_text = intro_match.group(2).strip()
-        if len(intro_text) > 100:  # 确保找到的引言有足够长度
-            text = text.replace(intro_match.group(0), 
-                              f"[IMPORTANT_SECTION][INTRODUCTION]\n{intro_match.group(0)}")
-    
-    return text

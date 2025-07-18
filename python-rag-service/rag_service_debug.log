@@ -353,3 +353,134 @@ ValueError: One input key expected got ['question', 'context', 'history']
 2025-07-18 11:14:04,894 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
 2025-07-18 11:14:07,844 - root - INFO - LLM生成完成，耗时: 2.98秒
 2025-07-18 11:14:07,844 - root - INFO - 生成的回答长度: 210 字符
+2025-07-18 11:28:24,525 - root - INFO - 正在初始化RAG服务...
+2025-07-18 11:28:24,526 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 11:28:27,410 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 11:28:33,616 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 11:28:33,713 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 11:28:33,723 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2025-07-18 11:28:33,725 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 11:28:33,725 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 11:28:33,725 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 11:28:33,725 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 11:28:33,769 - app.core.llm_provider - INFO - Successfully initialized Qwen LLM with model: qwen-turbo
+2025-07-18 11:28:33,769 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 11:28:33,769 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 11:28:33,770 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 11:28:33,770 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 11:28:56,032 - app.api.documents - INFO - Extracting PDF content for paper 1: Attention Is All You Need
+2025-07-18 11:28:56,032 - root - INFO - PyPDF2库可用
+2025-07-18 11:28:56,032 - root - INFO - pdfplumber库可用
+2025-07-18 11:28:56,032 - root - INFO - Initialized PDFExtractor with chunk_size=1000, overlap=200
+2025-07-18 11:28:56,032 - root - INFO - 开始处理PDF - URL: https://arxiv.org/pdf/1706.03762.pdf, 论文ID: 1, 标题: Attention Is All You Need
+2025-07-18 11:28:56,032 - root - INFO - Searching for documents with query: paper_id_1... (k=1)
+2025-07-18 11:28:56,032 - root - INFO - Special case - searching by paper_id: 1
+2025-07-18 11:28:56,032 - root - INFO - Applying filter: {'paper_id': 1}
+2025-07-18 11:28:56,161 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 11:28:56,162 - root - INFO - Found 0 matching documents
+2025-07-18 11:28:56,162 - root - INFO - 开始下载PDF: https://arxiv.org/pdf/1706.03762.pdf
+2025-07-18 11:28:59,278 - root - INFO - PDF验证通过，开始提取文本
+2025-07-18 11:29:00,797 - app.services.pdf_extractor - INFO - 使用pdfplumber成功提取了15页内容
+2025-07-18 11:29:00,797 - app.services.pdf_extractor - INFO - 使用pdfplumber成功提取文本
+2025-07-18 11:29:00,797 - root - INFO - 成功提取文本，大小: 35770 字符
+2025-07-18 11:29:00,798 - app.services.pdf_extractor - INFO - 文本清理：原长度35756字符，清理后35756字符
+2025-07-18 11:29:00,798 - app.services.pdf_extractor - INFO - 文本分割成45个块
+2025-07-18 11:29:00,798 - root - INFO - 文本已分割成 45 个块
+2025-07-18 11:29:00,798 - root - INFO - 开始将 45 个文本块存储到向量数据库
+2025-07-18 11:29:00,799 - root - INFO - 准备存储 45 个文档到向量数据库
+2025-07-18 11:29:01,578 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers/points?wait=true "HTTP/1.1 200 OK"
+2025-07-18 11:29:01,579 - app.core.vector_store - INFO - 成功添加 45 个文档到向量存储
+2025-07-18 11:29:01,579 - root - INFO - 成功添加 45 个文档到向量数据库，返回的ID: ['1041526f8e1f45d1885a7a75cf92740f', 'a39db30bd7794ba8b7028ca406383f3c', '80b15a39c5df496a8a961e6e21ae767c']...
+2025-07-18 11:29:01,579 - root - INFO - 成功存储 45 个块到向量数据库，论文ID: 1
+2025-07-18 11:29:20,973 - app.api.chat - INFO - Processing query: 这篇论文提出了什么核心创新？...
+2025-07-18 11:29:20,973 - root - INFO - 处理查询 - 用户ID: 2, 论文ID: 1, 会话ID: test-conv-1
+2025-07-18 11:29:20,973 - root - INFO - 查询问题: 这篇论文提出了什么核心创新？
+2025-07-18 11:29:20,973 - root - INFO - 应用论文过滤器，论文ID: 1
+2025-07-18 11:29:20,973 - root - INFO - 开始向量检索
+2025-07-18 11:29:20,973 - root - INFO - 开始向量检索
+2025-07-18 11:29:20,973 - root - INFO - 概述性问题，增加检索量到 8
+2025-07-18 11:29:20,973 - root - INFO - 应用论文过滤器，论文ID: 1
+2025-07-18 11:29:20,973 - root - INFO - Searching for documents with query: 这篇论文提出了什么核心创新？... (k=8)
+2025-07-18 11:29:20,973 - root - INFO - Applying filter: {'paper_id': '1'}
+2025-07-18 11:29:20,997 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 11:29:20,997 - root - INFO - Found 8 matching documents
+2025-07-18 11:29:20,997 - root - INFO - 开始LLM查询生成
+2025-07-18 11:29:21,017 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 11:29:23,303 - root - INFO - LLM生成完成，耗时: 2.31秒
+2025-07-18 11:29:23,304 - root - INFO - 生成的回答长度: 136 字符
+2025-07-18 11:38:55,777 - root - INFO - 正在关闭RAG服务...
+2025-07-18 11:38:55,778 - app.core.vector_store - INFO - 向量存储资源清理完成
+2025-07-18 11:38:55,778 - root - INFO - RAG服务已关闭!
+2025-07-18 11:38:59,744 - root - INFO - 正在初始化RAG服务...
+2025-07-18 11:38:59,744 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 11:39:02,762 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 11:39:08,916 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 11:39:09,012 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 11:39:09,020 - httpx - INFO - HTTP Request: GET http://localhost:6333/collections "HTTP/1.1 200 OK"
+2025-07-18 11:39:09,022 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 11:39:09,022 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 11:39:09,022 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 11:39:09,022 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 11:39:09,066 - app.core.llm_provider - INFO - Successfully initialized Qwen LLM with model: qwen-turbo
+2025-07-18 11:39:09,067 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 11:39:09,067 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 11:39:09,067 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 11:39:09,067 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 11:42:05,847 - app.api.documents - INFO - Extracting PDF content for paper 1: Attention Is All You Need
+2025-07-18 11:42:05,847 - root - INFO - PyPDF2库可用
+2025-07-18 11:42:05,847 - root - INFO - pdfplumber库可用
+2025-07-18 11:42:05,847 - root - INFO - Initialized PDFExtractor with chunk_size=1000, overlap=200
+2025-07-18 11:42:05,847 - root - INFO - 开始处理PDF - URL: https://arxiv.org/pdf/1706.03762.pdf, 论文ID: 1, 标题: Attention Is All You Need
+2025-07-18 11:42:05,847 - root - INFO - Searching for documents with query: paper_id_1... (k=1)
+2025-07-18 11:42:05,847 - root - INFO - Special case - searching by paper_id: 1
+2025-07-18 11:42:05,847 - root - INFO - Applying filter: {'paper_id': 1}
+2025-07-18 11:42:05,982 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 11:42:05,983 - root - INFO - Found 0 matching documents
+2025-07-18 11:42:05,983 - root - INFO - 开始下载PDF: https://arxiv.org/pdf/1706.03762.pdf
+2025-07-18 11:42:09,008 - root - INFO - PDF验证通过，开始提取文本
+2025-07-18 11:42:10,512 - app.services.pdf_extractor - INFO - 使用pdfplumber成功提取了15页内容
+2025-07-18 11:42:10,513 - app.services.pdf_extractor - WARNING - pdfplumber提取失败: 'PDFExtractor' object has no attribute '_mark_important_sections'
+2025-07-18 11:42:11,006 - app.services.pdf_extractor - INFO - 使用PyPDF2成功提取了15页内容
+2025-07-18 11:42:11,006 - app.services.pdf_extractor - INFO - 使用PyPDF2成功提取文本
+2025-07-18 11:42:11,006 - root - INFO - 成功提取文本，大小: 39731 字符
+2025-07-18 11:42:11,014 - app.services.pdf_extractor - INFO - 文本清理：原长度39962字符，清理后39962字符
+2025-07-18 11:42:11,015 - app.services.pdf_extractor - INFO - 文本分割成52个块 (重要章节:0, 常规章节:52)
+2025-07-18 11:42:11,015 - root - INFO - 文本已分割成 52 个块
+2025-07-18 11:42:11,015 - root - INFO - 开始将 52 个文本块存储到向量数据库
+2025-07-18 11:42:11,015 - root - INFO - 准备存储 52 个文档到向量数据库
+2025-07-18 11:42:11,979 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers/points?wait=true "HTTP/1.1 200 OK"
+2025-07-18 11:42:11,980 - app.core.vector_store - INFO - 成功添加 52 个文档到向量存储
+2025-07-18 11:42:11,980 - root - INFO - 成功添加 52 个文档到向量数据库，返回的ID: ['c24a6254cfba4e1bbea7df53fd940c38', 'da4a50a7c1ff4cdda90dcfc532bbfcb4', 'ff40a468eb4d46e5b1a2f67bc53e9db6']...
+2025-07-18 11:42:11,981 - root - INFO - 成功存储 52 个块到向量数据库，论文ID: 1
+2025-07-18 11:42:18,772 - app.api.chat - INFO - Processing query: 这篇论文提出了什么核心创新？...
+2025-07-18 11:42:18,773 - root - INFO - 处理查询 - 用户ID: 2, 论文ID: 1, 会话ID: test-conv-1
+2025-07-18 11:42:18,773 - root - INFO - 查询问题: 这篇论文提出了什么核心创新？
+2025-07-18 11:42:18,773 - root - INFO - 应用论文过滤器，论文ID: 1
+2025-07-18 11:42:18,774 - root - INFO - 开始向量检索
+2025-07-18 11:42:18,774 - root - INFO - 开始向量检索
+2025-07-18 11:42:18,774 - root - INFO - 概述性问题，增加检索量到 8
+2025-07-18 11:42:18,774 - root - INFO - 应用论文过滤器，论文ID: 1
+2025-07-18 11:42:18,774 - root - INFO - Searching for documents with query: 这篇论文提出了什么核心创新？... (k=8)
+2025-07-18 11:42:18,775 - root - INFO - Applying filter: {'paper_id': '1'}
+2025-07-18 11:42:18,818 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 11:42:18,820 - root - INFO - Found 8 matching documents
+2025-07-18 11:42:18,820 - root - INFO - 开始LLM查询生成
+2025-07-18 11:42:18,848 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 11:42:22,079 - root - INFO - LLM生成完成，耗时: 3.26秒
+2025-07-18 11:42:22,080 - root - INFO - 生成的回答长度: 219 字符
+2025-07-18 11:49:09,706 - app.api.chat - INFO - Processing query: 这篇论文提出了什么核心创新？...
+2025-07-18 11:49:09,706 - root - INFO - 处理查询 - 用户ID: 2, 论文ID: 1, 会话ID: test-conv-1
+2025-07-18 11:49:09,706 - root - INFO - 查询问题: 这篇论文提出了什么核心创新？
+2025-07-18 11:49:09,706 - root - INFO - 应用论文过滤器，论文ID: 1
+2025-07-18 11:49:09,706 - root - INFO - 开始向量检索
+2025-07-18 11:49:09,706 - root - INFO - 开始向量检索
+2025-07-18 11:49:09,706 - root - INFO - 概述性问题，增加检索量到 8
+2025-07-18 11:49:09,706 - root - INFO - 应用论文过滤器，论文ID: 1
+2025-07-18 11:49:09,706 - root - INFO - Searching for documents with query: 这篇论文提出了什么核心创新？... (k=8)
+2025-07-18 11:49:09,706 - root - INFO - Applying filter: {'paper_id': '1'}
+2025-07-18 11:49:09,747 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 11:49:09,750 - root - INFO - Found 8 matching documents
+2025-07-18 11:49:09,750 - root - INFO - 开始LLM查询生成
+2025-07-18 11:49:10,332 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 11:49:11,862 - root - INFO - LLM生成完成，耗时: 2.11秒
+2025-07-18 11:49:11,863 - root - INFO - 生成的回答长度: 133 字符

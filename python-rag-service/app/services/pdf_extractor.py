@@ -258,15 +258,31 @@ class PDFExtractor:
             logger.error("没有可用的PDF提取库(PyPDF2/pdfplumber)，无法提取文本")
             return ""
             
-        extracted_text = ""
-        
         # 尝试使用pdfplumber提取文本
         if pdfplumber:
             try:
-                extracted_text = self._extract_with_pdfplumber(pdf_content)
-                if extracted_text.strip():
-                    logger.info("使用pdfplumber成功提取文本")
+                with pdfplumber.open(io.BytesIO(pdf_content)) as pdf:
+                    pages_text = []
+                    for page_num, page in enumerate(pdf.pages):
+                        try:
+                            text = page.extract_text()
+                            if text:
+                                # 特殊处理前几页（通常包含摘要和介绍）
+                                if page_num < 3:
+                                    pages_text.append(f"[IMPORTANT_SECTION] --- Page {page_num + 1} ---\n{text}")
+                                else:
+                                    pages_text.append(f"--- Page {page_num + 1} ---\n{text}")
+                        except Exception as e:
+                            logger.warning(f"页面{page_num + 1}文本提取失败: {str(e)}")
+                            continue
+                    
+                    logger.info(f"使用pdfplumber成功提取了{len(pages_text)}页内容")
+                    extracted_text = "\n\n".join(pages_text)
+                    
+                    # 识别和标记摘要和介绍部分
+                    extracted_text = self._mark_important_sections(extracted_text)
                     return extracted_text
+                    
             except Exception as e:
                 logger.warning(f"pdfplumber提取失败: {str(e)}")
         
@@ -339,20 +355,24 @@ class PDFExtractor:
     
     def _clean_text(self, text: str) -> str:
         """清理和格式化文本"""
-        # 移除过多的空白字符
+        # 原有代码保留
+        
+        # 1. 修复乱码
+        text = re.sub(r'>SOE<|>dap<|>eod<', ' ', text)
+        
+        # 2. 修复词语连接问题 - 使用正则表达式识别驼峰式连接词
+        text = re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
+        
+        # 3. 检测并修复常见的合并单词模式
+        common_words = ['the', 'and', 'for', 'that', 'with', 'this', 'from']
+        for word in common_words:
+            pattern = f'([a-z])({word})([A-Z]|[a-z])'
+            text = re.sub(pattern, r'\1 \2 \3', text, flags=re.IGNORECASE)
+        
+        # 4. 确保空格正确
         text = re.sub(r'\s+', ' ', text)
         
-        # 保留更多的Unicode字符，只移除特殊控制字符
-        text = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]', '', text)
-        
-        # 处理常见的PDF提取问题
-        text = text.replace('ﬁ', 'fi')
-        text = text.replace('ﬂ', 'fl')
-        text = text.replace('ﬀ', 'ff')
-        text = text.replace('ﬃ', 'ffi')
-        text = text.replace('ﬄ', 'ffl')
-        
-        # 移除过短的行，但更宽松的标准
+        # 清理后的文本
         lines = text.split('\n')
         cleaned_lines = []
         for line in lines:
@@ -367,14 +387,42 @@ class PDFExtractor:
     def _split_text_into_chunks(self, text: str) -> List[str]:
         """将文本分割成块"""
         try:
-            chunks = RecursiveCharacterTextSplitter(
+            # 特别处理包含[IMPORTANT_SECTION]标记的文本
+            important_sections = []
+            regular_text = text
+            
+            # 提取出重要章节
+            important_pattern = re.compile(r'\[IMPORTANT_SECTION\].*?(?=\[IMPORTANT_SECTION\]|$)', re.DOTALL)
+            for match in important_pattern.finditer(text):
+                important_section = match.group(0)
+                important_sections.append(important_section)
+                # 从原文中移除重要章节，避免重复
+                regular_text = regular_text.replace(important_section, '')
+            
+            # 对重要章节使用较小的块大小进行分割
+            important_chunks = []
+            for section in important_sections:
+                section_chunks = RecursiveCharacterTextSplitter(
+                    chunk_size=500,  # 较小的块大小
+                    chunk_overlap=100,
+                    length_function=len,
+                    separators=["\n\n", "\n", ".", "!", "?", ",", " ", ""]
+                ).split_text(section)
+                important_chunks.extend(section_chunks)
+            
+            # 对常规文本使用标准块大小进行分割
+            regular_chunks = RecursiveCharacterTextSplitter(
                 chunk_size=self.chunk_size,
                 chunk_overlap=self.chunk_overlap,
                 length_function=len,
                 separators=["\n\n", "\n", ".", "!", "?", ",", " ", ""]
-            ).split_text(text)
-            logger.info(f"文本分割成{len(chunks)}个块")
+            ).split_text(regular_text)
+            
+            # 优先返回重要章节的块
+            chunks = important_chunks + regular_chunks
+            logger.info(f"文本分割成{len(chunks)}个块 (重要章节:{len(important_chunks)}, 常规章节:{len(regular_chunks)})")
             return chunks
+            
         except Exception as e:
             logger.error(f"文本分割失败: {str(e)}")
             # 如果分割失败，返回整个文本作为一个块
@@ -390,14 +438,31 @@ class PDFExtractor:
                     logging.debug(f"跳过空白文本块 {i}")
                     continue
                     
+                # 设置优先级
+                priority = 5  # 默认优先级
+                
+                # 检测重要章节
+                if "[IMPORTANT_SECTION]" in chunk:
+                    priority = 10
+                    if "[ABSTRACT]" in chunk:
+                        priority = 15  # 摘要最高优先级
+                    elif "[INTRODUCTION]" in chunk:
+                        priority = 12  # 介绍次高优先级
+                    
+                    # 移除标记，避免它们出现在实际文本中
+                    chunk = chunk.replace("[IMPORTANT_SECTION]", "")
+                    chunk = chunk.replace("[ABSTRACT]", "")
+                    chunk = chunk.replace("[INTRODUCTION]", "")
+                
                 metadata = {
                     "paper_id": str(paper_id),  # 确保paper_id是字符串
                     "title": paper_title,
                     "source": pdf_url,
-                    "chunk_id": i
+                    "chunk_id": i,
+                    "priority": priority
                 }
                 
-                logging.debug(f"创建块 {i}, 大小: {len(chunk)} 字符")
+                logging.debug(f"创建块 {i}, 大小: {len(chunk)} 字符, 优先级: {priority}")
                 doc = Document(page_content=chunk, metadata=metadata)
                 docs.append(doc)
             
@@ -476,3 +541,25 @@ def get_pdf_extractor(vector_store: VectorStoreManager) -> PDFExtractor:
     if pdf_extractor is None:
         pdf_extractor = PDFExtractor(vector_store)
     return pdf_extractor
+
+def _mark_important_sections(self, text: str) -> str:
+    """识别和标记摘要和介绍部分"""
+    # 标记Abstract部分
+    abstract_pattern = re.compile(r'(abstract|摘要)[:\.\s\n]*(.*?)(?=\n\s*(?:introduction|引言|1\.\s*introduction|1\.\s*引言|\d+\.\s*|$))', re.IGNORECASE | re.DOTALL)
+    abstract_match = abstract_pattern.search(text)
+    if abstract_match:
+        abstract_text = abstract_match.group(2).strip()
+        if len(abstract_text) > 50:  # 确保找到的摘要有足够长度
+            text = text.replace(abstract_match.group(0), 
+                               f"[IMPORTANT_SECTION][ABSTRACT]\n{abstract_match.group(0)}")
+    
+    # 标记Introduction部分
+    intro_pattern = re.compile(r'(introduction|引言|1\.\s*introduction|1\.\s*引言)[:\.\s\n]*(.*?)(?=\n\s*(?:\d+\.\s*|\w+\s*\n|$))', re.IGNORECASE | re.DOTALL)
+    intro_match = intro_pattern.search(text)
+    if intro_match:
+        intro_text = intro_match.group(2).strip()
+        if len(intro_text) > 100:  # 确保找到的引言有足够长度
+            text = text.replace(intro_match.group(0), 
+                              f"[IMPORTANT_SECTION][INTRODUCTION]\n{intro_match.group(0)}")
+    
+    return text

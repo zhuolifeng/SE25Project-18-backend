@@ -818,3 +818,169 @@ UnboundLocalError: local variable 'docs' referenced before assignment
 2025-07-18 12:50:04,108 - root - INFO - 正在关闭RAG服务...
 2025-07-18 12:50:04,109 - app.core.vector_store - INFO - 向量存储资源清理完成
 2025-07-18 12:50:04,109 - root - INFO - RAG服务已关闭!
+2025-07-18 16:39:17,388 - root - INFO - 正在初始化RAG服务...
+2025-07-18 16:39:17,388 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:39:21,585 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:39:28,428 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:39:28,566 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 16:39:28,585 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers "HTTP/1.1 409 Conflict"
+2025-07-18 16:39:28,586 - app.core.vector_store - INFO - Qdrant集合 papers 已存在
+2025-07-18 16:39:28,586 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 16:39:28,586 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 16:39:28,586 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 16:39:28,586 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 16:39:28,633 - app.core.llm_provider - INFO - 成功初始化Qwen LLM，使用模型: qwen-turbo
+2025-07-18 16:39:28,633 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 16:39:28,633 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 16:39:28,633 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 16:39:28,634 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 16:41:20,935 - app.api.chat - INFO - Processing query: speak Chinese to tell me the contributions of the ...
+2025-07-18 16:41:20,936 - root - INFO - 处理查询 - 用户ID: 1, 论文ID: None, 会话ID: e8b5dded-49d2-4124-83b5-ff9d85ebf062
+2025-07-18 16:41:20,936 - root - INFO - 查询问题: speak Chinese to tell me the contributions of the paper and what is its improvement over before papers
+2025-07-18 16:41:20,936 - root - INFO - 开始向量检索
+2025-07-18 16:41:20,936 - root - INFO - 开始向量检索
+2025-07-18 16:41:20,938 - root - INFO - Searching for documents with query: speak Chinese to tell me the contributions of the ... (k=5)
+2025-07-18 16:41:21,207 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 16:41:21,210 - root - INFO - Found 5 matching documents
+2025-07-18 16:41:21,211 - root - INFO - 向量检索完成，耗时: 0.27秒，找到文档数: 5
+2025-07-18 16:41:21,211 - root - INFO - 开始LLM查询生成
+2025-07-18 16:41:21,248 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 16:41:29,601 - root - INFO - LLM生成完成，耗时: 8.39秒
+2025-07-18 16:41:29,601 - root - INFO - 生成的回答长度: 523 字符
+2025-07-18 16:43:20,784 - root - INFO - 正在关闭RAG服务...
+2025-07-18 16:43:20,786 - app.core.vector_store - INFO - 向量存储资源清理完成
+2025-07-18 16:43:20,786 - root - INFO - RAG服务已关闭!
+2025-07-18 16:43:46,612 - root - INFO - 正在初始化RAG服务...
+2025-07-18 16:43:46,612 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:43:49,897 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:43:56,607 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:43:56,704 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 16:43:56,715 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers "HTTP/1.1 409 Conflict"
+2025-07-18 16:43:56,716 - app.core.vector_store - INFO - Qdrant集合 papers 已存在
+2025-07-18 16:43:56,716 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 16:43:56,716 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 16:43:56,716 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 16:43:56,716 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 16:43:56,725 - app.core.llm_provider - INFO - 准备初始化Ollama LLM，使用模型: qwen2.5-math, URL: http://localhost:11434
+2025-07-18 16:43:56,725 - app.core.llm_provider - INFO - 检查Ollama服务器连接: http://localhost:11434
+2025-07-18 16:43:56,739 - app.core.llm_provider - INFO - Ollama服务器连接成功，版本: 0.9.3
+2025-07-18 16:43:56,789 - app.core.llm_provider - WARNING - 模型 'qwen2.5-math' 在Ollama服务器上不可用
+2025-07-18 16:43:56,789 - app.core.llm_provider - INFO - 可用模型: qwen2.5-math:latest, qwen25vl-tuned:latest, qwen2.5vl:latest, qwen2.5vl:7b, qwen25vl_safetensors:latest, qwen25vl_new:latest, qwen25vl_test:latest, qwen2.5:7b-instruct, qwen25vl-custom-f32:latest, qwen25vl-custom:latest, llava:latest, qwen2.5:latest, llama2:latest, llava:34b, llama3.1:8b, llama3.2:1b, llama3.2-vision:11b, llama3.2:latest, llama3.3:latest, llama3.1:latest, llama3.2-vision:latest
+2025-07-18 16:43:56,789 - app.core.llm_provider - WARNING - 模型 'qwen2.5-math' 可能不可用，但仍将尝试使用
+2025-07-18 16:43:56,790 - app.core.llm_provider - INFO - 成功初始化Ollama LLM，使用模型: qwen2.5-math
+2025-07-18 16:43:56,790 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 16:43:56,790 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 16:43:56,791 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 16:43:56,791 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 16:45:03,363 - app.api.chat - INFO - Processing query: speak Chinese to tell me the contributions of this...
+2025-07-18 16:45:03,363 - root - INFO - 处理查询 - 用户ID: 1, 论文ID: None, 会话ID: 5c67fa9a-7948-4399-9ede-efc50f462e99
+2025-07-18 16:45:03,363 - root - INFO - 查询问题: speak Chinese to tell me the contributions of this paper and what is the improvement over before papers
+2025-07-18 16:45:03,363 - root - INFO - 开始向量检索
+2025-07-18 16:45:03,363 - root - INFO - 开始向量检索
+2025-07-18 16:45:03,364 - root - INFO - Searching for documents with query: speak Chinese to tell me the contributions of this... (k=5)
+2025-07-18 16:45:03,563 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 16:45:03,568 - root - INFO - Found 5 matching documents
+2025-07-18 16:45:03,568 - root - INFO - 向量检索完成，耗时: 0.20秒，找到文档数: 5
+2025-07-18 16:45:03,568 - root - INFO - 开始LLM查询生成
+2025-07-18 16:45:03,612 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 16:47:04,303 - root - ERROR - 向量检索或LLM处理过程中出错: 
+2025-07-18 16:48:23,232 - root - INFO - 正在初始化RAG服务...
+2025-07-18 16:48:23,232 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:48:26,232 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:48:32,865 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:48:32,946 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 16:48:32,952 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers "HTTP/1.1 409 Conflict"
+2025-07-18 16:48:32,953 - app.core.vector_store - INFO - Qdrant集合 papers 已存在
+2025-07-18 16:48:32,953 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 16:48:32,953 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 16:48:32,953 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 16:48:32,953 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 16:48:32,961 - app.core.llm_provider - INFO - 准备初始化Ollama LLM，使用模型: qwen2.5-math:latest, URL: http://localhost:11434
+2025-07-18 16:48:32,961 - app.core.llm_provider - INFO - 检查Ollama服务器连接: http://localhost:11434
+2025-07-18 16:48:32,974 - app.core.llm_provider - INFO - Ollama服务器连接成功，版本: 0.9.3
+2025-07-18 16:48:33,023 - app.core.llm_provider - INFO - 模型 'qwen2.5-math:latest' 在Ollama服务器上可用
+2025-07-18 16:48:33,024 - app.core.llm_provider - INFO - 成功初始化Ollama LLM，使用模型: qwen2.5-math:latest
+2025-07-18 16:48:33,025 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 16:48:33,025 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 16:48:33,025 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 16:48:33,025 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 16:49:11,077 - app.api.chat - INFO - Processing query: speak Chinese to tell me the contributions of the ...
+2025-07-18 16:49:11,083 - root - INFO - 处理查询 - 用户ID: 1, 论文ID: None, 会话ID: 6ae68e46-25c4-4158-8a57-5dd56520573b
+2025-07-18 16:49:11,083 - root - INFO - 查询问题: speak Chinese to tell me the contributions of the paper and what is the improvement over before papers
+2025-07-18 16:49:11,083 - root - INFO - 开始向量检索
+2025-07-18 16:49:11,083 - root - INFO - 开始向量检索
+2025-07-18 16:49:11,090 - root - INFO - Searching for documents with query: speak Chinese to tell me the contributions of the ... (k=5)
+2025-07-18 16:49:11,235 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 16:49:11,237 - root - INFO - Found 5 matching documents
+2025-07-18 16:49:11,237 - root - INFO - 向量检索完成，耗时: 0.15秒，找到文档数: 5
+2025-07-18 16:49:11,237 - root - INFO - 开始LLM查询生成
+2025-07-18 16:49:11,271 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 16:51:11,298 - root - ERROR - 向量检索或LLM处理过程中出错: 
+2025-07-18 16:57:39,972 - root - INFO - 正在关闭RAG服务...
+2025-07-18 16:57:39,974 - app.core.vector_store - INFO - 向量存储资源清理完成
+2025-07-18 16:57:39,975 - root - INFO - RAG服务已关闭!
+2025-07-18 16:57:43,995 - root - INFO - 正在初始化RAG服务...
+2025-07-18 16:57:43,995 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:57:47,124 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:57:54,008 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 16:57:54,103 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 16:57:54,111 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers "HTTP/1.1 409 Conflict"
+2025-07-18 16:57:54,111 - app.core.vector_store - INFO - Qdrant集合 papers 已存在
+2025-07-18 16:57:54,111 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 16:57:54,111 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 16:57:54,111 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 16:57:54,111 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 16:57:54,183 - app.core.llm_provider - INFO - 成功初始化Ollama LLM，使用模型: qwen2.5-math:latest
+2025-07-18 16:57:54,183 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 16:57:54,183 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 16:57:54,183 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 16:57:54,183 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 16:58:13,901 - app.api.chat - INFO - Processing query: speak Chinese to tell me the contributions of the ...
+2025-07-18 16:58:13,902 - root - INFO - 处理查询 - 用户ID: 1, 论文ID: None, 会话ID: 79a01159-25d6-4d39-ac1e-eefa03c43be2
+2025-07-18 16:58:13,902 - root - INFO - 查询问题: speak Chinese to tell me the contributions of the paper and what is the improvement over before papers
+2025-07-18 16:58:13,902 - root - INFO - 开始向量检索
+2025-07-18 16:58:13,902 - root - INFO - 开始向量检索
+2025-07-18 16:58:13,903 - root - INFO - Searching for documents with query: speak Chinese to tell me the contributions of the ... (k=3)
+2025-07-18 16:58:14,182 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 16:58:14,184 - root - INFO - Found 3 matching documents
+2025-07-18 16:58:14,184 - root - INFO - 向量检索完成，耗时: 0.28秒，找到文档数: 3
+2025-07-18 16:58:14,184 - root - INFO - 开始LLM查询生成
+2025-07-18 16:58:14,221 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 17:01:32,466 - httpx - INFO - HTTP Request: POST http://localhost:11434/api/generate "HTTP/1.1 200 OK"
+2025-07-18 17:02:02,177 - root - INFO - LLM生成完成，耗时: 227.99秒
+2025-07-18 17:02:02,178 - root - INFO - 生成的回答长度: 276 字符
+2025-07-18 17:02:02,180 - root - INFO - Request processed in 228.28 seconds: /api/chat/query
+2025-07-18 17:02:22,696 - root - INFO - 正在关闭RAG服务...
+2025-07-18 17:02:22,697 - app.core.vector_store - INFO - 向量存储资源清理完成
+2025-07-18 17:02:22,697 - root - INFO - RAG服务已关闭!
+2025-07-18 17:02:26,592 - root - INFO - 正在初始化RAG服务...
+2025-07-18 17:02:26,592 - app.core.rag_engine - INFO - Loading embedding model: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 17:02:30,015 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 17:02:36,914 - app.core.rag_engine - INFO - 嵌入模型加载成功: sentence-transformers/all-MiniLM-L6-v2
+2025-07-18 17:02:37,030 - httpx - INFO - HTTP Request: GET http://localhost:6333 "HTTP/1.1 200 OK"
+2025-07-18 17:02:37,038 - httpx - INFO - HTTP Request: PUT http://localhost:6333/collections/papers "HTTP/1.1 409 Conflict"
+2025-07-18 17:02:37,038 - app.core.vector_store - INFO - Qdrant集合 papers 已存在
+2025-07-18 17:02:37,039 - app.core.vector_store - INFO - 向量存储初始化成功: qdrant
+2025-07-18 17:02:37,039 - app.core.rag_engine - INFO - 向量存储初始化成功
+2025-07-18 17:02:37,039 - app.core.rag_engine - INFO - LLM提供者初始化成功
+2025-07-18 17:02:37,039 - app.core.rag_engine - INFO - Java后端客户端初始化成功: http://localhost:8080
+2025-07-18 17:02:37,115 - app.core.llm_provider - INFO - 成功初始化Ollama LLM，使用模型: qwen2.5-math:latest
+2025-07-18 17:02:37,115 - app.core.rag_engine - INFO - QA链创建成功
+2025-07-18 17:02:37,115 - app.core.rag_engine - INFO - RAG引擎初始化完全成功
+2025-07-18 17:02:37,115 - root - INFO - RAG引擎已成功设置到chat模块
+2025-07-18 17:02:37,116 - root - INFO - RAG服务初始化完成并已设置到chat模块!
+2025-07-18 17:02:48,312 - app.api.chat - INFO - Processing query: speak Chinese to tell me the contributions of the ...
+2025-07-18 17:02:48,312 - root - INFO - 处理查询 - 用户ID: 1, 论文ID: None, 会话ID: c6f66b94-21bd-46ed-861b-8c0141a33aac
+2025-07-18 17:02:48,312 - root - INFO - 查询问题: speak Chinese to tell me the contributions of the paper and what is the improvement over before papers
+2025-07-18 17:02:48,312 - root - INFO - 开始向量检索
+2025-07-18 17:02:48,312 - root - INFO - 开始向量检索
+2025-07-18 17:02:48,313 - root - INFO - Searching for documents with query: speak Chinese to tell me the contributions of the ... (k=3)
+2025-07-18 17:02:48,823 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 17:02:48,826 - root - INFO - Found 3 matching documents
+2025-07-18 17:02:48,826 - root - INFO - 向量检索完成，耗时: 0.51秒，找到文档数: 3
+2025-07-18 17:02:48,826 - root - INFO - 开始LLM查询生成
+2025-07-18 17:02:48,860 - httpx - INFO - HTTP Request: POST http://localhost:6333/collections/papers/points/search "HTTP/1.1 200 OK"
+2025-07-18 17:02:49,595 - httpx - INFO - HTTP Request: POST http://localhost:11434/api/generate "HTTP/1.1 200 OK"
+2025-07-18 17:03:19,258 - root - INFO - LLM生成完成，耗时: 30.43秒
+2025-07-18 17:03:19,259 - root - INFO - 生成的回答长度: 250 字符
+2025-07-18 17:03:19,261 - root - INFO - Request processed in 30.95 seconds: /api/chat/query

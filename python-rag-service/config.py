@@ -27,6 +27,12 @@ class Config:
     # Qwen API 配置
     QWEN_API_KEY = os.getenv("QWEN_API_KEY")
     
+    # Ollama配置
+    OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    OLLAMA_TIMEOUT = int(os.getenv("OLLAMA_TIMEOUT", "120"))
+    OLLAMA_RETRY_COUNT = int(os.getenv("OLLAMA_RETRY_COUNT", "3"))
+    OLLAMA_RETRY_DELAY = int(os.getenv("OLLAMA_RETRY_DELAY", "2"))
+    
     # 向量数据库配置
     VECTOR_STORE_TYPE = os.getenv("VECTOR_STORE_TYPE", "qdrant")  # qdrant 或 chroma
     
@@ -49,8 +55,8 @@ class Config:
     EMBEDDING_DIMENSION = int(os.getenv("EMBEDDING_DIMENSION", "384"))
     
     # LLM 设置
-    LLM_PROVIDER = os.getenv("LLM_PROVIDER", "qwen")
-    LLM_MODEL = os.getenv("LLM_MODEL", "qwen-turbo")
+    LLM_PROVIDER = os.getenv("LLM_PROVIDER", "qwen")  # qwen或ollama
+    LLM_MODEL = os.getenv("LLM_MODEL", "qwen-turbo")  # qwen-turbo或ollama的模型名称如llama2, gemma等
     LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.7"))
     LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2000"))
     

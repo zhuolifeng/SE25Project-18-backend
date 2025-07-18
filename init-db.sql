@@ -275,3 +275,42 @@ CREATE TABLE IF NOT EXISTS post_related_papers (
 );
 
 ALTER TABLE posts ADD COLUMN views INT NOT NULL DEFAULT 0;
+
+-- 插入10个测试用户
+INSERT INTO users (id, username, email, register_time) VALUES
+(1, 'user1', 'user1@example.com', NOW()),
+(2, 'user2', 'user2@example.com', NOW()),
+(3, 'user3', 'user3@example.com', NOW()),
+(4, 'user4', 'user4@example.com', NOW()),
+(5, 'user5', 'user5@example.com', NOW()),
+(6, 'user6', 'user6@example.com', NOW()),
+(7, 'user7', 'user7@example.com', NOW()),
+(8, 'user8', 'user8@example.com', NOW()),
+(9, 'user9', 'user9@example.com', NOW()),
+(10, 'user10', 'user10@example.com', NOW());
+
+-- 插入用户密码（假设密码都是"password"的加密形式）
+INSERT INTO user_passwords (user_id, password) VALUES
+(1, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(2, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(3, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(4, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(5, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(6, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(7, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(8, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(9, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z'),
+(10, '$2a$10$xJwL5v5Jz5z5z5z5z5z5z.5z5z5z5z5z5z5z5z5z5z5z5z5z');
+
+-- 插入10条学术帖子，每条分配不同的用户ID (1-10)
+INSERT INTO posts (title, content, author_id, type, category, create_time) VALUES 
+('深度学习在蛋白质结构预测中的应用', '本文探讨了深度神经网络在蛋白质三级结构预测中的最新进展，包括AlphaFold等模型的原理与突破。', 1, '论文解读', '生物', NOW()),
+('量子计算对密码学的挑战', '随着量子计算的发展，传统公钥密码体制面临巨大威胁，讨论量子安全加密算法的研究现状。', 2, '研究问题', '计算机', NOW()),
+('图神经网络在化学分子性质预测中的应用', '介绍图神经网络如何建模分子结构，实现分子性质的高效预测。', 3, '方法讨论', '化学', NOW()),
+('黑洞信息悖论的最新进展', '综述近年来关于黑洞信息悖论的理论进展，包括全息原理和防火墙假说。', 4, '论文解读', '物理', NOW()),
+('机器学习在数学猜想证明中的应用', '探讨机器学习辅助数学猜想证明的案例，如四色定理和哥德巴赫猜想。', 5, '研究问题', '数学', NOW()),
+('新型二维材料的电子结构研究', '分析石墨烯等新型二维材料的电子结构及其在纳米器件中的应用前景。', 6, '论文解读', '物理', NOW()),
+('基于Transformer的自然语言处理进展', '介绍Transformer架构在机器翻译、文本生成等NLP任务中的应用与优势。', 7, '方法讨论', '计算机', NOW()),
+('CRISPR基因编辑技术的伦理争议', '讨论CRISPR技术在基因治疗中的应用及其引发的伦理和社会问题。', 8, '研究问题', '生物', NOW()),
+('高效有机光伏材料的分子设计', '阐述有机光伏材料的分子结构优化策略及其对光电转换效率的提升作用。', 9, '方法讨论', '化学', NOW()),
+('拓扑绝缘体的物理性质与应用', '介绍拓扑绝缘体的基本物理特性及其在自旋电子学中的潜在应用。', 10, '论文解读', '物理', NOW());

@@ -1,0 +1,392 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:str="http://exslt.org/strings" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Test Results &mdash; UserServiceImplTest中的所有</title>
+<style type="text/css">
+html {
+  height: 100%
+}
+body {
+  margin: 0 auto;
+  padding: 0;
+  text-align: left;
+  height: 100%;
+  font-family: myriad, arial, tahoma, verdana, sans-serif;
+  color: #151515;
+  font-size: 90%;
+  line-height: 1.3em;
+  background-color: #fff;
+}
+* {
+  margin: 0;
+  padding: 0
+}
+.clr {
+  clear: both;
+  overflow: hidden;
+}
+img {
+  border: none
+}
+a {
+  color: #0046b0;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+}
+a:focus, a:active {
+  outline: none
+}
+.noborder {
+  border: none
+}
+h1 {
+  color: #151515;
+  font-size: 180%;
+  line-height: 1.1em;
+  font-weight: bold;
+}
+h2 {
+  color: #393D42;
+  font-size: 160%;
+  font-weight: normal
+}
+h3 {
+  font-size: 120%;
+  font-weight: bold;
+  margin-bottom: .5em
+}
+h4 {
+  font-size: 110%;
+}
+h5 {
+  font-size: 110%;
+}
+span.failed {
+  color: #ff0000
+}
+span.error {
+  color: #ff0000
+}
+span.passed {
+  color: #1d9d01
+}
+span.ignored {
+  color: #fff600
+}
+span.skipped {
+  color: #fff600
+}
+hr {
+  background-color: blue
+}
+#container {
+  min-width: 30em;
+}
+#header {
+  padding: 0;
+  position: fixed;
+  width: 100%;
+  z-index: 10;
+  background-color: #c7ceda;
+}
+#header h1 {
+  margin: 1em 3em 1em 1.7em;
+}
+#header h1 strong {
+  white-space: nowrap;
+}
+#header .time {
+  margin-top: 2.2em;
+  margin-right: 3.4em;
+  float: right;
+}
+#treecontrol {
+  margin: 0;
+  padding: .5em 3em .5em 0;
+  text-align: right;
+  background-color: #fff;
+}
+#treecontrol ul li {
+  display: inline;
+  list-style: none;
+  color: #666;
+}
+#content {
+  padding: 0 2.5em 2em 1.7em;
+}
+#content ul {
+  margin: .4em 0 .1em 2em;
+  list-style: none;
+}
+#content ul li.level {
+  cursor: pointer;
+}
+#content ul li.level span {
+  display: block;
+  font-weight: bold;
+}
+#content ul li.level.top {
+  margin-bottom: .3em;
+}
+#content ul li.level.top > span {
+  padding: .5em 0 .5em 1em;
+  font-size: 120%;
+  color: #151515;
+  background-color: #f2f2f2;
+  border-left: solid 10px #93e078;
+}
+#content ul li.level.top.failed > span {
+  border-left: solid 10px #f02525;
+}
+#content ul li.level.top.ignored > span {
+  border-left: solid 10px #f8d216;
+}
+#content ul li.level.suite > span {
+  margin-bottom: .8em;
+  padding: 0 0 0 .8em;
+  display: block;
+  font-size: 110%;
+  line-height: 1em;
+  color: #151515;
+  border-left: solid 15px #93e078;
+}
+#content ul li.level.suite.failed > span {
+  border-left: solid 15px #f02525;
+}
+#content ul li.level.suite.ignored > span {
+  border-left: solid 15px #f8d216;
+}
+#content ul li.level.suite > ul {
+  margin-bottom: 1.5em;
+}
+#content ul li.level.test > span {
+  padding: .3em 0 .3em 1em;
+  color: #0046b0;
+  font-size: 100%;
+  border-left: solid 6px #93e078;
+  border-bottom: solid 1px #dbdbdb;
+}
+#content ul li.level.test.failed > span {
+  border-left: solid 6px #f02525;
+}
+#content ul li.level.test.ignored > span {
+  border-left: solid 6px #f8d216;
+}
+#content ul li.text p, #content ul li.text span {
+  margin-bottom: 1.5em;
+  color: #151515 !important;
+  font-size: 90% !important;
+  font-weight: normal !important;
+  overflow-x: auto;
+  cursor: auto !important;
+  background: none !important;
+  border: none !important;
+}
+#content ul li.text span {
+  margin-bottom: 0;
+  display: block;
+}
+#content ul li.text span.stderr {
+  color: #8b0000 !important;
+}
+#content ul li .time {
+  margin-right: .5em;
+  width: 5em;
+  text-align: right;
+  font-size: 13px;
+  color: #151515;
+  font-style: normal;
+  font-weight: normal;
+  float: right;
+}
+#content ul li span .status {
+  width: 6em;
+  font-size: 90%;
+  color: #1d9d01;
+  font-style: normal;
+  font-weight: normal;
+  float: right;
+  text-align: right;
+}
+#content ul li.failed > span .status {
+  color: #ff0000;
+}
+#content ul li.ignored > span .status {
+  color: #d6b000;
+}
+#footer {
+  height: 2em;
+  background-color: #c7ceda;
+}
+#footer p {
+  padding: .4em 0 0 3.6em;
+  font-size: 80%;
+}
+</style>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    // 为每个测试项添加点击事件
+    var levelItems = document.querySelectorAll('#tree li.level');
+    for (var i = 0; i < levelItems.length; i++) {
+        levelItems[i].addEventListener('click', function(event) {
+            if (event.target.tagName !== 'A') { // 避免点击链接时折叠
+                toggleNode(this);
+                event.stopPropagation(); // 防止事件冒泡
+            }
+        });
+    }
+
+    // 绑定收起/展开控制按钮
+    document.querySelector('#treecontrol a[title="Collapse the entire tree below"]').addEventListener('click', function(event) {
+        event.preventDefault();
+        var topLevels = document.querySelectorAll('#tree li.level.top');
+        for (var i = 0; i < topLevels.length; i++) {
+            collapseNode(topLevels[i]);
+        }
+    });
+
+    document.querySelector('#treecontrol a[title="Expand the entire tree below"]').addEventListener('click', function(event) {
+        event.preventDefault();
+        var topLevels = document.querySelectorAll('#tree li.level.top');
+        for (var i = 0; i < topLevels.length; i++) {
+            expandNode(topLevels[i]);
+        }
+    });
+
+    // 确保顶部有足够的空间
+    document.getElementById('content').style.paddingTop = (document.getElementById('header').offsetHeight + 10) + 'px';
+});
+
+function toggleNode(node) {
+    var childList = node.querySelector('ul');
+    if (childList) {
+        if (childList.style.display === 'none') {
+            expandNode(node);
+        } else {
+            collapseNode(node);
+        }
+    }
+}
+
+function collapseNode(node) {
+    var childList = node.querySelector('ul');
+    if (childList) {
+        childList.style.display = 'none';
+        node.classList.add('collapsed');
+    }
+}
+
+function expandNode(node) {
+    var childList = node.querySelector('ul');
+    if (childList) {
+        childList.style.display = 'block';
+        node.classList.remove('collapsed');
+
+        // 递归展开子节点
+        var childNodes = node.querySelectorAll('li.level');
+        for (var i = 0; i < childNodes.length; i++) {
+            expandNode(childNodes[i]);
+        }
+    }
+}
+</script>
+</head>
+<body>
+<div id="container">
+<div id="header">
+<div class="time">1842 ms</div>
+<h1>
+UserServiceImplTest中的所有: <strong><span class="total">12 total, </span><span class="passed">12 passed</span></strong>
+</h1>
+<div id="treecontrol">
+<ul>
+<li>
+<a title="Collapse the entire tree below" href="#">收起</a>
+|
+</li>
+<li>
+<a title="Expand the entire tree below" href="#">展开</a>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<ul id="tree">
+<li class="level top open">
+<span><em class="time">
+<div class="time">1842 ms</div>
+</em>com.dealwithpapers.dealwithpapers.service.impl.UserServiceImplTest</span>
+<ul>
+<li class="level test">
+<span><em class="time">
+<div class="time">254 ms</div>
+</em><em class="status">passed</em>register_WithValidData_ShouldRegisterUser()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">126 ms</div>
+</em><em class="status">passed</em>register_WithExistingUsername_ShouldThrowException()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">118 ms</div>
+</em><em class="status">passed</em>register_WithExistingEmail_ShouldThrowException()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">107 ms</div>
+</em><em class="status">passed</em>register_WithPasswordMismatch_ShouldThrowException()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">104 ms</div>
+</em><em class="status">passed</em>register_WithShortPassword_ShouldThrowException()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">234 ms</div>
+</em><em class="status">passed</em>login_WithValidCredentials_ShouldLoginUser()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">116 ms</div>
+</em><em class="status">passed</em>login_WithNonExistentUsername_ShouldThrowException()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">142 ms</div>
+</em><em class="status">passed</em>login_WithIncorrectPassword_ShouldThrowException()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">135 ms</div>
+</em><em class="status">passed</em>getCurrentUser_WhenLoggedIn_ShouldReturnUser()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">115 ms</div>
+</em><em class="status">passed</em>getCurrentUser_WhenNotLoggedIn_ShouldThrowException()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">102 ms</div>
+</em><em class="status">passed</em>logout_ShouldClearSession()</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">289 ms</div>
+</em><em class="status">passed</em>updateUserProfile_WhenUserExists_ShouldUpdateProfile()</span>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="footer">
+<p>由 IntelliJ IDEA 在 2025/7/18 10:42 生成</p>
+</div>
+</body>
+</html>

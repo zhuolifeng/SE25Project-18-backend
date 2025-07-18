@@ -54,6 +54,7 @@ def set_rag_engine(engine: RAGEngine):
     """设置全局RAG引擎实例"""
     global _rag_engine
     _rag_engine = engine
+    logging.info("RAG引擎已成功设置到chat模块")
 
 @router.post("/query", response_model=ChatResponse)
 async def chat_query(

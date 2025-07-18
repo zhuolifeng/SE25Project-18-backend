@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 import sys
 from typing import Optional
+import time
 
 from app.core.rag_engine import RAGEngine
 from app.api import chat, documents, health
@@ -117,6 +118,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 添加中间件简化请求处理
+@app.middleware("http")
+async def add_process_time_header(request, call_next):
+    start_time = time.time()
+    try:
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        response.headers["X-Process-Time"] = str(process_time)
+        logging.info(f"Request processed in {process_time:.2f} seconds: {request.url.path}")
+        return response
+    except Exception as e:
+        process_time = time.time() - start_time
+        logging.error(f"Request failed after {process_time:.2f} seconds: {str(e)}")
+        raise
 
 # 包含路由
 app.include_router(health.router, prefix="/api/health", tags=["health"])

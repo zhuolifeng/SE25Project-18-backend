@@ -22,7 +22,9 @@
 - **框架**: FastAPI
 - **LLM框架**: LangChain
 - **向量数据库**: Qdrant / ChromaDB
-- **LLM提供商**: OpenAI / Anthropic / Ollama / Qwen (通义千问)
+- **LLM提供商**: 
+  - **阿里云通义千问(Qwen)** - 默认提供商
+  - **本地Ollama** - 支持本地部署的大型语言模型
 - **嵌入模型**: Sentence Transformers
 - **异步处理**: asyncio
 
@@ -53,6 +55,7 @@ python-rag-service/
 ├── tests/                      # 测试文件
 ├── requirements.txt            # Python依赖
 ├── .env.example               # 环境变量示例
+├── OLLAMA_SETUP.md            # Ollama配置指南
 ├── Dockerfile                 # Docker配置
 └── README.md                  # 本文件
 ```
@@ -138,9 +141,20 @@ Python RAG服务通过REST API与Java后端通信：
 ## 配置说明
 
 ### LLM配置
-- 支持多种LLM提供商（OpenAI、Anthropic、Ollama、Qwen）
-- Qwen支持阿里云API、Ollama本地部署、Transformers直接加载三种方式
-- 可配置模型、温度、最大令牌数等参数
+- **Qwen (通义千问)** - 默认提供商，使用阿里云API
+  ```
+  LLM_PROVIDER=qwen
+  LLM_MODEL=qwen-turbo
+  QWEN_API_KEY=your_api_key
+  ```
+
+- **Ollama** - 本地部署的开源大型语言模型
+  ```
+  LLM_PROVIDER=ollama
+  LLM_MODEL=llama2  # 或其他已下载的模型
+  OLLAMA_BASE_URL=http://localhost:11434
+  ```
+  详细配置参见 [OLLAMA_SETUP.md](./OLLAMA_SETUP.md)
 
 ### 向量数据库配置
 - 支持Qdrant和ChromaDB
@@ -163,12 +177,39 @@ Python RAG服务通过REST API与Java后端通信：
 2. 实现自定义的文档分割逻辑
 3. 添加元数据提取功能
 
+## 使用本地Ollama模型
+
+本项目支持使用本地部署的Ollama模型，无需云服务API密钥：
+
+1. **安装Ollama**
+   - [下载并安装](https://ollama.com/download) Ollama
+   - 使用 `ollama pull llama2` 下载模型
+
+2. **配置RAG服务**
+   - 编辑 `.env` 文件，设置 `LLM_PROVIDER=ollama`
+   - 指定要使用的模型，如 `LLM_MODEL=llama2`
+
+3. **测试Ollama连接**
+   ```bash
+   python test_ollama.py
+   ```
+
+4. **启动服务**
+   ```bash
+   python start_rag_service.py
+   ```
+
+更详细的Ollama配置说明请参见 [OLLAMA_SETUP.md](./OLLAMA_SETUP.md)。
+
 ## 性能优化
 
 1. **异步处理**: 使用asyncio处理并发请求
 2. **批量处理**: 支持批量添加文档到向量数据库
 3. **缓存**: 可以添加Redis缓存常见查询
 4. **连接池**: 复用数据库连接
+5. **本地模型优化**: 
+   - 对于Ollama，使用较小模型（如gemma:2b）提高响应速度
+   - 确保有足够的GPU内存或系统内存
 
 ## 部署
 
@@ -196,9 +237,13 @@ docker run -p 8002:8002 --env-file .env paper-rag-service
    - 检查API密钥是否正确
    - 验证网络连接
 
-3. **内存不足**
+3. **Ollama连接问题**
+   - 确认Ollama服务正在运行（`ollama ps`）
+   - 检查OLLAMA_BASE_URL配置是否正确
+
+4. **内存不足**
    - 减小批处理大小
-   - 使用更小的嵌入模型
+   - 使用更小的嵌入或语言模型
 
 ## 贡献指南
 

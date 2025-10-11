@@ -46,32 +46,32 @@ CREATE TABLE IF NOT EXISTS paper_authors (
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE
 );
 
--- 先创建 spring_session 表
-CREATE TABLE `spring_session` (
-    `PRIMARY_ID` char(36) NOT NULL,
-    `SESSION_ID` char(36) NOT NULL,
-    `CREATION_TIME` bigint NOT NULL,
-    `LAST_ACCESS_TIME` bigint NOT NULL,
-    `MAX_INACTIVE_INTERVAL` int NOT NULL,
-    `EXPIRY_TIME` bigint NOT NULL,
-    `PRINCIPAL_NAME` varchar(100) DEFAULT NULL,
-    PRIMARY KEY (`PRIMARY_ID`),
-    UNIQUE KEY `SPRING_SESSION_IX1` (`SESSION_ID`),
-    KEY `SPRING_SESSION_IX2` (`EXPIRY_TIME`),
-    KEY `SPRING_SESSION_IX3` (`PRINCIPAL_NAME`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- -- 先创建 spring_session 表
+-- CREATE TABLE `spring_session` (
+--     `PRIMARY_ID` char(36) NOT NULL,
+--     `SESSION_ID` char(36) NOT NULL,
+--     `CREATION_TIME` bigint NOT NULL,
+--     `LAST_ACCESS_TIME` bigint NOT NULL,
+--     `MAX_INACTIVE_INTERVAL` int NOT NULL,
+--     `EXPIRY_TIME` bigint NOT NULL,
+--     `PRINCIPAL_NAME` varchar(100) DEFAULT NULL,
+--     PRIMARY KEY (`PRIMARY_ID`),
+--     UNIQUE KEY `SPRING_SESSION_IX1` (`SESSION_ID`),
+--     KEY `SPRING_SESSION_IX2` (`EXPIRY_TIME`),
+--     KEY `SPRING_SESSION_IX3` (`PRINCIPAL_NAME`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- 再创建 spring_session_attributes 表
-CREATE TABLE `spring_session_attributes` (
-    `SESSION_PRIMARY_ID` char(36) NOT NULL,
-    `ATTRIBUTE_NAME` varchar(200) NOT NULL,
-    `ATTRIBUTE_BYTES` blob NOT NULL,
-    PRIMARY KEY (`SESSION_PRIMARY_ID`,`ATTRIBUTE_NAME`),
-    CONSTRAINT `SPRING_SESSION_ATTRIBUTES_FK` 
-        FOREIGN KEY (`SESSION_PRIMARY_ID`) 
-        REFERENCES `spring_session` (`PRIMARY_ID`) 
-        ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+-- -- 再创建 spring_session_attributes 表
+-- CREATE TABLE `spring_session_attributes` (
+--     `SESSION_PRIMARY_ID` char(36) NOT NULL,
+--     `ATTRIBUTE_NAME` varchar(200) NOT NULL,
+--     `ATTRIBUTE_BYTES` blob NOT NULL,
+--     PRIMARY KEY (`SESSION_PRIMARY_ID`,`ATTRIBUTE_NAME`),
+--     CONSTRAINT `SPRING_SESSION_ATTRIBUTES_FK` 
+--         FOREIGN KEY (`SESSION_PRIMARY_ID`) 
+--         REFERENCES `spring_session` (`PRIMARY_ID`) 
+--         ON DELETE CASCADE
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- 创建帖子表
 CREATE TABLE IF NOT EXISTS posts (

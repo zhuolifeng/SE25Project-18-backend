@@ -56,6 +56,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/posts/**").permitAll()
                 .requestMatchers("/api/history/**").permitAll()
                 .requestMatchers("/api/tags/**").permitAll()
+                .requestMatchers("/api/test/**").permitAll()
                 .requestMatchers("/api/comments/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll() // 新增：放行头像等静态资源
                 .requestMatchers("/", "/error").permitAll()

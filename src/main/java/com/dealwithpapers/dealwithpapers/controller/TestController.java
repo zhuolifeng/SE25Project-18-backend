@@ -31,4 +31,10 @@ public class TestController {
         
         return response;
     }
+    
+    @GetMapping(value = "/hello", produces = "text/plain;charset=UTF-8")
+    public String hello() {
+        return "hello!";
+    }
+} 
 } 
